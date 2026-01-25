@@ -65,7 +65,7 @@ threadlink/
 
 - Node.js 20+
 - pnpm 9+
-- Discord Application ([setup guide](https://discord-forum-api-docs.pages.dev/guides/discord-bot-setup))
+- Discord Application ([setup guide](https://threadlink.pages.dev/guides/discord-bot-setup))
 
 ### Installation
 
@@ -125,14 +125,14 @@ pnpm dev
 
 ## 📚 Documentation
 
-📖 **[View Full Documentation](https://discord-forum-api-docs.pages.dev)**
+📖 **[View Full Documentation](https://threadlink.pages.dev)**
 
 | Section | Description |
 |---------|-------------|
-| [Getting Started](https://discord-forum-api-docs.pages.dev/getting-started/introduction) | Installation & setup |
-| [API Reference](https://discord-forum-api-docs.pages.dev/api/overview) | All endpoints |
-| [Deployment](https://discord-forum-api-docs.pages.dev/deployment) | Vercel, Railway, Docker |
-| [Use Cases](https://discord-forum-api-docs.pages.dev/use-cases) | Real-world examples |
+| [Getting Started](https://threadlink.pages.dev/getting-started/introduction) | Installation & setup |
+| [API Reference](https://threadlink.pages.dev/api/overview) | All endpoints |
+| [Deployment](https://threadlink.pages.dev/deployment) | Vercel, Railway, Docker |
+| [Use Cases](https://threadlink.pages.dev/use-cases) | Real-world examples |
 
 ---
 
@@ -165,7 +165,7 @@ pnpm dev
 
 ## 🤝 Contributing
 
-Contributions are welcome! See the [Contributing Guide](https://discord-forum-api-docs.pages.dev/contributing/development-setup) to get started.
+Contributions are welcome! See the [Contributing Guide](https://threadlink.pages.dev/contributing/development-setup) to get started.
 
 ---
 
