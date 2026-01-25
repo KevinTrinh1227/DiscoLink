@@ -1,0 +1,367 @@
+---
+title: Servers
+description: API endpoints for Discord server information
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Endpoints for retrieving Discord server metadata, channels, tags, and statistics.
+
+## Get Server
+
+Retrieve information about a synced Discord server.
+
+```http
+GET /api/servers/:serverId
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `serverId` | string | Discord server ID |
+
+### Response
+
+```json
+{
+  "id": "123456789",
+  "name": "My Server",
+  "icon": "abc123def456",
+  "description": "A community for developers",
+  "memberCount": 1500
+}
+```
+
+### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Discord server ID |
+| `name` | string | Server name |
+| `icon` | string \| null | Icon hash (use with Discord CDN) |
+| `description` | string \| null | Server description |
+| `memberCount` | number | Approximate member count |
+
+### Icon URL
+
+To display the server icon, construct the URL:
+
+```javascript
+const iconUrl = server.icon
+  ? `https://cdn.discordapp.com/icons/${server.id}/${server.icon}.png`
+  : null;
+```
+
+### Example
+
+<Tabs>
+  <TabItem label="curl">
+    ```bash
+    curl http://localhost:3000/api/servers/123456789
+    ```
+  </TabItem>
+  <TabItem label="JavaScript">
+    ```javascript
+    const response = await fetch('http://localhost:3000/api/servers/123456789');
+    const server = await response.json();
+    console.log(server.name); // "My Server"
+    ```
+  </TabItem>
+</Tabs>
+
+### Errors
+
+| Status | Code | Description |
+|--------|------|-------------|
+| 404 | `NOT_FOUND` | Server not synced or doesn't exist |
+
+---
+
+## List Channels
+
+Get all synced forum channels in a server.
+
+```http
+GET /api/servers/:serverId/channels
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `serverId` | string | Discord server ID |
+
+### Response
+
+```json
+{
+  "channels": [
+    {
+      "id": "456789012",
+      "name": "help-forum",
+      "type": 15,
+      "topic": "Ask questions and get help from the community",
+      "position": 0,
+      "parentId": "987654321",
+      "parentName": "Support"
+    },
+    {
+      "id": "456789013",
+      "name": "showcase",
+      "type": 15,
+      "topic": "Share your projects",
+      "position": 1,
+      "parentId": "987654321",
+      "parentName": "Support"
+    }
+  ]
+}
+```
+
+### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Channel ID |
+| `name` | string | Channel name |
+| `type` | number | Discord channel type (15 = forum) |
+| `topic` | string \| null | Channel description |
+| `position` | number | Sort position in category |
+| `parentId` | string \| null | Parent category ID |
+| `parentName` | string \| null | Parent category name |
+
+### Example
+
+```bash
+curl http://localhost:3000/api/servers/123456789/channels
+```
+
+---
+
+## List Tags
+
+Get all tags across forum channels in a server.
+
+```http
+GET /api/servers/:serverId/tags
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `serverId` | string | Discord server ID |
+
+### Response
+
+```json
+{
+  "tags": [
+    {
+      "id": "tag001",
+      "name": "Solved",
+      "emoji": "white_check_mark",
+      "channelId": "456789012",
+      "channelName": "help-forum"
+    },
+    {
+      "id": "tag002",
+      "name": "Bug",
+      "emoji": "bug",
+      "channelId": "456789012",
+      "channelName": "help-forum"
+    },
+    {
+      "id": "tag003",
+      "name": "Feature Request",
+      "emoji": null,
+      "channelId": "456789012",
+      "channelName": "help-forum"
+    }
+  ]
+}
+```
+
+### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Tag ID |
+| `name` | string | Tag name |
+| `emoji` | string \| null | Emoji name (Unicode or custom) |
+| `channelId` | string | Forum channel this tag belongs to |
+| `channelName` | string | Forum channel name |
+
+### Using Tags for Filtering
+
+Tags are useful for filtering threads:
+
+```bash
+# Get all threads with "Solved" tag
+curl "http://localhost:3000/api/threads?serverId=123&tag=Solved"
+```
+
+---
+
+## Get Server Stats
+
+Get comprehensive server statistics. This endpoint is cached for 60 seconds.
+
+```http
+GET /api/servers/:serverId/stats
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `serverId` | string | Discord server ID |
+
+### Response
+
+```json
+{
+  "serverId": "123456789",
+  "serverName": "My Server",
+  "stats": {
+    "threads": {
+      "total": 450,
+      "open": 125,
+      "resolved": 300,
+      "archived": 25
+    },
+    "messages": {
+      "total": 15000,
+      "byHumans": 14200,
+      "byBots": 800,
+      "avgPerThread": 33
+    },
+    "participants": {
+      "unique": 500,
+      "humans": 480,
+      "bots": 20
+    },
+    "channels": 5,
+    "reactions": {
+      "total": 3500,
+      "uniqueEmojis": 75
+    }
+  },
+  "topContributors": [
+    {
+      "userId": "user001",
+      "username": "helpful_dev",
+      "messageCount": 250,
+      "threadCount": 45
+    }
+  ],
+  "mostActiveChannels": [
+    {
+      "channelId": "456789012",
+      "channelName": "help-forum",
+      "threadCount": 300,
+      "messageCount": 10000
+    }
+  ],
+  "lastSyncAt": "2024-01-15T12:00:00.000Z"
+}
+```
+
+### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `stats.threads` | object | Thread counts by status |
+| `stats.messages` | object | Message statistics |
+| `stats.participants` | object | Participant counts |
+| `stats.channels` | number | Number of forum channels |
+| `stats.reactions` | object | Reaction statistics |
+| `topContributors` | array | Top 10 contributors |
+| `mostActiveChannels` | array | Most active channels |
+| `lastSyncAt` | string | Last sync timestamp |
+
+### Caching
+
+This endpoint is cached for performance:
+
+```http
+X-Cache: HIT
+X-Cache-TTL: 45
+```
+
+To get fresh data, wait for cache expiration or use the admin refresh endpoint (if available).
+
+### Example
+
+```bash
+curl http://localhost:3000/api/servers/123456789/stats
+```
+
+---
+
+## Common Patterns
+
+### Display Server with Icon
+
+```javascript
+function ServerCard({ server }) {
+  const iconUrl = server.icon
+    ? `https://cdn.discordapp.com/icons/${server.id}/${server.icon}.png?size=128`
+    : '/default-server-icon.png';
+
+  return (
+    <div className="server-card">
+      <img src={iconUrl} alt={server.name} />
+      <h2>{server.name}</h2>
+      <p>{server.description}</p>
+      <span>{server.memberCount.toLocaleString()} members</span>
+    </div>
+  );
+}
+```
+
+### Build Channel Navigation
+
+```javascript
+async function getChannelNav(serverId) {
+  const response = await fetch(`/api/servers/${serverId}/channels`);
+  const { channels } = await response.json();
+
+  // Group by parent category
+  const grouped = channels.reduce((acc, channel) => {
+    const parent = channel.parentName || 'Uncategorized';
+    if (!acc[parent]) acc[parent] = [];
+    acc[parent].push(channel);
+    return acc;
+  }, {});
+
+  return grouped;
+}
+```
+
+### Display Server Stats Dashboard
+
+```javascript
+async function StatsDashboard({ serverId }) {
+  const { stats, topContributors } = await getStats(serverId);
+
+  return (
+    <div className="dashboard">
+      <div className="stat-card">
+        <h3>Threads</h3>
+        <p>{stats.threads.total}</p>
+        <small>{stats.threads.resolved} resolved</small>
+      </div>
+      <div className="stat-card">
+        <h3>Messages</h3>
+        <p>{stats.messages.total}</p>
+      </div>
+      <div className="stat-card">
+        <h3>Contributors</h3>
+        <p>{stats.participants.humans}</p>
+      </div>
+    </div>
+  );
+}
+```

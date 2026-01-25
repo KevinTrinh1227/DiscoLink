@@ -1,0 +1,398 @@
+---
+title: Search
+description: Full-text search API for Discord Forum content
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Search across threads and messages with full-text search.
+
+## Search Endpoint
+
+```http
+GET /api/search
+```
+
+### Query Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `q` | string | **required** | Search query |
+| `serverId` | string | - | Filter by server |
+| `channelId` | string | - | Filter by channel |
+| `type` | enum | `all` | `threads`, `messages`, `all` |
+| `limit` | number | 20 | Results per page (1-100) |
+| `offset` | number | 0 | Skip results (for pagination) |
+
+### Response
+
+```json
+{
+  "query": "OAuth authentication",
+  "results": {
+    "threads": [
+      {
+        "id": "thread001",
+        "title": "How do I implement OAuth?",
+        "preview": "I'm trying to add Discord OAuth to my app...",
+        "status": "resolved",
+        "author": {
+          "username": "curious_dev"
+        },
+        "channelName": "help-forum",
+        "score": 0.95,
+        "createdAt": "2024-01-15T10:30:00.000Z"
+      }
+    ],
+    "messages": [
+      {
+        "id": "msg002",
+        "content": "Make sure your redirect URL matches exactly...",
+        "contentPreview": "Make sure your redirect URL matches exactly in the Developer Portal...",
+        "threadId": "thread001",
+        "threadTitle": "How do I implement OAuth?",
+        "author": {
+          "username": "helpful_mod"
+        },
+        "score": 0.72,
+        "createdAt": "2024-01-15T10:45:00.000Z"
+      }
+    ]
+  },
+  "total": 25,
+  "threadCount": 10,
+  "messageCount": 15
+}
+```
+
+### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `query` | string | The search query |
+| `results.threads` | array | Matching threads |
+| `results.messages` | array | Matching messages |
+| `total` | number | Total matching results |
+| `threadCount` | number | Number of matching threads |
+| `messageCount` | number | Number of matching messages |
+
+### Result Scores
+
+Results include a `score` field (0-1) indicating relevance:
+
+- **0.9-1.0**: Exact or near-exact match
+- **0.7-0.9**: Strong match
+- **0.5-0.7**: Moderate match
+- **< 0.5**: Weak match (may not be returned)
+
+## Search Operators
+
+### Basic Search
+
+Simple text search:
+
+```bash
+curl "http://localhost:3000/api/search?q=authentication"
+```
+
+### Phrase Search
+
+Use quotes for exact phrases:
+
+```bash
+curl "http://localhost:3000/api/search?q=\"redirect%20URL\""
+```
+
+### Multiple Terms
+
+All terms must match (AND):
+
+```bash
+curl "http://localhost:3000/api/search?q=OAuth+discord+token"
+```
+
+## Examples
+
+<Tabs>
+  <TabItem label="Search all">
+    ```bash
+    curl "http://localhost:3000/api/search?q=authentication&serverId=123456789"
+    ```
+  </TabItem>
+  <TabItem label="Threads only">
+    ```bash
+    curl "http://localhost:3000/api/search?q=bug&serverId=123456789&type=threads"
+    ```
+  </TabItem>
+  <TabItem label="Messages only">
+    ```bash
+    curl "http://localhost:3000/api/search?q=error&serverId=123456789&type=messages"
+    ```
+  </TabItem>
+  <TabItem label="In channel">
+    ```bash
+    curl "http://localhost:3000/api/search?q=help&channelId=456789012"
+    ```
+  </TabItem>
+</Tabs>
+
+## Pagination
+
+Use `offset` for pagination:
+
+```javascript
+async function searchWithPagination(query, serverId, page = 1, pageSize = 20) {
+  const offset = (page - 1) * pageSize;
+  const params = new URLSearchParams({
+    q: query,
+    serverId,
+    limit: pageSize.toString(),
+    offset: offset.toString(),
+  });
+
+  const response = await fetch(`/api/search?${params}`);
+  const data = await response.json();
+
+  return {
+    results: data.results,
+    total: data.total,
+    page,
+    totalPages: Math.ceil(data.total / pageSize),
+    hasMore: offset + pageSize < data.total,
+  };
+}
+```
+
+## Search Implementation
+
+### Search Box Component
+
+```javascript
+import { useState, useEffect, useCallback } from 'react';
+import debounce from 'lodash/debounce';
+
+function SearchBox({ serverId, onResults }) {
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const search = useCallback(
+    debounce(async (q) => {
+      if (!q.trim()) {
+        onResults(null);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const response = await fetch(
+          `/api/search?q=${encodeURIComponent(q)}&serverId=${serverId}&limit=10`
+        );
+        const data = await response.json();
+        onResults(data);
+      } catch (error) {
+        console.error('Search failed:', error);
+      } finally {
+        setLoading(false);
+      }
+    }, 300),
+    [serverId]
+  );
+
+  useEffect(() => {
+    search(query);
+  }, [query, search]);
+
+  return (
+    <div className="search-box">
+      <input
+        type="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search threads and messages..."
+        aria-label="Search"
+      />
+      {loading && <span className="loading-indicator" />}
+    </div>
+  );
+}
+```
+
+### Search Results Display
+
+```javascript
+function SearchResults({ results }) {
+  if (!results) return null;
+
+  if (results.total === 0) {
+    return (
+      <div className="no-results">
+        <p>No results found for "{results.query}"</p>
+        <p>Try different keywords or check your spelling.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="search-results">
+      <p className="result-count">
+        Found {results.total} results for "{results.query}"
+      </p>
+
+      {results.results.threads.length > 0 && (
+        <section>
+          <h3>Threads ({results.threadCount})</h3>
+          {results.results.threads.map((thread) => (
+            <ThreadResult key={thread.id} thread={thread} />
+          ))}
+        </section>
+      )}
+
+      {results.results.messages.length > 0 && (
+        <section>
+          <h3>Messages ({results.messageCount})</h3>
+          {results.results.messages.map((message) => (
+            <MessageResult key={message.id} message={message} />
+          ))}
+        </section>
+      )}
+    </div>
+  );
+}
+
+function ThreadResult({ thread }) {
+  return (
+    <a href={`/threads/${thread.id}`} className="result thread-result">
+      <div className="result-header">
+        <span className="result-title">{thread.title}</span>
+        <span className={`status ${thread.status}`}>{thread.status}</span>
+      </div>
+      <p className="result-preview">{thread.preview}</p>
+      <div className="result-meta">
+        <span>by {thread.author.username}</span>
+        <span>in {thread.channelName}</span>
+        <span>{formatDate(thread.createdAt)}</span>
+      </div>
+    </a>
+  );
+}
+
+function MessageResult({ message }) {
+  return (
+    <a href={`/threads/${message.threadId}#${message.id}`} className="result message-result">
+      <div className="result-header">
+        <span className="thread-title">{message.threadTitle}</span>
+      </div>
+      <p className="result-preview">{message.contentPreview}</p>
+      <div className="result-meta">
+        <span>by {message.author.username}</span>
+        <span>{formatDate(message.createdAt)}</span>
+      </div>
+    </a>
+  );
+}
+```
+
+### Highlighting Matches
+
+```javascript
+function highlightMatches(text, query) {
+  const terms = query.toLowerCase().split(/\s+/);
+  let result = text;
+
+  terms.forEach((term) => {
+    const regex = new RegExp(`(${escapeRegex(term)})`, 'gi');
+    result = result.replace(regex, '<mark>$1</mark>');
+  });
+
+  return result;
+}
+
+function escapeRegex(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Usage
+<p
+  className="result-preview"
+  dangerouslySetInnerHTML={{
+    __html: highlightMatches(message.contentPreview, results.query),
+  }}
+/>
+```
+
+## CSS Styling
+
+```css
+.search-box {
+  position: relative;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #5865f2;
+}
+
+.search-results {
+  margin-top: 16px;
+}
+
+.result {
+  display: block;
+  padding: 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 8px;
+  background: #f5f5f5;
+}
+
+.result:hover {
+  background: #e8e8e8;
+}
+
+.result-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.result-preview {
+  color: #666;
+  margin: 4px 0;
+}
+
+.result-meta {
+  font-size: 12px;
+  color: #888;
+}
+
+.result-meta span + span::before {
+  content: ' • ';
+}
+
+mark {
+  background: #fff3cd;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.no-results {
+  text-align: center;
+  padding: 32px;
+  color: #666;
+}
+```
+
+## Performance Tips
+
+1. **Debounce searches**: Don't search on every keystroke
+2. **Cache results**: Consider caching common queries
+3. **Limit scope**: Use `serverId` or `channelId` when possible
+4. **Paginate**: Don't load all results at once

@@ -1,0 +1,754 @@
+---
+title: Support Portal
+description: Create a public support ticket history with contributor leaderboards
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Build a public support portal that showcases your community's help history and recognizes top contributors.
+
+## Overview
+
+Turn your Discord support forum into a public resource:
+
+- **Searchable support history** for common issues
+- **Contributor leaderboards** recognizing helpful members
+- **Status tracking** (open, in progress, resolved)
+- **Metrics dashboard** for support health
+
+## Architecture
+
+```
+Discord Support Forum
+        │
+        ▼
+   Discord Forum API
+        │
+        ├── GET /threads → Support tickets
+        ├── GET /leaderboard → Top helpers
+        └── GET /servers/:id/stats → Support metrics
+        │
+        ▼
+    Support Portal Website
+```
+
+## Implementation
+
+### 1. Support Ticket API
+
+```javascript
+// lib/support.js
+const API_BASE = process.env.API_URL;
+const SERVER_ID = process.env.DISCORD_SERVER_ID;
+const SUPPORT_CHANNEL_ID = process.env.SUPPORT_CHANNEL_ID;
+
+export async function getTickets({
+  status = 'all',
+  sort = 'latest',
+  limit = 20,
+  cursor,
+} = {}) {
+  const params = new URLSearchParams({
+    channelId: SUPPORT_CHANNEL_ID,
+    status,
+    sort,
+    limit: limit.toString(),
+  });
+
+  if (cursor) params.set('cursor', cursor);
+
+  const response = await fetch(`${API_BASE}/threads?${params}`);
+  return response.json();
+}
+
+export async function getTicket(ticketId) {
+  const response = await fetch(`${API_BASE}/threads/${ticketId}`);
+  return response.json();
+}
+
+export async function getLeaderboard(type = 'messages') {
+  const params = new URLSearchParams({
+    type,
+    limit: '20',
+    excludeBots: 'true',
+  });
+
+  const response = await fetch(`${API_BASE}/leaderboard/${SERVER_ID}?${params}`);
+  return response.json();
+}
+
+export async function getSupportStats() {
+  const response = await fetch(`${API_BASE}/servers/${SERVER_ID}/stats`);
+  return response.json();
+}
+
+export async function searchTickets(query) {
+  const params = new URLSearchParams({
+    q: query,
+    serverId: SERVER_ID,
+    type: 'threads',
+    limit: '20',
+  });
+
+  const response = await fetch(`${API_BASE}/search?${params}`);
+  return response.json();
+}
+```
+
+### 2. Support Portal Homepage
+
+```jsx
+// pages/support/index.jsx
+import { getTickets, getLeaderboard, getSupportStats } from '@/lib/support';
+
+export async function getStaticProps() {
+  const [
+    { threads: recentTickets },
+    { threads: resolvedTickets },
+    leaderboard,
+    stats,
+  ] = await Promise.all([
+    getTickets({ sort: 'latest', limit: 10 }),
+    getTickets({ status: 'resolved', sort: 'latest', limit: 5 }),
+    getLeaderboard('messages'),
+    getSupportStats(),
+  ]);
+
+  return {
+    props: {
+      recentTickets,
+      resolvedTickets,
+      leaderboard: leaderboard.leaderboard,
+      stats: stats.stats,
+    },
+    revalidate: 300,
+  };
+}
+
+export default function SupportPortal({
+  recentTickets,
+  resolvedTickets,
+  leaderboard,
+  stats,
+}) {
+  return (
+    <main className="support-portal">
+      <header>
+        <h1>Support Center</h1>
+        <p>Get help from our community</p>
+        <SearchBox placeholder="Search for help..." />
+      </header>
+
+      <section className="stats-bar">
+        <StatCard
+          label="Open Tickets"
+          value={stats.threads.open}
+          color="blue"
+        />
+        <StatCard
+          label="Resolved Today"
+          value={stats.threads.resolved}
+          color="green"
+        />
+        <StatCard
+          label="Avg Response"
+          value="< 2 hrs"
+          color="yellow"
+        />
+        <StatCard
+          label="Community Helpers"
+          value={stats.participants.humans}
+          color="purple"
+        />
+      </section>
+
+      <div className="portal-grid">
+        <section className="recent-tickets">
+          <h2>Recent Questions</h2>
+          <TicketList tickets={recentTickets} />
+          <a href="/support/tickets" className="view-all">
+            View all tickets →
+          </a>
+        </section>
+
+        <aside className="sidebar">
+          <section className="top-helpers">
+            <h2>🏆 Top Helpers</h2>
+            <Leaderboard entries={leaderboard.slice(0, 10)} />
+            <a href="/support/leaderboard">Full leaderboard →</a>
+          </section>
+
+          <section className="recently-solved">
+            <h2>✅ Recently Solved</h2>
+            <ul>
+              {resolvedTickets.map((ticket) => (
+                <li key={ticket.id}>
+                  <a href={`/support/tickets/${ticket.slug}`}>
+                    {ticket.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </aside>
+      </div>
+
+      <section className="cta">
+        <h2>Can't find what you're looking for?</h2>
+        <a
+          href="https://discord.gg/your-invite"
+          className="button"
+          target="_blank"
+          rel="noopener"
+        >
+          Ask in Discord
+        </a>
+      </section>
+    </main>
+  );
+}
+
+function StatCard({ label, value, color }) {
+  return (
+    <div className={`stat-card stat-${color}`}>
+      <span className="value">{value}</span>
+      <span className="label">{label}</span>
+    </div>
+  );
+}
+```
+
+### 3. Ticket List Page
+
+```jsx
+// pages/support/tickets/index.jsx
+import { useState } from 'react';
+import { getTickets } from '@/lib/support';
+
+export async function getStaticProps() {
+  const { threads } = await getTickets({ limit: 50 });
+  return {
+    props: { initialTickets: threads },
+    revalidate: 300,
+  };
+}
+
+export default function TicketsPage({ initialTickets }) {
+  const [tickets, setTickets] = useState(initialTickets);
+  const [status, setStatus] = useState('all');
+  const [sort, setSort] = useState('latest');
+  const [loading, setLoading] = useState(false);
+
+  async function loadTickets() {
+    setLoading(true);
+    const { threads } = await getTickets({ status, sort, limit: 50 });
+    setTickets(threads);
+    setLoading(false);
+  }
+
+  // Reload when filters change
+  useEffect(() => {
+    loadTickets();
+  }, [status, sort]);
+
+  return (
+    <main className="tickets-page">
+      <header>
+        <h1>Support Tickets</h1>
+        <p>Browse community questions and answers</p>
+      </header>
+
+      <div className="filters">
+        <div className="filter-group">
+          <label>Status</label>
+          <select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="all">All</option>
+            <option value="open">Open</option>
+            <option value="resolved">Resolved</option>
+            <option value="locked">Locked</option>
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label>Sort</label>
+          <select value={sort} onChange={(e) => setSort(e.target.value)}>
+            <option value="latest">Newest</option>
+            <option value="recently_active">Recently Active</option>
+            <option value="popular">Most Replies</option>
+            <option value="unanswered">Unanswered</option>
+          </select>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="loading">Loading...</div>
+      ) : (
+        <TicketList tickets={tickets} showStatus />
+      )}
+    </main>
+  );
+}
+
+function TicketList({ tickets, showStatus = false }) {
+  return (
+    <div className="ticket-list">
+      {tickets.map((ticket) => (
+        <TicketCard key={ticket.id} ticket={ticket} showStatus={showStatus} />
+      ))}
+    </div>
+  );
+}
+
+function TicketCard({ ticket, showStatus }) {
+  return (
+    <article className="ticket-card">
+      <div className="ticket-header">
+        {showStatus && <StatusBadge status={ticket.status} />}
+        <h3>
+          <a href={`/support/tickets/${ticket.slug}`}>{ticket.title}</a>
+        </h3>
+      </div>
+
+      <p className="preview">{ticket.preview}</p>
+
+      <footer>
+        <div className="author">
+          <img src={getAvatarUrl(ticket.author)} alt="" />
+          <span>{ticket.author.username}</span>
+        </div>
+        <span className="replies">
+          {ticket.messageCount - 1} {ticket.messageCount === 2 ? 'reply' : 'replies'}
+        </span>
+        <time>{formatRelative(ticket.lastActivityAt)}</time>
+      </footer>
+    </article>
+  );
+}
+
+function StatusBadge({ status }) {
+  const colors = {
+    open: 'blue',
+    resolved: 'green',
+    locked: 'gray',
+  };
+
+  const labels = {
+    open: 'Open',
+    resolved: 'Resolved',
+    locked: 'Locked',
+  };
+
+  return (
+    <span className={`status-badge status-${colors[status]}`}>
+      {labels[status]}
+    </span>
+  );
+}
+```
+
+### 4. Leaderboard Page
+
+```jsx
+// pages/support/leaderboard.jsx
+import { getLeaderboard } from '@/lib/support';
+
+export async function getStaticProps() {
+  const [byMessages, byThreads, byReactions] = await Promise.all([
+    getLeaderboard('messages'),
+    getLeaderboard('threads'),
+    getLeaderboard('reactions'),
+  ]);
+
+  return {
+    props: {
+      leaderboards: {
+        messages: byMessages.leaderboard,
+        threads: byThreads.leaderboard,
+        reactions: byReactions.leaderboard,
+      },
+    },
+    revalidate: 3600,
+  };
+}
+
+export default function LeaderboardPage({ leaderboards }) {
+  const [activeTab, setActiveTab] = useState('messages');
+
+  return (
+    <main className="leaderboard-page">
+      <header>
+        <h1>🏆 Community Leaderboard</h1>
+        <p>Recognizing our amazing community helpers</p>
+      </header>
+
+      <Podium entries={leaderboards.messages.slice(0, 3)} />
+
+      <div className="tabs">
+        <button
+          className={activeTab === 'messages' ? 'active' : ''}
+          onClick={() => setActiveTab('messages')}
+        >
+          💬 Most Replies
+        </button>
+        <button
+          className={activeTab === 'threads' ? 'active' : ''}
+          onClick={() => setActiveTab('threads')}
+        >
+          📝 Most Questions Helped
+        </button>
+        <button
+          className={activeTab === 'reactions' ? 'active' : ''}
+          onClick={() => setActiveTab('reactions')}
+        >
+          ❤️ Most Appreciated
+        </button>
+      </div>
+
+      <LeaderboardTable entries={leaderboards[activeTab]} />
+    </main>
+  );
+}
+
+function Podium({ entries }) {
+  const [second, first, third] = [entries[1], entries[0], entries[2]];
+
+  return (
+    <div className="podium">
+      {second && <PodiumPlace entry={second} place={2} medal="🥈" />}
+      {first && <PodiumPlace entry={first} place={1} medal="🥇" />}
+      {third && <PodiumPlace entry={third} place={3} medal="🥉" />}
+    </div>
+  );
+}
+
+function PodiumPlace({ entry, place, medal }) {
+  const heights = { 1: 140, 2: 100, 3: 70 };
+
+  return (
+    <div className={`podium-place place-${place}`}>
+      <img
+        src={getAvatarUrl(entry, 96)}
+        alt=""
+        className="avatar"
+      />
+      <span className="medal">{medal}</span>
+      <span className="name">{entry.globalName || entry.username}</span>
+      <span className="count">{entry.count.toLocaleString()}</span>
+      <div className="platform" style={{ height: heights[place] }} />
+    </div>
+  );
+}
+
+function LeaderboardTable({ entries }) {
+  return (
+    <table className="leaderboard-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>User</th>
+          <th>Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        {entries.map((entry) => (
+          <tr key={entry.userId}>
+            <td className="rank">#{entry.rank}</td>
+            <td className="user">
+              <img src={getAvatarUrl(entry, 32)} alt="" />
+              <span>{entry.globalName || entry.username}</span>
+            </td>
+            <td className="count">{entry.count.toLocaleString()}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+```
+
+### 5. Ticket Detail Page
+
+```jsx
+// pages/support/tickets/[slug].jsx
+import { getTicket, getTickets } from '@/lib/support';
+
+export async function getStaticPaths() {
+  const { threads } = await getTickets({ limit: 100 });
+  return {
+    paths: threads.map((t) => ({ params: { slug: t.slug } })),
+    fallback: 'blocking',
+  };
+}
+
+export async function getStaticProps({ params }) {
+  const ticket = await getTicket(params.slug);
+
+  if (!ticket) {
+    return { notFound: true };
+  }
+
+  return {
+    props: { ticket },
+    revalidate: 300,
+  };
+}
+
+export default function TicketPage({ ticket }) {
+  const [question, ...replies] = ticket.messages;
+
+  return (
+    <main className="ticket-page">
+      <Breadcrumb
+        items={[
+          { label: 'Support', href: '/support' },
+          { label: 'Tickets', href: '/support/tickets' },
+          ticket.title,
+        ]}
+      />
+
+      <article className="ticket">
+        <header>
+          <StatusBadge status={ticket.status} />
+          <h1>{ticket.title}</h1>
+          <div className="meta">
+            <img src={getAvatarUrl(ticket.author)} alt="" />
+            <span>{ticket.author.username}</span>
+            <time>{formatDate(ticket.createdAt)}</time>
+          </div>
+        </header>
+
+        <div className="question">
+          <div
+            className="content"
+            dangerouslySetInnerHTML={{ __html: question.contentHtml }}
+          />
+          {question.attachments.length > 0 && (
+            <Attachments attachments={question.attachments} />
+          )}
+        </div>
+
+        <section className="replies">
+          <h2>{replies.length} {replies.length === 1 ? 'Reply' : 'Replies'}</h2>
+
+          {replies.map((reply, index) => (
+            <Reply
+              key={reply.id}
+              reply={reply}
+              isAccepted={index === 0 && ticket.status === 'resolved'}
+            />
+          ))}
+        </section>
+
+        <footer>
+          <a
+            href={`https://discord.com/channels/${ticket.serverId}/${ticket.id}`}
+            className="discord-link"
+            target="_blank"
+            rel="noopener"
+          >
+            Continue on Discord →
+          </a>
+        </footer>
+      </article>
+    </main>
+  );
+}
+
+function Reply({ reply, isAccepted }) {
+  return (
+    <div className={`reply ${isAccepted ? 'accepted' : ''}`}>
+      {isAccepted && <span className="accepted-badge">✅ Accepted Answer</span>}
+
+      <div className="reply-header">
+        <img src={getAvatarUrl(reply.author)} alt="" />
+        <span className="author">{reply.author.username}</span>
+        <time>{formatRelative(reply.createdAt)}</time>
+      </div>
+
+      <div
+        className="content"
+        dangerouslySetInnerHTML={{ __html: reply.contentHtml }}
+      />
+
+      {reply.reactions.length > 0 && (
+        <div className="reactions">
+          {reply.reactions.map((r) => (
+            <span key={r.emoji} className="reaction">
+              {getEmoji(r.emoji)} {r.count}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+## Styling
+
+```css
+/* Support Portal */
+.support-portal {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card .value {
+  font-size: 2rem;
+  font-weight: 700;
+  display: block;
+}
+
+.stat-card.stat-blue { border-top: 4px solid #3b82f6; }
+.stat-card.stat-green { border-top: 4px solid #22c55e; }
+.stat-card.stat-yellow { border-top: 4px solid #eab308; }
+.stat-card.stat-purple { border-top: 4px solid #8b5cf6; }
+
+/* Ticket Cards */
+.ticket-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.ticket-card:hover {
+  border-color: #5865f2;
+}
+
+.ticket-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-blue { background: #dbeafe; color: #1e40af; }
+.status-green { background: #dcfce7; color: #166534; }
+.status-gray { background: #f3f4f6; color: #4b5563; }
+
+/* Leaderboard */
+.podium {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.podium-place {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.podium-place .avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid #fbbf24;
+}
+
+.podium-place.place-1 .avatar { border-color: #fbbf24; }
+.podium-place.place-2 .avatar { border-color: #9ca3af; }
+.podium-place.place-3 .avatar { border-color: #f97316; }
+
+.podium-place .platform {
+  width: 100px;
+  background: linear-gradient(180deg, #5865f2, #4752c4);
+  border-radius: 8px 8px 0 0;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.leaderboard-table .user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.leaderboard-table .user img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+/* Accepted Answer */
+.reply.accepted {
+  border: 2px solid #22c55e;
+  background: #f0fdf4;
+}
+
+.accepted-badge {
+  background: #22c55e;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  display: inline-block;
+}
+```
+
+## Features to Add
+
+### Response Time Tracking
+
+```javascript
+function calculateResponseTime(ticket) {
+  if (ticket.messages.length < 2) return null;
+
+  const question = new Date(ticket.messages[0].createdAt);
+  const firstReply = new Date(ticket.messages[1].createdAt);
+
+  return firstReply - question; // milliseconds
+}
+```
+
+### Satisfaction Surveys
+
+Add reaction-based feedback:
+
+```jsx
+function SatisfactionRating({ ticket }) {
+  const satisfactionReactions = ['👍', '👎'];
+  const ratings = ticket.messages[0]?.reactions
+    .filter((r) => satisfactionReactions.includes(r.emoji));
+
+  // ... display rating
+}
+```

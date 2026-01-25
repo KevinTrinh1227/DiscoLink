@@ -1,0 +1,362 @@
+---
+title: Vercel Deployment
+description: Deploy Discord Forum API to Vercel
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Deploy the API and your frontend to Vercel's global edge network.
+
+<Aside type="caution">
+  Vercel uses serverless functions which can't maintain WebSocket connections. The **Discord bot must be deployed elsewhere** (Railway, Fly.io, or VPS). This guide covers deploying the **API** and **frontend** only.
+</Aside>
+
+## Prerequisites
+
+- [Vercel account](https://vercel.com/signup) (free)
+- GitHub repository with your code
+- Bot deployed elsewhere (see [Railway](/deployment/railway) or [VPS](/deployment/vps))
+- Database configured (Turso recommended for serverless)
+
+## Quick Deploy
+
+### Option 1: One-Click Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/KevinTrinh1227/discord-forum-api)
+
+### Option 2: CLI Deploy
+
+<Steps>
+
+1. **Install Vercel CLI**
+
+   ```bash
+   npm install -g vercel
+   ```
+
+2. **Login to Vercel**
+
+   ```bash
+   vercel login
+   ```
+
+3. **Deploy from project root**
+
+   ```bash
+   cd discord-forum-api
+   vercel
+   ```
+
+4. **Configure environment variables** when prompted
+
+</Steps>
+
+## Project Configuration
+
+### vercel.json
+
+Create `vercel.json` in the project root:
+
+```json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "packages/api/dist/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "packages/api/dist/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/$1"
+    }
+  ]
+}
+```
+
+### Build Configuration
+
+In Vercel dashboard or `vercel.json`:
+
+| Setting | Value |
+|---------|-------|
+| **Build Command** | `pnpm build` |
+| **Output Directory** | `packages/api/dist` |
+| **Install Command** | `pnpm install` |
+| **Node Version** | 20.x |
+
+## Environment Variables
+
+Set these in Vercel dashboard → Project → Settings → Environment Variables:
+
+```env
+# Database (Turso recommended for serverless)
+DATABASE_TYPE=turso
+TURSO_DATABASE_URL=libsql://your-db.turso.io
+TURSO_AUTH_TOKEN=your-token
+
+# API Configuration
+NODE_ENV=production
+CORS_ORIGIN=https://yourdomain.com
+
+# Optional
+LOG_LEVEL=info
+```
+
+<Aside>
+  Don't add `DISCORD_TOKEN` here—the bot runs separately, not on Vercel.
+</Aside>
+
+## Database: Turso Setup
+
+Turso is ideal for Vercel because it's edge-compatible:
+
+<Steps>
+
+1. **Create Turso database**
+
+   ```bash
+   turso db create discord-forum-api
+   ```
+
+2. **Get credentials**
+
+   ```bash
+   turso db show discord-forum-api --url
+   turso db tokens create discord-forum-api
+   ```
+
+3. **Add to Vercel env vars**
+
+   - `TURSO_DATABASE_URL`: The URL from step 2
+   - `TURSO_AUTH_TOKEN`: The token from step 2
+
+</Steps>
+
+## Deploying
+
+### From Git
+
+<Steps>
+
+1. Push your code to GitHub
+2. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+3. Click "Add New Project"
+4. Import your repository
+5. Configure settings (see above)
+6. Click "Deploy"
+
+</Steps>
+
+### From CLI
+
+```bash
+# Development preview
+vercel
+
+# Production deployment
+vercel --prod
+```
+
+## Domain Configuration
+
+### Custom Domain
+
+<Steps>
+
+1. Go to Project → Settings → Domains
+2. Add your domain (e.g., `api.yourdomain.com`)
+3. Configure DNS as shown
+4. SSL is automatic
+
+</Steps>
+
+### CORS Configuration
+
+Update your API to allow your frontend domain:
+
+```typescript
+// packages/api/src/index.ts
+const app = new Hono();
+
+app.use('*', cors({
+  origin: process.env.CORS_ORIGIN || 'https://yourdomain.com',
+  credentials: true,
+}));
+```
+
+## Frontend + API
+
+### Deploying Both
+
+If you have a frontend (Next.js, Astro, etc.) consuming the API:
+
+```
+your-project/
+├── packages/
+│   └── api/          # Deployed as API routes
+├── apps/
+│   └── web/          # Deployed as frontend
+└── vercel.json
+```
+
+**vercel.json for monorepo:**
+
+```json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/web/package.json",
+      "use": "@vercel/next"
+    },
+    {
+      "src": "packages/api/dist/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "packages/api/dist/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "apps/web/$1"
+    }
+  ]
+}
+```
+
+## Caching
+
+Vercel's Edge Network caches responses. Configure cache headers:
+
+```typescript
+app.get('/api/threads', async (c) => {
+  const data = await getThreads();
+
+  return c.json(data, 200, {
+    'Cache-Control': 's-maxage=60, stale-while-revalidate=120',
+  });
+});
+```
+
+## Monitoring
+
+### Vercel Analytics
+
+Enable in Project → Settings → Analytics.
+
+### Function Logs
+
+View logs in Project → Deployments → Select deployment → Functions.
+
+### Error Tracking
+
+Add Sentry for better error tracking:
+
+```typescript
+import * as Sentry from '@sentry/node';
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+});
+
+// In error handler
+app.onError((err, c) => {
+  Sentry.captureException(err);
+  return c.json({ error: 'Internal error' }, 500);
+});
+```
+
+## Limits
+
+Be aware of Vercel's limits:
+
+| Limit | Hobby (Free) | Pro |
+|-------|--------------|-----|
+| Serverless function duration | 10s | 60s |
+| Serverless function memory | 1024 MB | 3008 MB |
+| Bandwidth | 100 GB | 1 TB |
+| Deployments | Unlimited | Unlimited |
+
+<Aside type="tip">
+  For longer-running operations, consider streaming responses or using background jobs.
+</Aside>
+
+## Troubleshooting
+
+### Function Timeout
+
+If requests timeout:
+
+1. Check database connection (Turso should be fast)
+2. Add pagination to large queries
+3. Consider caching expensive operations
+4. Upgrade to Pro for longer timeouts
+
+### Cold Starts
+
+Serverless functions have cold starts. Mitigate with:
+
+- Keep functions small
+- Use edge caching
+- Consider Vercel Edge Functions for critical paths
+
+### Module Not Found
+
+If modules aren't found:
+
+1. Check `vercel.json` paths
+2. Ensure `pnpm build` runs successfully
+3. Verify output directory is correct
+
+### CORS Errors
+
+1. Verify `CORS_ORIGIN` environment variable
+2. Check your frontend URL matches exactly
+3. Ensure CORS middleware is applied
+
+## Complete Example
+
+**vercel.json:**
+
+```json
+{
+  "version": 2,
+  "buildCommand": "pnpm build",
+  "installCommand": "pnpm install",
+  "framework": null,
+  "builds": [
+    {
+      "src": "packages/api/dist/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "packages/api/dist/index.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
+```
+
+**Environment Variables (in Vercel dashboard):**
+
+```
+DATABASE_TYPE=turso
+TURSO_DATABASE_URL=libsql://discord-forum-api-xxx.turso.io
+TURSO_AUTH_TOKEN=eyJ...
+CORS_ORIGIN=https://yourfrontend.vercel.app
+NODE_ENV=production
+```

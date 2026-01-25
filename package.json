@@ -24,7 +24,10 @@
     "db:generate": "pnpm --filter @discord-forum-api/db generate",
     "db:migrate": "pnpm --filter @discord-forum-api/db migrate",
     "db:push": "pnpm --filter @discord-forum-api/db push",
-    "db:studio": "pnpm --filter @discord-forum-api/db studio"
+    "db:studio": "pnpm --filter @discord-forum-api/db studio",
+    "docs:dev": "pnpm --filter @discord-forum-api/docs dev",
+    "docs:build": "pnpm --filter @discord-forum-api/docs build",
+    "docs:preview": "pnpm --filter @discord-forum-api/docs preview"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

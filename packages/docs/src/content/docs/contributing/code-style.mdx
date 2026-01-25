@@ -1,0 +1,450 @@
+---
+title: Code Style
+description: Coding standards and conventions for Discord Forum API
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+This guide covers the coding standards for contributing to Discord Forum API.
+
+## Formatting
+
+### Prettier
+
+All code is formatted with [Prettier](https://prettier.io/). Format is enforced on commit via pre-commit hooks.
+
+**Configuration (`.prettierrc`):**
+
+```json
+{
+  "semi": true,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "printWidth": 100
+}
+```
+
+**Format code:**
+
+```bash
+pnpm format        # Format all files
+pnpm format:check  # Check formatting
+```
+
+### EditorConfig
+
+Ensure your editor respects `.editorconfig`:
+
+```ini
+root = true
+
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+```
+
+## TypeScript
+
+### Strict Mode
+
+TypeScript strict mode is enabled. This means:
+
+- `strictNullChecks` - No implicit null/undefined
+- `noImplicitAny` - Explicit types required
+- `strictFunctionTypes` - Strict function parameter checking
+
+### Type Imports
+
+Use type-only imports when importing only types:
+
+```typescript
+// Good
+import type { User, Thread } from './types';
+import { getThread } from './helpers';
+
+// Bad
+import { User, Thread, getThread } from './types';
+```
+
+### Interfaces vs Types
+
+Use **interfaces** for object shapes, **types** for unions/intersections:
+
+```typescript
+// Interface for objects
+interface User {
+  id: string;
+  username: string;
+}
+
+// Type for unions
+type Status = 'open' | 'resolved' | 'locked';
+
+// Type for complex types
+type ThreadWithMessages = Thread & { messages: Message[] };
+```
+
+### Avoid `any`
+
+Never use `any`. Use `unknown` for truly unknown types:
+
+```typescript
+// Bad
+function parse(data: any) { ... }
+
+// Good
+function parse(data: unknown) {
+  if (typeof data === 'string') {
+    // Now TypeScript knows it's a string
+  }
+}
+```
+
+### Generic Constraints
+
+Use constraints to ensure type safety:
+
+```typescript
+// Good
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+// Bad
+function getProperty(obj: any, key: string) {
+  return obj[key];
+}
+```
+
+## Naming Conventions
+
+### Variables & Functions
+
+Use **camelCase**:
+
+```typescript
+// Variables
+const threadCount = 10;
+const isActive = true;
+
+// Functions
+function getThreadById(id: string) { ... }
+async function fetchUserProfile() { ... }
+```
+
+### Types & Interfaces
+
+Use **PascalCase**:
+
+```typescript
+interface ThreadResponse { ... }
+type MessageStatus = 'sent' | 'pending';
+class ThreadService { ... }
+```
+
+### Constants
+
+Use **SCREAMING_SNAKE_CASE** for true constants:
+
+```typescript
+const MAX_THREADS_PER_PAGE = 100;
+const DEFAULT_CACHE_TTL = 3600;
+```
+
+### Files
+
+Use **kebab-case** for files:
+
+```
+thread-service.ts
+user-helpers.ts
+get-threads.test.ts
+```
+
+### Database
+
+Use **snake_case** for database columns:
+
+```typescript
+// Schema
+export const threads = sqliteTable('threads', {
+  id: text('id').primaryKey(),
+  serverId: text('server_id').notNull(),
+  createdAt: integer('created_at').notNull(),
+});
+```
+
+## Code Organization
+
+### Imports Order
+
+1. External packages
+2. Internal packages (@discord-forum-api/*)
+3. Relative imports (../ then ./)
+4. Type imports last
+
+```typescript
+// External
+import { Hono } from 'hono';
+import { eq } from 'drizzle-orm';
+
+// Internal packages
+import { db, threads } from '@discord-forum-api/db';
+
+// Relative
+import { validateParams } from '../lib/validation';
+import { formatThread } from './helpers';
+
+// Types
+import type { Context } from 'hono';
+import type { Thread } from '../types';
+```
+
+### Export Style
+
+Prefer named exports over default exports:
+
+```typescript
+// Good
+export function getThread() { ... }
+export const threadService = { ... };
+
+// Avoid
+export default function getThread() { ... }
+```
+
+### File Structure
+
+```typescript
+// 1. Imports
+import { ... } from '...';
+
+// 2. Types/Interfaces (if not in separate file)
+interface Props { ... }
+
+// 3. Constants
+const CACHE_TTL = 60;
+
+// 4. Helper functions (private)
+function formatDate(date: Date) { ... }
+
+// 5. Main exports
+export function getThreads() { ... }
+export function getThread(id: string) { ... }
+```
+
+## ESLint Rules
+
+### Key Rules
+
+```javascript
+// eslint.config.js
+export default [
+  {
+    rules: {
+      // TypeScript
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/consistent-type-imports': 'error',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+
+      // General
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'prefer-const': 'error',
+      'no-var': 'error',
+    },
+  },
+];
+```
+
+### Disabling Rules
+
+Only disable rules with justification:
+
+```typescript
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Discord API returns untyped data
+const rawData: any = await discordApi.fetch();
+```
+
+## Error Handling
+
+### Use Custom Errors
+
+```typescript
+// Define custom errors
+export class NotFoundError extends Error {
+  constructor(resource: string, id: string) {
+    super(`${resource} not found: ${id}`);
+    this.name = 'NotFoundError';
+  }
+}
+
+export class ValidationError extends Error {
+  constructor(message: string, public field?: string) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
+
+// Usage
+if (!thread) {
+  throw new NotFoundError('Thread', threadId);
+}
+```
+
+### Async Error Handling
+
+Always handle errors in async functions:
+
+```typescript
+// Good - errors caught by framework
+app.get('/threads/:id', async (c) => {
+  const thread = await getThread(c.req.param('id'));
+  if (!thread) {
+    throw new NotFoundError('Thread', c.req.param('id'));
+  }
+  return c.json(thread);
+});
+
+// Good - explicit try/catch when needed
+async function syncThreads() {
+  try {
+    await fetchAllThreads();
+  } catch (error) {
+    console.error('Sync failed:', error);
+    // Handle gracefully
+  }
+}
+```
+
+## Comments
+
+### When to Comment
+
+Comment **why**, not **what**:
+
+```typescript
+// Bad - describes what code does
+// Loop through threads and filter
+const resolved = threads.filter(t => t.status === 'resolved');
+
+// Good - explains why
+// Only show resolved threads on FAQ page to avoid confusion
+const resolved = threads.filter(t => t.status === 'resolved');
+```
+
+### JSDoc for Public APIs
+
+```typescript
+/**
+ * Fetches threads from a server with pagination.
+ *
+ * @param serverId - Discord server ID
+ * @param options - Pagination and filter options
+ * @returns Paginated thread list
+ *
+ * @example
+ * const { threads, nextCursor } = await getThreads('123456789', {
+ *   limit: 20,
+ *   status: 'open'
+ * });
+ */
+export async function getThreads(
+  serverId: string,
+  options?: GetThreadsOptions
+): Promise<PaginatedThreads> {
+  // ...
+}
+```
+
+### TODO Comments
+
+Use TODO with context:
+
+```typescript
+// TODO(username): Add pagination support when API v2 ships
+// TODO: Refactor this after Discord updates their API
+```
+
+## Testing Conventions
+
+### Test File Naming
+
+```
+threads.ts       -> threads.test.ts
+user-service.ts  -> user-service.test.ts
+```
+
+### Test Structure
+
+```typescript
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+describe('getThreads', () => {
+  beforeEach(() => {
+    // Reset state before each test
+  });
+
+  describe('when server exists', () => {
+    it('returns threads list', async () => {
+      // Arrange
+      const serverId = '123';
+
+      // Act
+      const result = await getThreads(serverId);
+
+      // Assert
+      expect(result.threads).toHaveLength(10);
+    });
+
+    it('respects limit parameter', async () => {
+      const result = await getThreads('123', { limit: 5 });
+      expect(result.threads).toHaveLength(5);
+    });
+  });
+
+  describe('when server does not exist', () => {
+    it('returns empty list', async () => {
+      const result = await getThreads('nonexistent');
+      expect(result.threads).toHaveLength(0);
+    });
+  });
+});
+```
+
+## Git Commit Style
+
+### Commit Message Format
+
+```
+<type>: <subject>
+
+[optional body]
+```
+
+### Types
+
+| Type | Description |
+|------|-------------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `docs` | Documentation |
+| `style` | Formatting (no code change) |
+| `refactor` | Code change that neither fixes nor adds |
+| `test` | Adding tests |
+| `chore` | Maintenance tasks |
+
+### Examples
+
+```bash
+feat: add leaderboard endpoint
+fix: resolve thread sync race condition
+docs: update API reference for search
+refactor: extract message parser to shared lib
+test: add integration tests for threads API
+chore: update dependencies
+```

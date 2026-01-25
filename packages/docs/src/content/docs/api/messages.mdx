@@ -1,0 +1,413 @@
+---
+title: Messages
+description: Working with messages in the Discord Forum API
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Messages are returned as part of thread details. This page covers message structure and rendering.
+
+## Message Structure
+
+Messages are included in the thread response:
+
+```json
+{
+  "id": "msg001",
+  "content": "Raw message with **markdown** and @mentions",
+  "contentHtml": "<p>Raw message with <strong>markdown</strong> and <span class=\"mention\">@User</span></p>",
+  "author": {
+    "id": "user123",
+    "username": "developer",
+    "avatar": "abc123",
+    "isBot": false
+  },
+  "attachments": [...],
+  "reactions": [...],
+  "embeds": [...],
+  "replyTo": null,
+  "createdAt": "2024-01-15T10:30:00.000Z",
+  "editedAt": null
+}
+```
+
+## Content Fields
+
+### Raw Content
+
+The `content` field contains the original Discord message with markdown:
+
+```
+Here's how to authenticate:
+
+\`\`\`javascript
+const token = await getToken();
+\`\`\`
+
+Check the docs at <https://example.com>
+```
+
+### HTML Content
+
+The `contentHtml` field is processed and ready for rendering:
+
+```html
+<p>Here's how to authenticate:</p>
+<pre><code class="language-javascript">const token = await getToken();</code></pre>
+<p>Check the docs at <a href="https://example.com">https://example.com</a></p>
+```
+
+### Markdown Processing
+
+| Discord | HTML |
+|---------|------|
+| `**bold**` | `<strong>bold</strong>` |
+| `*italic*` | `<em>italic</em>` |
+| `__underline__` | `<u>underline</u>` |
+| `~~strikethrough~~` | `<s>strikethrough</s>` |
+| `` `code` `` | `<code>code</code>` |
+| `> quote` | `<blockquote>quote</blockquote>` |
+| `@user` | `<span class="mention">@user</span>` |
+| `#channel` | `<span class="channel">#channel</span>` |
+| `@role` | `<span class="role">@role</span>` |
+
+## Attachments
+
+Messages can include file attachments:
+
+```json
+{
+  "attachments": [
+    {
+      "id": "att001",
+      "filename": "screenshot.png",
+      "description": "Error message screenshot",
+      "url": "https://cdn.discordapp.com/attachments/...",
+      "proxyUrl": "https://media.discordapp.net/attachments/...",
+      "contentType": "image/png",
+      "size": 125000,
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}
+```
+
+### Attachment Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Attachment ID |
+| `filename` | string | Original filename |
+| `description` | string \| null | Alt text (if provided) |
+| `url` | string | Direct Discord CDN URL |
+| `proxyUrl` | string | Proxy URL (may be faster) |
+| `contentType` | string | MIME type |
+| `size` | number | File size in bytes |
+| `width` | number \| null | Image width (if image) |
+| `height` | number \| null | Image height (if image) |
+
+### Rendering Attachments
+
+```javascript
+function Attachments({ attachments }) {
+  return (
+    <div className="attachments">
+      {attachments.map(att => {
+        if (att.contentType?.startsWith('image/')) {
+          return (
+            <img
+              key={att.id}
+              src={att.url}
+              alt={att.description || att.filename}
+              loading="lazy"
+            />
+          );
+        }
+
+        return (
+          <a key={att.id} href={att.url} download={att.filename}>
+            {att.filename} ({formatBytes(att.size)})
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+```
+
+<Aside>
+  Discord CDN URLs are temporary. For long-term storage, consider caching attachments or using `proxyUrl`.
+</Aside>
+
+## Reactions
+
+Messages include reaction data:
+
+```json
+{
+  "reactions": [
+    {
+      "emoji": "thumbsup",
+      "emojiId": null,
+      "count": 5,
+      "isCustom": false
+    },
+    {
+      "emoji": "custom_emoji",
+      "emojiId": "123456789",
+      "count": 2,
+      "isCustom": true
+    }
+  ]
+}
+```
+
+### Reaction Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `emoji` | string | Emoji name |
+| `emojiId` | string \| null | Custom emoji ID |
+| `count` | number | Number of reactions |
+| `isCustom` | boolean | Whether it's a custom emoji |
+
+### Rendering Reactions
+
+```javascript
+function Reactions({ reactions }) {
+  if (!reactions.length) return null;
+
+  return (
+    <div className="reactions">
+      {reactions.map(reaction => (
+        <span key={reaction.emoji} className="reaction">
+          {reaction.isCustom ? (
+            <img
+              src={`https://cdn.discordapp.com/emojis/${reaction.emojiId}.png`}
+              alt={reaction.emoji}
+              className="emoji"
+            />
+          ) : (
+            <span className="emoji">{getEmoji(reaction.emoji)}</span>
+          )}
+          <span className="count">{reaction.count}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+```
+
+## Embeds
+
+Rich embeds from links or bots:
+
+```json
+{
+  "embeds": [
+    {
+      "type": "rich",
+      "title": "GitHub - user/repo",
+      "description": "A cool project",
+      "url": "https://github.com/user/repo",
+      "color": 5814783,
+      "timestamp": "2024-01-15T10:00:00.000Z",
+      "thumbnail": {
+        "url": "https://...",
+        "width": 120,
+        "height": 120
+      },
+      "author": {
+        "name": "GitHub",
+        "url": "https://github.com",
+        "iconUrl": "https://..."
+      },
+      "fields": [
+        {
+          "name": "Stars",
+          "value": "1,234",
+          "inline": true
+        },
+        {
+          "name": "Forks",
+          "value": "567",
+          "inline": true
+        }
+      ],
+      "footer": {
+        "text": "Last updated",
+        "iconUrl": null
+      }
+    }
+  ]
+}
+```
+
+### Embed Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `type` | string | Embed type (`rich`, `image`, `video`, etc.) |
+| `title` | string \| null | Embed title |
+| `description` | string \| null | Embed description |
+| `url` | string \| null | Link URL |
+| `color` | number \| null | Sidebar color (decimal) |
+| `timestamp` | string \| null | Timestamp |
+| `thumbnail` | object \| null | Thumbnail image |
+| `image` | object \| null | Main image |
+| `author` | object \| null | Author info |
+| `fields` | array | Embed fields |
+| `footer` | object \| null | Footer info |
+
+### Rendering Embeds
+
+```javascript
+function Embed({ embed }) {
+  const borderColor = embed.color
+    ? `#${embed.color.toString(16).padStart(6, '0')}`
+    : '#ccc';
+
+  return (
+    <div className="embed" style={{ borderLeftColor: borderColor }}>
+      {embed.author && (
+        <div className="embed-author">
+          {embed.author.iconUrl && <img src={embed.author.iconUrl} />}
+          <a href={embed.author.url}>{embed.author.name}</a>
+        </div>
+      )}
+
+      {embed.title && (
+        <h4 className="embed-title">
+          {embed.url ? <a href={embed.url}>{embed.title}</a> : embed.title}
+        </h4>
+      )}
+
+      {embed.description && (
+        <p className="embed-description">{embed.description}</p>
+      )}
+
+      {embed.fields?.length > 0 && (
+        <div className="embed-fields">
+          {embed.fields.map((field, i) => (
+            <div key={i} className={`field ${field.inline ? 'inline' : ''}`}>
+              <div className="field-name">{field.name}</div>
+              <div className="field-value">{field.value}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {embed.image && (
+        <img src={embed.image.url} className="embed-image" />
+      )}
+
+      {embed.footer && (
+        <div className="embed-footer">
+          {embed.footer.iconUrl && <img src={embed.footer.iconUrl} />}
+          <span>{embed.footer.text}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+## Reply References
+
+Messages that reply to another message:
+
+```json
+{
+  "id": "msg002",
+  "content": "Thanks, that fixed it!",
+  "replyTo": {
+    "messageId": "msg001",
+    "content": "Try clearing your cache...",
+    "author": {
+      "username": "helpful_user"
+    }
+  }
+}
+```
+
+### Rendering Replies
+
+```javascript
+function Message({ message }) {
+  return (
+    <div className="message">
+      {message.replyTo && (
+        <div className="reply-reference">
+          <span className="reply-icon">↩</span>
+          <span className="reply-author">{message.replyTo.author.username}</span>
+          <span className="reply-preview">
+            {truncate(message.replyTo.content, 100)}
+          </span>
+        </div>
+      )}
+
+      <div className="message-content">
+        {/* ... rest of message */}
+      </div>
+    </div>
+  );
+}
+```
+
+## Styling Messages
+
+Example CSS for Discord-like message styling:
+
+```css
+.message {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+.message:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.message .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.message .author {
+  font-weight: 600;
+  color: #5865f2;
+}
+
+.message .timestamp {
+  color: #666;
+  font-size: 0.75rem;
+}
+
+.message .content {
+  line-height: 1.5;
+}
+
+.message .content code {
+  background: #f4f4f4;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+.message .content pre {
+  background: #2d2d2d;
+  color: #f8f8f2;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.mention {
+  background: rgba(88, 101, 242, 0.1);
+  color: #5865f2;
+  padding: 0 2px;
+  border-radius: 3px;
+}
+```

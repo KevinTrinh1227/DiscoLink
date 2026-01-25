@@ -1,0 +1,165 @@
+---
+title: Use Cases
+description: Real-world applications for Discord Forum API
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Discord Forum API enables a variety of real-world applications. This section provides detailed guides for common use cases.
+
+## Overview
+
+Your Discord forum content is valuable. By exposing it through an API, you can:
+
+- Make community knowledge **searchable** and **SEO-friendly**
+- Build custom **frontends** tailored to your needs
+- Create **automated workflows** based on forum activity
+- **Archive** discussions for posterity
+- Power **AI assistants** with your community knowledge
+
+## Use Case Gallery
+
+<CardGrid>
+  <LinkCard
+    title="Community FAQ"
+    description="Turn resolved forum threads into a searchable FAQ website"
+    href="/use-cases/community-faq"
+  />
+  <LinkCard
+    title="Developer Blog"
+    description="Publish developer updates and announcements from Discord"
+    href="/use-cases/developer-blog"
+  />
+  <LinkCard
+    title="Knowledge Base"
+    description="Build an organized documentation hub from forum discussions"
+    href="/use-cases/knowledge-base"
+  />
+  <LinkCard
+    title="Support Portal"
+    description="Create a public support ticket history with contributor leaderboards"
+    href="/use-cases/community-support"
+  />
+  <LinkCard
+    title="Changelog"
+    description="Auto-publish announcements with RSS feeds"
+    href="/use-cases/changelog-announcements"
+  />
+</CardGrid>
+
+## Comparison
+
+| Use Case | Best For | Key Features |
+|----------|----------|--------------|
+| **Community FAQ** | Help forums | Status badges, search, resolved threads |
+| **Developer Blog** | Announcements | Formatted posts, categories, RSS |
+| **Knowledge Base** | Documentation | Tag categories, search, cross-linking |
+| **Support Portal** | Customer support | Leaderboards, metrics, public tickets |
+| **Changelog** | Product updates | RSS, versioning, announcements |
+
+## Common Patterns
+
+### Static Site Generation
+
+Build a static site that fetches content at build time:
+
+```javascript
+// In your static site generator (Astro, Next.js, etc.)
+export async function getStaticProps() {
+  const response = await fetch('https://api.example.com/threads?status=resolved');
+  const { threads } = await response.json();
+
+  return {
+    props: { threads },
+    revalidate: 3600, // Rebuild hourly
+  };
+}
+```
+
+### Client-Side Fetching
+
+Fetch content dynamically for real-time updates:
+
+```javascript
+function ThreadList() {
+  const [threads, setThreads] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/threads?serverId=123')
+      .then(res => res.json())
+      .then(data => setThreads(data.threads));
+  }, []);
+
+  return <ul>{threads.map(t => <li key={t.id}>{t.title}</li>)}</ul>;
+}
+```
+
+### Hybrid Approach
+
+Static for initial load, dynamic for updates:
+
+```javascript
+// Static data for SEO
+export async function getStaticProps() {
+  const threads = await fetchThreads();
+  return { props: { initialThreads: threads } };
+}
+
+// Client-side updates
+function ThreadList({ initialThreads }) {
+  const [threads, setThreads] = useState(initialThreads);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const fresh = await fetchThreads();
+      setThreads(fresh);
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return <ThreadGrid threads={threads} />;
+}
+```
+
+## Tech Stack Recommendations
+
+### Frontend Frameworks
+
+| Framework | Best For | Why |
+|-----------|----------|-----|
+| **Astro** | Static sites | Fast, flexible, MDX support |
+| **Next.js** | Full-stack apps | SSR/SSG, API routes |
+| **Remix** | Dynamic apps | Great data loading |
+| **SvelteKit** | Interactive UIs | Small bundle, fast |
+
+### Hosting
+
+| Platform | Free Tier | Best For |
+|----------|-----------|----------|
+| **Vercel** | Yes | Next.js, Astro |
+| **Cloudflare Pages** | Yes | Static sites |
+| **Netlify** | Yes | Static + serverless |
+| **GitHub Pages** | Yes | Simple static |
+
+### Search
+
+| Solution | Complexity | Features |
+|----------|------------|----------|
+| **API search** | Low | Built-in, basic |
+| **Pagefind** | Low | Static site search |
+| **Algolia** | Medium | Advanced, hosted |
+| **Meilisearch** | Medium | Self-hosted, fast |
+
+## Getting Started
+
+1. **Pick a use case** that matches your needs
+2. **Choose a tech stack** from recommendations above
+3. **Follow the guide** for implementation details
+4. **Deploy** to your preferred hosting platform
+
+Each use case guide includes:
+- Complete code examples
+- Recommended architecture
+- Deployment instructions
+- Customization tips

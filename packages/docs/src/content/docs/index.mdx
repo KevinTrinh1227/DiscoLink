@@ -1,0 +1,111 @@
+---
+title: Discord Forum API
+description: API-first Discord forum/FAQ/blog engine that syncs Discord server content to a database and exposes it via REST API
+template: splash
+hero:
+  tagline: Turn your Discord forums into powerful APIs for FAQs, blogs, knowledge bases, and more.
+  image:
+    file: ../../assets/logo.svg
+  actions:
+    - text: Get Started
+      link: /getting-started/introduction
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/KevinTrinh1227/discord-forum-api
+      icon: external
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Why Discord Forum API?
+
+<CardGrid stagger>
+  <Card title="Zero Friction Content" icon="pencil">
+    Your community creates content naturally in Discord. No extra tools, no learning curve—just conversations that become documentation.
+  </Card>
+  <Card title="Real-time Sync" icon="rocket">
+    Messages sync automatically. New threads, edits, reactions—everything appears in your database instantly.
+  </Card>
+  <Card title="Privacy First" icon="approve-check">
+    Built-in consent system respects user privacy. Only sync content from users who opt in.
+  </Card>
+  <Card title="Fully Customizable" icon="setting">
+    REST API gives you full control. Build any frontend: FAQ pages, blogs, support portals, or custom dashboards.
+  </Card>
+</CardGrid>
+
+## Quick Example
+
+```bash
+# Fetch resolved threads
+curl http://localhost:3000/api/threads?serverId=123456789&status=resolved
+```
+
+```json
+{
+  "threads": [
+    {
+      "id": "111222333",
+      "title": "How do I implement OAuth?",
+      "status": "resolved",
+      "messageCount": 8,
+      "author": { "username": "curious_dev" }
+    }
+  ]
+}
+```
+
+## Use Cases
+
+<CardGrid>
+  <Card title="Community FAQ" icon="document">
+    Turn resolved help threads into searchable FAQ pages.
+  </Card>
+  <Card title="Developer Blog" icon="star">
+    Publish announcements from Discord to your website.
+  </Card>
+  <Card title="Knowledge Base" icon="open-book">
+    Organize forum content into structured documentation.
+  </Card>
+  <Card title="Support Portal" icon="heart">
+    Showcase support history with contributor leaderboards.
+  </Card>
+</CardGrid>
+
+## Get Started
+
+<CardGrid>
+  <Card title="Quick Start" icon="rocket">
+    Get up and running in 5 minutes with our [Quick Start guide](/getting-started/quick-start).
+  </Card>
+  <Card title="API Reference" icon="document">
+    Explore all endpoints in the [API documentation](/api/overview).
+  </Card>
+  <Card title="Deploy" icon="laptop">
+    Deploy to [Vercel](/deployment/vercel), [Railway](/deployment/railway), or your own [VPS](/deployment/vps).
+  </Card>
+  <Card title="Contribute" icon="github">
+    Help improve the project. Check our [contribution guide](/contributing/development-setup).
+  </Card>
+</CardGrid>
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| **Bot** | discord.js v14 |
+| **API** | Hono (lightweight, fast) |
+| **Database** | Drizzle ORM (SQLite/Turso) |
+| **Build** | Turborepo monorepo |
+| **Docs** | Starlight (Astro) |
+
+## Community
+
+- [GitHub Repository](https://github.com/KevinTrinh1227/discord-forum-api)
+- [Report Issues](https://github.com/KevinTrinh1227/discord-forum-api/issues)
+- [Discussions](https://github.com/KevinTrinh1227/discord-forum-api/discussions)
+
+---
+
+Built with by [Kevin Trinh](https://github.com/KevinTrinh1227) and contributors.

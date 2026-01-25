@@ -1,0 +1,272 @@
+---
+title: Discord Bot Setup
+description: Create and configure a Discord application for the Forum API
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+This guide walks through creating and configuring a Discord application for the Forum API.
+
+## Create Discord Application
+
+<Steps>
+
+1. **Open the Developer Portal**
+
+   Go to the [Discord Developer Portal](https://discord.com/developers/applications)
+
+2. **Create a new application**
+
+   Click **"New Application"** in the top right
+
+3. **Name your application**
+
+   Enter a name like "Forum Sync Bot" and click **Create**
+
+4. **Note your Application ID**
+
+   On the General Information page, copy the **Application ID** (also called Client ID). You'll need this for `DISCORD_CLIENT_ID`.
+
+</Steps>
+
+## Configure the Bot
+
+<Steps>
+
+1. **Navigate to Bot settings**
+
+   Click **Bot** in the left sidebar
+
+2. **Add a bot**
+
+   Click **"Add Bot"** if not already created
+
+3. **Copy the bot token**
+
+   Click **"Reset Token"** and copy it. You'll need this for `DISCORD_TOKEN`.
+
+   <Aside type="danger">
+     Never share your bot token! Anyone with it can control your bot. If exposed, regenerate it immediately.
+   </Aside>
+
+4. **Configure bot settings**
+
+   - **Public Bot**: Disable if you want to control which servers can add it
+   - **Requires OAuth2 Code Grant**: Leave disabled
+
+</Steps>
+
+### Enable Privileged Intents
+
+The bot needs specific intents to function properly.
+
+<Steps>
+
+1. Scroll to **Privileged Gateway Intents**
+
+2. Enable these intents:
+
+   | Intent | Required | Purpose |
+   |--------|----------|---------|
+   | **Message Content Intent** | Yes | Read message content |
+   | **Server Members Intent** | Optional | Sync member data |
+
+3. Click **Save Changes**
+
+</Steps>
+
+<Aside type="caution">
+  Without Message Content Intent, the bot can only see message metadata, not the actual text content.
+</Aside>
+
+## Configure OAuth2 (Optional)
+
+If you want users to authenticate via Discord on your site:
+
+<Steps>
+
+1. Navigate to **OAuth2** → **General**
+
+2. Add redirect URLs:
+
+   ```
+   http://localhost:3000/auth/callback
+   https://yourdomain.com/auth/callback
+   ```
+
+3. Copy your **Client Secret** for `DISCORD_CLIENT_SECRET`
+
+</Steps>
+
+## Generate Bot Invite Link
+
+<Steps>
+
+1. Navigate to **OAuth2** → **URL Generator**
+
+2. Select scopes:
+   - `bot`
+   - `applications.commands`
+
+3. Select bot permissions:
+   - **Read Messages/View Channels**
+   - **Read Message History**
+   - **Add Reactions** (optional, for reaction tracking)
+
+4. Copy the generated URL
+
+5. Open the URL in your browser to add the bot to your server
+
+</Steps>
+
+### Required Permissions
+
+| Permission | Required | Purpose |
+|------------|----------|---------|
+| View Channels | Yes | See forum channels |
+| Read Message History | Yes | Sync existing messages |
+| Read Messages | Yes | Receive new messages |
+| Add Reactions | Optional | Track reactions |
+
+**Permission Integer:** `68608`
+
+You can use this directly in invite URLs:
+
+```
+https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=68608&scope=bot%20applications.commands
+```
+
+## Environment Variables
+
+Add these to your `.env` file:
+
+```env
+# Required
+DISCORD_TOKEN=your_bot_token_here
+DISCORD_CLIENT_ID=your_application_id_here
+
+# For OAuth (optional)
+DISCORD_CLIENT_SECRET=your_client_secret_here
+```
+
+## Server Configuration
+
+### Enable Community Features
+
+Forum channels require Community to be enabled:
+
+<Steps>
+
+1. Go to **Server Settings** → **Community**
+
+2. Enable **Community Features** if not already enabled
+
+3. Follow the setup wizard
+
+</Steps>
+
+### Create a Forum Channel
+
+<Steps>
+
+1. Right-click a category → **Create Channel**
+
+2. Select **Forum** as the channel type
+
+3. Configure:
+   - **Name**: e.g., "help-forum"
+   - **Guidelines**: Instructions for posting
+   - **Tags**: Categories for threads
+
+4. Click **Create Channel**
+
+</Steps>
+
+### Verify Bot Permissions
+
+Ensure the bot role has access to your forum channels:
+
+<Steps>
+
+1. Right-click the forum channel → **Edit Channel**
+
+2. Go to **Permissions**
+
+3. Verify the bot role (or its assigned role) has:
+   - View Channel ✓
+   - Read Message History ✓
+
+</Steps>
+
+## Initial Sync
+
+When the bot joins a server, it automatically:
+
+1. Syncs server metadata (name, icon, description)
+2. Discovers all forum channels
+3. Syncs existing threads and messages
+
+### Manual Resync
+
+Use the `/sync` slash command if you have admin permissions:
+
+```
+/sync
+```
+
+This triggers a full resync of all forum content.
+
+## Troubleshooting
+
+### Bot is online but not syncing
+
+- Verify bot has `View Channels` permission on the forum
+- Check that **Message Content Intent** is enabled
+- Review console logs for error messages
+
+### Missing message content
+
+Message content appears as empty because the intent is missing:
+
+<Steps>
+
+1. Go to Developer Portal → Bot → Privileged Intents
+2. Enable **Message Content Intent**
+3. Save and restart the bot
+
+</Steps>
+
+### Reactions not tracking
+
+- Ensure `Add Reactions` permission is granted
+- The bot only tracks reactions on synced messages
+
+### OAuth not working
+
+- Verify redirect URL matches exactly (including trailing slash)
+- Check `DISCORD_CLIENT_SECRET` is set correctly
+- Ensure the redirect URL is added in OAuth2 settings
+
+### "Missing Access" errors
+
+The bot can't see a channel. Check:
+
+- Channel permissions include the bot role
+- Category permissions don't override channel permissions
+- Bot isn't explicitly denied in channel overrides
+
+## Rate Limits
+
+Discord has rate limits that the bot handles automatically. For large servers:
+
+- Initial sync may take several minutes
+- Avoid triggering multiple resyncs simultaneously
+- Check [Discord Status](https://discordstatus.com/) if issues persist
+
+## Security Best Practices
+
+- Never commit your bot token to version control
+- Regenerate token immediately if exposed
+- Use environment variables for all secrets
+- Consider a secrets manager in production
+- Regularly audit which servers the bot has access to

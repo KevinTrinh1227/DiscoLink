@@ -1,0 +1,249 @@
+---
+title: Pull Requests
+description: How to submit pull requests to Discord Forum API
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+Guidelines for submitting pull requests to Discord Forum API.
+
+## Before You Start
+
+### Check Existing Issues
+
+1. Look for existing [issues](https://github.com/KevinTrinh1227/discord-forum-api/issues) related to your change
+2. If none exists, open an issue to discuss your proposal
+3. Wait for feedback before starting large changes
+
+### Fork and Clone
+
+```bash
+# Fork via GitHub UI, then:
+git clone https://github.com/YOUR_USERNAME/discord-forum-api.git
+cd discord-forum-api
+git remote add upstream https://github.com/KevinTrinh1227/discord-forum-api.git
+```
+
+## Creating a Pull Request
+
+<Steps>
+
+1. **Create a branch**
+
+   ```bash
+   git checkout -b feat/your-feature-name
+   # or
+   git checkout -b fix/issue-description
+   ```
+
+2. **Make your changes**
+
+   Follow the [Code Style](/contributing/code-style) guidelines.
+
+3. **Test your changes**
+
+   ```bash
+   pnpm test
+   pnpm lint
+   pnpm typecheck
+   ```
+
+4. **Commit your changes**
+
+   ```bash
+   git add .
+   git commit -m "feat: add new endpoint for user stats"
+   ```
+
+5. **Push to your fork**
+
+   ```bash
+   git push origin feat/your-feature-name
+   ```
+
+6. **Open a Pull Request**
+
+   Go to GitHub and click "Compare & pull request"
+
+</Steps>
+
+## PR Title Format
+
+Use conventional commit format:
+
+```
+<type>: <description>
+```
+
+**Examples:**
+
+- `feat: add user profile endpoint`
+- `fix: resolve thread sync timeout`
+- `docs: update API reference`
+- `refactor: extract message parser`
+
+## PR Description Template
+
+```markdown
+## Summary
+
+Brief description of what this PR does.
+
+## Changes
+
+- Added X endpoint
+- Fixed Y bug
+- Updated Z documentation
+
+## Testing
+
+How was this tested?
+
+- [ ] Unit tests pass
+- [ ] Integration tests pass
+- [ ] Manual testing performed
+
+## Screenshots (if applicable)
+
+## Related Issues
+
+Closes #123
+```
+
+## Code Review Process
+
+### What Reviewers Look For
+
+1. **Correctness** - Does the code work?
+2. **Tests** - Are there adequate tests?
+3. **Style** - Does it follow our conventions?
+4. **Performance** - Any performance concerns?
+5. **Security** - Any security implications?
+
+### Responding to Feedback
+
+- Be responsive to comments
+- Make requested changes promptly
+- Ask for clarification if needed
+- Don't take feedback personally
+
+### Making Changes
+
+After receiving feedback:
+
+```bash
+# Make changes
+git add .
+git commit -m "address review feedback"
+git push origin feat/your-feature-name
+```
+
+<Aside type="tip">
+  Keep commits clean. Squash fixup commits before merging or let the maintainer squash on merge.
+</Aside>
+
+## Types of Contributions
+
+### Bug Fixes
+
+1. Create issue describing the bug (if none exists)
+2. Reference the issue in your PR
+3. Include a test that reproduces the bug
+4. Fix the bug
+5. Verify the test passes
+
+### New Features
+
+1. Open an issue to discuss the feature
+2. Get approval before starting
+3. Implement with tests
+4. Update documentation
+5. Add to changelog (if applicable)
+
+### Documentation
+
+1. Fix typos directly via PR
+2. For larger changes, open an issue first
+3. Follow the existing doc structure
+4. Test your changes with `pnpm docs:dev`
+
+### Refactoring
+
+1. Open an issue explaining the refactor
+2. Keep changes focused
+3. Ensure tests still pass
+4. Don't change behavior (unless discussed)
+
+## PR Checklist
+
+Before submitting:
+
+- [ ] Code follows [style guidelines](/contributing/code-style)
+- [ ] Tests pass (`pnpm test`)
+- [ ] Linting passes (`pnpm lint`)
+- [ ] Type checking passes (`pnpm typecheck`)
+- [ ] Documentation updated (if needed)
+- [ ] Commit messages follow conventions
+- [ ] PR description is complete
+
+## Common Issues
+
+### Merge Conflicts
+
+```bash
+# Sync with upstream
+git fetch upstream
+git checkout main
+git merge upstream/main
+
+# Rebase your branch
+git checkout feat/your-feature
+git rebase main
+
+# Resolve conflicts, then
+git push --force-with-lease origin feat/your-feature
+```
+
+### CI Failures
+
+1. Check the CI logs for the specific failure
+2. Run tests locally: `pnpm test`
+3. Run linting: `pnpm lint`
+4. Fix and push
+
+### Large PRs
+
+Break large changes into smaller, focused PRs:
+
+- Each PR should do one thing
+- Easier to review
+- Faster to merge
+- Lower risk of conflicts
+
+## After Merging
+
+1. Delete your branch (GitHub usually prompts)
+2. Sync your fork:
+   ```bash
+   git checkout main
+   git fetch upstream
+   git merge upstream/main
+   git push origin main
+   ```
+3. Celebrate your contribution!
+
+## Getting Help
+
+- Ask questions in the PR comments
+- Join our [Discord](https://discord.gg/your-invite)
+- Check existing PRs for examples
+
+## Recognition
+
+Contributors are recognized in:
+
+- GitHub contributors list
+- Release notes (for significant contributions)
+- README acknowledgments
+
+Thank you for contributing!

@@ -1,0 +1,233 @@
+---
+title: Deployment Overview
+description: Choose the right deployment platform for Discord Forum API
+---
+
+import { Card, CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
+
+This guide helps you choose the best deployment option for your needs.
+
+## Quick Comparison
+
+| Platform | Free Tier | Est. Cost | Best For | Complexity |
+|----------|-----------|-----------|----------|------------|
+| **Vercel** | Yes | $0-20/mo | API + frontend | Low |
+| **Railway** | $5 credit | $5-20/mo | Easy full-stack | Low |
+| **Docker** | N/A | Varies | Reproducible builds | Medium |
+| **VPS** | No | $5-20/mo | Full control | High |
+| **Cloudflare Workers** | Yes | $0-5/mo | Edge API only | Medium |
+
+## Architecture Reminder
+
+Discord Forum API has two services:
+
+```
+┌─────────────────┐     ┌─────────────────┐
+│      Bot        │     │      API        │
+│   (discord.js)  │     │    (Hono.js)    │
+│                 │     │                 │
+│  Needs: Always  │     │  Needs: HTTP    │
+│  running,       │     │  server,        │
+│  WebSocket      │     │  stateless OK   │
+└────────┬────────┘     └────────┬────────┘
+         │                       │
+         └───────────┬───────────┘
+                     │
+              ┌──────▼──────┐
+              │  Database   │
+              │ SQLite/Turso│
+              └─────────────┘
+```
+
+<Aside type="caution">
+  The **Bot** requires persistent WebSocket connections and can't run on serverless platforms like Vercel Functions or Cloudflare Workers. Deploy it on a traditional server, Railway, or Fly.io.
+</Aside>
+
+## Platform Details
+
+### Vercel
+
+<CardGrid>
+  <Card title="Pros" icon="approve-check">
+    - Generous free tier
+    - Automatic deployments from Git
+    - Global CDN
+    - Great for frontend + API
+  </Card>
+  <Card title="Cons" icon="warning">
+    - Can't run the bot (serverless only)
+    - Function timeout limits
+    - Cold starts
+  </Card>
+</CardGrid>
+
+**Best for:** Hosting your frontend website that consumes the API.
+
+**Not for:** Running the Discord bot.
+
+<LinkCard title="Vercel Deployment Guide" href="/deployment/vercel" />
+
+---
+
+### Railway
+
+<CardGrid>
+  <Card title="Pros" icon="approve-check">
+    - $5 free credit monthly
+    - Supports long-running processes
+    - Easy database hosting
+    - One-click deploys
+  </Card>
+  <Card title="Cons" icon="warning">
+    - Free credit may not cover heavy usage
+    - Requires credit card for unlimited
+    - Limited free tier resources
+  </Card>
+</CardGrid>
+
+**Best for:** Running both bot and API with minimal setup.
+
+<LinkCard title="Railway Deployment Guide" href="/deployment/railway" />
+
+---
+
+### Docker
+
+<CardGrid>
+  <Card title="Pros" icon="approve-check">
+    - Consistent environments
+    - Works anywhere
+    - Easy local testing
+    - Production-ready
+  </Card>
+  <Card title="Cons" icon="warning">
+    - Requires host (VPS, cloud)
+    - More setup complexity
+    - Managing containers
+  </Card>
+</CardGrid>
+
+**Best for:** Production deployments with reproducibility needs.
+
+<LinkCard title="Docker Deployment Guide" href="/deployment/docker" />
+
+---
+
+### VPS (DigitalOcean, Linode, AWS)
+
+<CardGrid>
+  <Card title="Pros" icon="approve-check">
+    - Full control
+    - Predictable pricing
+    - Any tech stack
+    - No platform limits
+  </Card>
+  <Card title="Cons" icon="warning">
+    - Manual setup
+    - Server maintenance
+    - Security responsibility
+    - No free tier
+  </Card>
+</CardGrid>
+
+**Best for:** Production deployments needing full control.
+
+<LinkCard title="VPS Deployment Guide" href="/deployment/vps" />
+
+---
+
+### Cloudflare Workers
+
+<CardGrid>
+  <Card title="Pros" icon="approve-check">
+    - Generous free tier
+    - Global edge network
+    - No cold starts
+    - Turso compatible
+  </Card>
+  <Card title="Cons" icon="warning">
+    - Can't run bot (Workers limitation)
+    - Different runtime (not Node.js)
+    - Size/memory limits
+  </Card>
+</CardGrid>
+
+**Best for:** Edge-deployed API with Turso database.
+
+**Not for:** Running the Discord bot.
+
+<LinkCard title="Cloudflare Workers Guide" href="/deployment/cloudflare-workers" />
+
+---
+
+## Recommended Setups
+
+### Budget: Free
+
+```
+Bot: Fly.io (free tier - 3 VMs)
+API: Cloudflare Workers (free tier)
+DB: Turso (free tier - 500 DBs)
+Frontend: Vercel/Cloudflare Pages (free)
+```
+
+Total cost: **$0/month**
+
+### Budget: Small ($5-15/month)
+
+```
+Bot + API: Railway (one service each)
+DB: Railway PostgreSQL or Turso
+Frontend: Vercel (free tier)
+```
+
+Total cost: **$5-15/month**
+
+### Production Ready
+
+```
+Bot: Dedicated VPS (DigitalOcean Droplet)
+API: Railway or Vercel
+DB: Turso (Scaler plan) or managed Postgres
+Frontend: Vercel Pro
+Monitoring: Sentry + Uptime Robot
+```
+
+Total cost: **$20-50/month**
+
+---
+
+## Database Recommendations
+
+| Scenario | Recommended DB | Why |
+|----------|----------------|-----|
+| Development | SQLite (local) | Zero config |
+| Small production | Turso free | Edge-ready, free |
+| Medium production | Turso Scaler | More capacity |
+| Large scale | PostgreSQL | Proven, scalable |
+
+<Aside type="tip">
+  Start with Turso's free tier. It handles most use cases and you can migrate later if needed.
+</Aside>
+
+## Checklist Before Deploying
+
+- [ ] Discord bot token secured
+- [ ] Environment variables configured
+- [ ] Database connection tested
+- [ ] CORS origins set correctly
+- [ ] Domain configured (if applicable)
+- [ ] SSL/HTTPS enabled
+- [ ] Monitoring/logging set up
+
+## Next Steps
+
+Choose your deployment platform and follow the detailed guide:
+
+<CardGrid>
+  <LinkCard title="Vercel" href="/deployment/vercel" />
+  <LinkCard title="Railway" href="/deployment/railway" />
+  <LinkCard title="Docker" href="/deployment/docker" />
+  <LinkCard title="VPS" href="/deployment/vps" />
+  <LinkCard title="Cloudflare Workers" href="/deployment/cloudflare-workers" />
+</CardGrid>

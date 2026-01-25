@@ -23,8 +23,9 @@ discord-forum-api/
 ├── packages/
 │   ├── db/      # Database schema and client (Drizzle ORM)
 │   ├── bot/     # Discord bot (discord.js)
-│   └── api/     # REST API (Hono)
-├── docs/        # Documentation
+│   ├── api/     # REST API (Hono)
+│   └── docs/    # Documentation site (Starlight)
+├── docs/        # Legacy markdown docs
 ├── turbo.json   # Turborepo configuration
 └── package.json # Workspace root
 ```
@@ -95,6 +96,8 @@ discord-forum-api/
 | `pnpm db:generate` | Generate database migrations |
 | `pnpm db:push` | Push schema changes directly |
 | `pnpm db:studio` | Open Drizzle Studio |
+| `pnpm docs:dev` | Start documentation site locally |
+| `pnpm docs:build` | Build documentation site |
 
 ## Database Support
 
@@ -104,10 +107,19 @@ discord-forum-api/
 
 ## Documentation
 
-- [API Reference](docs/API.md) - Complete endpoint documentation
-- [Development Setup](docs/SETUP.md) - Local development guide
-- [Self-Hosting Guide](docs/SELF-HOST.md) - Production deployment
-- [Discord Setup](docs/DISCORD-SETUP.md) - Bot configuration
+📚 **[View Full Documentation](https://discord-forum-api.vercel.app)** - Comprehensive guides, API reference, and tutorials
+
+Quick links:
+- [Getting Started](https://discord-forum-api.vercel.app/getting-started/introduction)
+- [API Reference](https://discord-forum-api.vercel.app/api/overview)
+- [Deployment Guides](https://discord-forum-api.vercel.app/deployment)
+- [Use Cases](https://discord-forum-api.vercel.app/use-cases)
+
+Legacy markdown docs (being migrated):
+- [API Reference](docs/API.md)
+- [Development Setup](docs/SETUP.md)
+- [Self-Hosting Guide](docs/SELF-HOST.md)
+- [Discord Setup](docs/DISCORD-SETUP.md)
 
 ## Tech Stack
 
