@@ -71,8 +71,8 @@ threadlink/
 
 ```bash
 # Clone the repo
-git clone https://github.com/KevinTrinh1227/discord-forum-api.git
-cd discord-forum-api
+git clone https://github.com/KevinTrinh1227/threadlink.git
+cd threadlink
 
 # Install dependencies
 pnpm install

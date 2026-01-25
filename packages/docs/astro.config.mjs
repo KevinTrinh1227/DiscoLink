@@ -7,7 +7,7 @@ export default defineConfig({
       title: 'Threadlink',
       description: 'Transform your Discord forum channels into a powerful REST API. Sync threads, messages, and content to build FAQs, blogs, and knowledge bases.',
       social: {
-        github: 'https://github.com/KevinTrinh1227/discord-forum-api',
+        github: 'https://github.com/KevinTrinh1227/threadlink',
       },
       customCss: ['./src/styles/custom.css'],
       logo: {
@@ -15,7 +15,7 @@ export default defineConfig({
         replacesTitle: false,
       },
       editLink: {
-        baseUrl: 'https://github.com/KevinTrinh1227/discord-forum-api/edit/main/packages/docs/',
+        baseUrl: 'https://github.com/KevinTrinh1227/threadlink/edit/main/packages/docs/',
       },
       sidebar: [
         {
