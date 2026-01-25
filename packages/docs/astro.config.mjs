@@ -4,8 +4,8 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
   integrations: [
     starlight({
-      title: 'Discord Forum API',
-      description: 'API-first Discord forum/FAQ/blog engine that syncs Discord server content to a database and exposes it via REST API',
+      title: 'Threadlink',
+      description: 'Transform your Discord forum channels into a powerful REST API. Sync threads, messages, and content to build FAQs, blogs, and knowledge bases.',
       social: {
         github: 'https://github.com/KevinTrinh1227/discord-forum-api',
       },

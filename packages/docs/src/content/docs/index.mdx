@@ -1,9 +1,9 @@
 ---
-title: Discord Forum API
-description: API-first Discord forum/FAQ/blog engine that syncs Discord server content to a database and exposes it via REST API
+title: Threadlink
+description: Transform your Discord forum channels into a powerful REST API. Sync threads, messages, and content to build FAQs, blogs, and knowledge bases.
 template: splash
 hero:
-  tagline: Turn your Discord forums into powerful APIs for FAQs, blogs, knowledge bases, and more.
+  tagline: Transform your Discord forums into powerful APIs for FAQs, blogs, knowledge bases, and more.
   image:
     file: ../../assets/logo.svg
   actions:
@@ -16,9 +16,9 @@ hero:
       icon: external
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
 
-## Why Discord Forum API?
+## Why Threadlink?
 
 <CardGrid stagger>
   <Card title="Zero Friction Content" icon="pencil">
@@ -108,4 +108,8 @@ curl http://localhost:3000/api/threads?serverId=123456789&status=resolved
 
 ---
 
-Built with by [Kevin Trinh](https://github.com/KevinTrinh1227) and contributors.
+<Aside type="caution" title="Disclaimer">
+  This project is **not affiliated with, endorsed by, or connected to Discord Inc.** "Discord" is a trademark of Discord Inc. Threadlink is an independent, open-source project.
+</Aside>
+
+Built with ❤️ by [Kevin Trinh](https://github.com/KevinTrinh1227) and contributors.

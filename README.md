@@ -1,136 +1,189 @@
-# Discord Forum API
+# 🧵 Threadlink
 
-API-first Discord forum/FAQ/blog engine that syncs Discord server content to a database and exposes it via REST API.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-20+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![discord.js](https://img.shields.io/badge/discord.js-v14-5865F2?logo=discord&logoColor=white)](https://discord.js.org/)
 
-**Core Flow:** Discord Bot → Database → REST API → Any Frontend
+> **Transform your Discord forum channels into a powerful REST API.** Automatically sync threads, messages, and user content from Discord to a database—then query it all through a clean API. Perfect for building FAQs, blogs, knowledge bases, and support portals powered by your community's conversations.
 
-## Features
+---
 
-- **Real-time Sync**: Discord events are instantly reflected in the database
-- **Rich Content**: Embeds, stickers, components, attachments, and custom emojis
-- **Markdown Parsing**: Discord-flavored markdown converted to HTML
-- **Privacy First**: User consent system (public/anonymous/private)
-- **Multi-DB Support**: SQLite locally, Turso in production
-- **Full-text Search**: FTS5-powered search across threads and messages
-- **Response Caching**: Built-in caching for expensive endpoints
-- **Comprehensive Stats**: Server analytics, leaderboards, human/bot breakdowns
-- **Thread Participants**: Track who participated in each thread
+## ✨ What is Threadlink?
 
-## Project Structure
+Threadlink bridges the gap between Discord and the web. Your community already creates valuable content in Discord forum channels—help threads, announcements, tutorials, discussions. Threadlink captures all of that in real-time and exposes it through a REST API, so you can build anything on top of it.
+
+**The flow is simple:**
 
 ```
-discord-forum-api/
+Discord Forum → 🤖 Bot syncs content → 🗄️ Database → 🌐 REST API → Your App
+```
+
+### 🎯 Use Cases
+
+- **📖 Community FAQ** — Turn resolved help threads into searchable FAQ pages
+- **📝 Developer Blog** — Publish announcements from Discord to your website
+- **📚 Knowledge Base** — Organize forum content into structured documentation
+- **💬 Support Portal** — Showcase support history with contributor leaderboards
+- **📢 Changelog** — Auto-publish release notes and updates
+
+---
+
+## 🚀 Features
+
+| Feature | Description |
+|---------|-------------|
+| ⚡ **Real-time Sync** | Discord events instantly reflected in the database |
+| 🎨 **Rich Content** | Embeds, stickers, attachments, reactions, custom emojis |
+| 📝 **Markdown Parsing** | Discord-flavored markdown converted to HTML |
+| 🔒 **Privacy First** | User consent system (public/anonymous/private) |
+| 🗄️ **Multi-DB Support** | SQLite locally, Turso for edge/production |
+| 🔍 **Full-text Search** | FTS5-powered search across threads and messages |
+| 📊 **Analytics** | Server stats, leaderboards, participation tracking |
+| ⚙️ **Caching** | Built-in response caching for performance |
+
+---
+
+## 📦 Project Structure
+
+```
+threadlink/
 ├── packages/
-│   ├── db/      # Database schema and client (Drizzle ORM)
-│   ├── bot/     # Discord bot (discord.js)
-│   ├── api/     # REST API (Hono)
-│   └── docs/    # Documentation site (Starlight)
-├── docs/        # Legacy markdown docs
-├── turbo.json   # Turborepo configuration
-└── package.json # Workspace root
+│   ├── db/      # 🗄️ Database schema (Drizzle ORM)
+│   ├── bot/     # 🤖 Discord bot (discord.js)
+│   ├── api/     # 🌐 REST API (Hono)
+│   └── docs/    # 📚 Documentation (Starlight)
+├── turbo.json   # ⚡ Turborepo config
+└── package.json # 📋 Workspace root
 ```
 
-## Prerequisites
+---
+
+## 🛠️ Quick Start
+
+### Prerequisites
 
 - Node.js 20+
 - pnpm 9+
-- Discord Application (bot token, client ID, client secret)
+- Discord Application ([setup guide](https://discord-forum-api-docs.pages.dev/guides/discord-bot-setup))
 
-## Quick Start
+### Installation
 
-1. **Clone and install**
-   ```bash
-   git clone https://github.com/KevinTrinh1227/discord-forum-api.git
-   cd discord-forum-api
-   pnpm install
-   ```
+```bash
+# Clone the repo
+git clone https://github.com/KevinTrinh1227/discord-forum-api.git
+cd discord-forum-api
 
-2. **Configure environment**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your Discord credentials
-   ```
+# Install dependencies
+pnpm install
 
-3. **Set up database**
-   ```bash
-   pnpm db:push
-   ```
+# Configure environment
+cp .env.example .env
+# Edit .env with your Discord credentials
 
-4. **Run development servers**
-   ```bash
-   pnpm dev
-   ```
+# Set up database
+pnpm db:push
 
-## API Highlights
+# Start development
+pnpm dev
+```
+
+---
+
+## 🔌 API Overview
 
 ### Endpoints
 
 | Endpoint | Description |
 |----------|-------------|
 | `GET /servers/:id` | Server info |
-| `GET /servers/:id/stats` | Comprehensive server statistics |
-| `GET /servers/:id/channels` | List forum channels |
+| `GET /servers/:id/stats` | Server statistics |
+| `GET /servers/:id/channels` | Forum channels |
 | `GET /threads` | List/filter threads |
-| `GET /threads/:id` | Full thread with messages |
-| `GET /threads/:id/participants` | Thread participants |
+| `GET /threads/:id` | Thread with messages |
 | `GET /search` | Full-text search |
 | `GET /leaderboard/:serverId` | User leaderboards |
-| `GET /users/:id` | User profile with badges |
+| `GET /users/:id` | User profile |
 
-### Response Features
+### Example Response
 
-- Messages include parsed HTML (`contentHtml`)
-- Attachments with dimensions and metadata
-- Reactions with animated emoji support
-- Embeds, stickers, and mentions
-- User badges and Nitro status
+```json
+{
+  "threads": [
+    {
+      "id": "111222333",
+      "title": "How do I implement OAuth?",
+      "status": "resolved",
+      "messageCount": 8,
+      "author": { "username": "curious_dev" }
+    }
+  ]
+}
+```
 
-## Scripts
+---
+
+## 📚 Documentation
+
+📖 **[View Full Documentation](https://discord-forum-api-docs.pages.dev)**
+
+| Section | Description |
+|---------|-------------|
+| [Getting Started](https://discord-forum-api-docs.pages.dev/getting-started/introduction) | Installation & setup |
+| [API Reference](https://discord-forum-api-docs.pages.dev/api/overview) | All endpoints |
+| [Deployment](https://discord-forum-api-docs.pages.dev/deployment) | Vercel, Railway, Docker |
+| [Use Cases](https://discord-forum-api-docs.pages.dev/use-cases) | Real-world examples |
+
+---
+
+## 🧰 Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| **Runtime** | Node.js 20+ |
+| **Language** | TypeScript |
+| **Bot** | discord.js v14 |
+| **API** | Hono |
+| **Database** | Drizzle ORM + SQLite/Turso |
+| **Build** | Turborepo |
+| **Docs** | Starlight (Astro) |
+
+---
+
+## 📜 Scripts
 
 | Command | Description |
 |---------|-------------|
-| `pnpm dev` | Start all packages in development mode |
+| `pnpm dev` | Start all packages |
 | `pnpm build` | Build all packages |
-| `pnpm lint` | Lint all packages |
-| `pnpm lint:fix` | Fix auto-fixable lint errors |
-| `pnpm db:generate` | Generate database migrations |
-| `pnpm db:push` | Push schema changes directly |
+| `pnpm lint` | Lint code |
+| `pnpm db:push` | Push schema changes |
 | `pnpm db:studio` | Open Drizzle Studio |
-| `pnpm docs:dev` | Start documentation site locally |
-| `pnpm docs:build` | Build documentation site |
+| `pnpm docs:dev` | Run docs locally |
 
-## Database Support
+---
 
-- **SQLite** - Local development (default)
-- **Turso** - Edge-compatible SQLite for production
-- **FTS5** - Full-text search support
+## 🤝 Contributing
 
-## Documentation
+Contributions are welcome! See the [Contributing Guide](https://discord-forum-api-docs.pages.dev/contributing/development-setup) to get started.
 
-📚 **[View Full Documentation](https://discord-forum-api-docs.pages.dev)** - Comprehensive guides, API reference, and tutorials
+---
 
-Quick links:
-- [Getting Started](https://discord-forum-api-docs.pages.dev/getting-started/introduction)
-- [API Reference](https://discord-forum-api-docs.pages.dev/api/overview)
-- [Deployment Guides](https://discord-forum-api-docs.pages.dev/deployment)
-- [Use Cases](https://discord-forum-api-docs.pages.dev/use-cases)
+## 📄 License
 
-Legacy markdown docs (being migrated):
-- [API Reference](docs/API.md)
-- [Development Setup](docs/SETUP.md)
-- [Self-Hosting Guide](docs/SELF-HOST.md)
-- [Discord Setup](docs/DISCORD-SETUP.md)
+MIT — See [LICENSE](LICENSE) for details.
 
-## Tech Stack
+---
 
-- **Runtime**: Node.js 20+
-- **Package Manager**: pnpm (workspaces)
-- **Build System**: Turborepo
-- **Database**: Drizzle ORM + SQLite/Turso
-- **Bot**: discord.js v14
-- **API**: Hono
-- **Language**: TypeScript
+<div align="center">
 
-## License
+**⚠️ Disclaimer**
 
-MIT - See [LICENSE](LICENSE) for details.
+This project is not affiliated with, endorsed by, or connected to Discord Inc.
+"Discord" is a trademark of Discord Inc. This is an independent, open-source project.
+
+---
+
+Built with ❤️ by [Kevin Trinh](https://github.com/KevinTrinh1227)
+
+</div>
