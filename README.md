@@ -107,13 +107,13 @@ discord-forum-api/
 
 ## Documentation
 
-📚 **[View Full Documentation](https://discord-forum-api.vercel.app)** - Comprehensive guides, API reference, and tutorials
+📚 **[View Full Documentation](https://discord-forum-api-docs.pages.dev)** - Comprehensive guides, API reference, and tutorials
 
 Quick links:
-- [Getting Started](https://discord-forum-api.vercel.app/getting-started/introduction)
-- [API Reference](https://discord-forum-api.vercel.app/api/overview)
-- [Deployment Guides](https://discord-forum-api.vercel.app/deployment)
-- [Use Cases](https://discord-forum-api.vercel.app/use-cases)
+- [Getting Started](https://discord-forum-api-docs.pages.dev/getting-started/introduction)
+- [API Reference](https://discord-forum-api-docs.pages.dev/api/overview)
+- [Deployment Guides](https://discord-forum-api-docs.pages.dev/deployment)
+- [Use Cases](https://discord-forum-api-docs.pages.dev/use-cases)
 
 Legacy markdown docs (being migrated):
 - [API Reference](docs/API.md)
