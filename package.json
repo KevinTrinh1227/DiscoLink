@@ -1,8 +1,8 @@
 {
-  "name": "discord-forum-api",
+  "name": "discordlink",
   "version": "0.1.0",
   "private": true,
-  "description": "API-first Discord forum/FAQ/blog engine that syncs Discord server content to a database and exposes it via REST API",
+  "description": "Complete Discord-as-CMS platform that syncs server content to a database and exposes it via REST API",
   "author": "KevinTrinh1227",
   "license": "MIT",
   "packageManager": "pnpm@9.15.0",
@@ -21,13 +21,13 @@
     "typecheck": "turbo run typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "db:generate": "pnpm --filter @discord-forum-api/db generate",
-    "db:migrate": "pnpm --filter @discord-forum-api/db migrate",
-    "db:push": "pnpm --filter @discord-forum-api/db push",
-    "db:studio": "pnpm --filter @discord-forum-api/db studio",
-    "docs:dev": "pnpm --filter @discord-forum-api/docs dev",
-    "docs:build": "pnpm --filter @discord-forum-api/docs build",
-    "docs:preview": "pnpm --filter @discord-forum-api/docs preview"
+    "db:generate": "pnpm --filter @discordlink/db generate",
+    "db:migrate": "pnpm --filter @discordlink/db migrate",
+    "db:push": "pnpm --filter @discordlink/db push",
+    "db:studio": "pnpm --filter @discordlink/db studio",
+    "docs:dev": "pnpm --filter @discordlink/docs dev",
+    "docs:build": "pnpm --filter @discordlink/docs build",
+    "docs:preview": "pnpm --filter @discordlink/docs preview"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

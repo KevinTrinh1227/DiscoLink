@@ -14,6 +14,8 @@ import {
   memberRoles,
   reactionUsers,
   syncLog,
+  webhooks,
+  webhookDeliveries,
   type NewServer,
   type NewChannel,
   type NewUser,
@@ -26,6 +28,8 @@ import {
   type NewMemberRole,
   type NewReactionUser,
   type NewSyncLogEntry,
+  type NewWebhook,
+  type NewWebhookDelivery,
 } from "./schema.js";
 
 // Using 'any' for db parameter to avoid union type issues
@@ -133,6 +137,15 @@ export async function softDeleteChannel(db: AnyDb, id: string) {
     .update(channels)
     .set({ deletedAt: new Date(), updatedAt: new Date() })
     .where(eq(channels.id, id));
+}
+
+export async function getChannelById(db: AnyDb, id: string) {
+  const [channel] = await db
+    .select()
+    .from(channels)
+    .where(and(eq(channels.id, id), isNull(channels.deletedAt)))
+    .limit(1);
+  return channel;
 }
 
 // ============================================================================
@@ -273,7 +286,10 @@ export async function getThreadTags(db: AnyDb, threadId: string) {
 // ============================================================================
 export async function createMessage(db: AnyDb, data: NewMessage) {
   const [inserted] = await db.insert(messages).values(data).returning();
-  await incrementThreadMessageCount(db, data.threadId);
+  // Only increment thread message count if this message belongs to a thread
+  if (data.threadId) {
+    await incrementThreadMessageCount(db, data.threadId);
+  }
   return inserted;
 }
 
@@ -309,7 +325,10 @@ export async function softDeleteMessage(db: AnyDb, id: string) {
 
   if (message) {
     await db.update(messages).set({ deletedAt: new Date() }).where(eq(messages.id, id));
-    await decrementThreadMessageCount(db, message.threadId);
+    // Only decrement thread message count if this message belongs to a thread
+    if (message.threadId) {
+      await decrementThreadMessageCount(db, message.threadId);
+    }
   }
 }
 
@@ -591,4 +610,108 @@ export async function getReactionByMessageAndEmoji(db: AnyDb, messageId: string,
     .where(and(eq(reactions.messageId, messageId), eq(reactions.emoji, emoji)))
     .limit(1);
   return reaction;
+}
+
+// ============================================================================
+// WEBHOOK HELPERS
+// ============================================================================
+export async function createWebhook(db: AnyDb, data: NewWebhook) {
+  const [inserted] = await db.insert(webhooks).values(data).returning();
+  return inserted;
+}
+
+export async function getWebhookById(db: AnyDb, id: string) {
+  const [webhook] = await db.select().from(webhooks).where(eq(webhooks.id, id)).limit(1);
+  return webhook;
+}
+
+export async function getWebhooksByServerId(db: AnyDb, serverId: string) {
+  return db
+    .select()
+    .from(webhooks)
+    .where(eq(webhooks.serverId, serverId))
+    .orderBy(desc(webhooks.createdAt));
+}
+
+export async function getActiveWebhooksByServerId(db: AnyDb, serverId: string) {
+  return db
+    .select()
+    .from(webhooks)
+    .where(and(eq(webhooks.serverId, serverId), eq(webhooks.isActive, true)));
+}
+
+export async function updateWebhook(
+  db: AnyDb,
+  id: string,
+  data: Partial<Omit<NewWebhook, "id" | "createdAt">>
+) {
+  await db
+    .update(webhooks)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(webhooks.id, id));
+}
+
+export async function deleteWebhook(db: AnyDb, id: string) {
+  await db.delete(webhooks).where(eq(webhooks.id, id));
+}
+
+export async function incrementWebhookFailureCount(db: AnyDb, id: string) {
+  await db
+    .update(webhooks)
+    .set({
+      failureCount: sql`${webhooks.failureCount} + 1`,
+      updatedAt: new Date(),
+    })
+    .where(eq(webhooks.id, id));
+}
+
+export async function resetWebhookFailureCount(db: AnyDb, id: string) {
+  await db
+    .update(webhooks)
+    .set({
+      failureCount: 0,
+      lastTriggeredAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(eq(webhooks.id, id));
+}
+
+export async function disableWebhook(db: AnyDb, id: string) {
+  await db
+    .update(webhooks)
+    .set({ isActive: false, updatedAt: new Date() })
+    .where(eq(webhooks.id, id));
+}
+
+// ============================================================================
+// WEBHOOK DELIVERY HELPERS
+// ============================================================================
+export async function createWebhookDelivery(db: AnyDb, data: NewWebhookDelivery) {
+  const [inserted] = await db.insert(webhookDeliveries).values(data).returning();
+  return inserted;
+}
+
+export async function updateWebhookDelivery(
+  db: AnyDb,
+  id: number,
+  data: Partial<Pick<NewWebhookDelivery, "status" | "responseCode" | "responseBody" | "attemptCount" | "nextRetryAt" | "completedAt">>
+) {
+  await db.update(webhookDeliveries).set(data).where(eq(webhookDeliveries.id, id));
+}
+
+export async function getWebhookDeliveriesByWebhookId(db: AnyDb, webhookId: string, limit = 50) {
+  return db
+    .select()
+    .from(webhookDeliveries)
+    .where(eq(webhookDeliveries.webhookId, webhookId))
+    .orderBy(desc(webhookDeliveries.createdAt))
+    .limit(limit);
+}
+
+export async function getPendingWebhookDeliveries(db: AnyDb) {
+  return db
+    .select()
+    .from(webhookDeliveries)
+    .where(eq(webhookDeliveries.status, "pending"))
+    .orderBy(asc(webhookDeliveries.createdAt));
 }

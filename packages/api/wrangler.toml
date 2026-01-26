@@ -1,0 +1,36 @@
+# Cloudflare Workers configuration for DiscordLink API
+# See: https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "discordlink-api"
+main = "dist/worker.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "discordlink"
+database_id = "" # Set this after creating the database with: wrangler d1 create discordlink
+
+# Environment variables (optional, can also be set in dashboard)
+# [vars]
+# API_KEY = ""
+# CORS_ORIGINS = "*"
+
+# Production environment
+[env.production]
+name = "discordlink-api-production"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "discordlink-production"
+database_id = "" # Set this after creating the production database
+
+# Staging environment
+[env.staging]
+name = "discordlink-api-staging"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "discordlink-staging"
+database_id = "" # Set this after creating the staging database

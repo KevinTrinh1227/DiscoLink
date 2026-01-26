@@ -1,0 +1,54 @@
+---
+export interface Props {
+  placeholder?: string;
+}
+
+const { placeholder = 'Search FAQs...' } = Astro.props;
+---
+
+<div class="search-box">
+  <input
+    type="search"
+    id="faq-search"
+    placeholder={placeholder}
+    aria-label="Search FAQs"
+  />
+</div>
+
+<style>
+  .search-box {
+    margin-bottom: 2rem;
+  }
+  input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.1);
+  }
+  input::placeholder {
+    color: var(--text-secondary);
+  }
+</style>
+
+<script>
+  const searchInput = document.getElementById('faq-search') as HTMLInputElement;
+  const faqItems = document.querySelectorAll('.faq-item');
+
+  searchInput?.addEventListener('input', (e) => {
+    const query = (e.target as HTMLInputElement).value.toLowerCase();
+
+    faqItems.forEach((item) => {
+      const text = item.textContent?.toLowerCase() || '';
+      const matches = text.includes(query);
+      (item as HTMLElement).style.display = matches ? 'block' : 'none';
+    });
+  });
+</script>

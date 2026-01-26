@@ -1,0 +1,57 @@
+---
+export interface Props {
+  siteName: string;
+}
+
+const { siteName } = Astro.props;
+---
+
+<header class="site-header">
+  <div class="container">
+    <a href="/" class="logo">{siteName}</a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/rss.xml">RSS</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .logo {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+  }
+  .logo:hover {
+    text-decoration: none;
+    color: var(--accent);
+  }
+  nav {
+    display: flex;
+    gap: 1.5rem;
+  }
+  nav a {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+  nav a:hover {
+    color: var(--accent);
+    text-decoration: none;
+  }
+</style>

@@ -11,10 +11,10 @@ config({ path: resolve(__dirname, "../../../.env") });
 import { serve } from "@hono/node-server";
 import { createApp } from "./app.js";
 import { getConfig } from "./config.js";
-import { createDbClient, getDbConfigFromEnv, setDb } from "@discord-forum-api/db";
+import { createDbClient, getDbConfigFromEnv, setDb } from "@discordlink/db";
 
 async function main(): Promise<void> {
-  console.log("Starting Discord Forum API...");
+  console.log("Starting DiscordLink API...");
 
   // Validate config
   let config;

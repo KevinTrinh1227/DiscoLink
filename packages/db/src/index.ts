@@ -4,6 +4,7 @@ export * from "./schema.js";
 // Client exports
 export {
   createDbClient,
+  createD1Client,
   getDb,
   setDb,
   resetDb,
@@ -24,6 +25,7 @@ export {
   markServerInactive,
   upsertChannel,
   getChannelsByServerId,
+  getChannelById,
   softDeleteChannel,
   upsertUser,
   getUserById,
@@ -63,6 +65,21 @@ export {
   deleteReactionUser,
   getReactionUsersByReactionId,
   getReactionByMessageAndEmoji,
+  // Webhook helpers
+  createWebhook,
+  getWebhookById,
+  getWebhooksByServerId,
+  getActiveWebhooksByServerId,
+  updateWebhook,
+  deleteWebhook,
+  incrementWebhookFailureCount,
+  resetWebhookFailureCount,
+  disableWebhook,
+  // Webhook delivery helpers
+  createWebhookDelivery,
+  updateWebhookDelivery,
+  getWebhookDeliveriesByWebhookId,
+  getPendingWebhookDeliveries,
 } from "./helpers.js";
 
 // Re-export drizzle utilities for convenience

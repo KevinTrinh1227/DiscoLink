@@ -1,5 +1,6 @@
 import { drizzle as drizzleSqlite, type BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { drizzle as drizzleTurso, type LibSQLDatabase } from "drizzle-orm/libsql";
+import { drizzle as drizzleD1, type DrizzleD1Database } from "drizzle-orm/d1";
 import Database from "better-sqlite3";
 import { createClient } from "@libsql/client";
 import { z } from "zod";
@@ -30,9 +31,9 @@ export type TursoConfig = z.infer<typeof tursoConfigSchema>;
 
 // ============================================================================
 // DATABASE CLIENT TYPE
-// Using a simplified type that works across SQLite and Turso
+// Using a simplified type that works across SQLite, Turso, and D1
 // ============================================================================
-export type DbClient = BetterSQLite3Database<typeof schema> | LibSQLDatabase<typeof schema>;
+export type DbClient = BetterSQLite3Database<typeof schema> | LibSQLDatabase<typeof schema> | DrizzleD1Database<typeof schema>;
 
 // ============================================================================
 // CLIENT FACTORY
@@ -108,4 +109,11 @@ export function setDb(client: DbClient): void {
 
 export function resetDb(): void {
   defaultClient = null;
+}
+
+// ============================================================================
+// D1 CLIENT (for Cloudflare Workers)
+// ============================================================================
+export function createD1Client(d1: D1Database): DrizzleD1Database<typeof schema> {
+  return drizzleD1(d1, { schema });
 }

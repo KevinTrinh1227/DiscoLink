@@ -1,0 +1,115 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ChangelogEntry from '../components/ChangelogEntry.astro';
+import { getServer, getThreads, groupByMonth, formatMonthYear } from '../lib/discordlink';
+
+const server = await getServer();
+const threads = await getThreads();
+const grouped = groupByMonth(threads);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": server.name,
+  "releaseNotes": threads.slice(0, 10).map((t) => ({
+    "@type": "CreativeWork",
+    "name": t.title,
+    "datePublished": t.createdAt,
+  })),
+};
+---
+
+<BaseLayout
+  title={`Changelog - ${server.name}`}
+  description={`Latest updates and changes from ${server.name}`}
+  canonical={Astro.url.href}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <div class="container">
+    <header>
+      <h1>{server.name} Changelog</h1>
+      <p class="subtitle">Latest updates and announcements</p>
+      <a href="/rss.xml" class="rss-link">Subscribe via RSS</a>
+    </header>
+
+    <main class="timeline">
+      {Array.from(grouped.entries()).map(([monthKey, monthThreads]) => (
+        <section class="month-group">
+          <h2 class="month-header">{formatMonthYear(monthKey)}</h2>
+          {monthThreads.map((thread) => (
+            <ChangelogEntry
+              title={thread.title}
+              slug={thread.slug}
+              date={thread.createdAt}
+              content={thread.title}
+              author={thread.author?.username}
+              tags={[]}
+            />
+          ))}
+        </section>
+      ))}
+    </main>
+
+    <footer>
+      <p>Powered by <a href="https://discordlink.dev">DiscordLink</a></p>
+    </footer>
+  </div>
+</BaseLayout>
+
+<style>
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  header {
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  .subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+  }
+  .rss-link {
+    font-size: 0.9rem;
+  }
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+    border-left: 2px solid var(--timeline);
+  }
+  .month-group {
+    margin-bottom: 2rem;
+  }
+  .month-header {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    margin-left: -2rem;
+    padding-left: 2rem;
+    position: relative;
+  }
+  .month-header::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+  footer {
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: 2rem;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border);
+  }
+</style>

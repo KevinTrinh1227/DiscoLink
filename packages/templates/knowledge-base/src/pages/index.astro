@@ -1,0 +1,113 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Sidebar from '../components/Sidebar.astro';
+import SearchBox from '../components/SearchBox.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { getServer, getThreads, groupByCategory } from '../lib/discordlink';
+
+const server = await getServer();
+const threads = await getThreads();
+const categories = groupByCategory(threads);
+
+const popularArticles = threads
+  .sort((a, b) => b.messageCount - a.messageCount)
+  .slice(0, 6);
+
+const recentArticles = threads
+  .sort((a, b) => new Date(b.lastActivityAt).getTime() - new Date(a.lastActivityAt).getTime())
+  .slice(0, 6);
+---
+
+<BaseLayout
+  title={`${server.name} Knowledge Base`}
+  description={server.description || `Help articles and documentation from ${server.name}`}
+  canonical={Astro.url.href}
+>
+  <Sidebar categories={categories} />
+
+  <main class="main-content">
+    <header>
+      <h1>Welcome to {server.name} Knowledge Base</h1>
+      <p class="subtitle">Find answers to common questions and learn how to use our platform</p>
+    </header>
+
+    <SearchBox />
+
+    <section class="section">
+      <h2>Popular Articles</h2>
+      <div class="article-grid">
+        {popularArticles.map((thread) => (
+          <ArticleCard
+            title={thread.title}
+            slug={thread.slug}
+            excerpt={thread.title}
+            date={thread.lastActivityAt}
+          />
+        ))}
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Recently Updated</h2>
+      <div class="article-grid">
+        {recentArticles.map((thread) => (
+          <ArticleCard
+            title={thread.title}
+            slug={thread.slug}
+            excerpt={thread.title}
+            date={thread.lastActivityAt}
+          />
+        ))}
+      </div>
+    </section>
+
+    <footer>
+      <p>Powered by <a href="https://discordlink.dev">DiscordLink</a></p>
+    </footer>
+  </main>
+</BaseLayout>
+
+<style>
+  .main-content {
+    margin-left: var(--sidebar-width);
+    padding: 2rem 3rem;
+    max-width: 1000px;
+  }
+  header {
+    margin-bottom: 2rem;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+  }
+  .section {
+    margin-bottom: 3rem;
+  }
+  .section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+  }
+  .article-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 768px) {
+    .main-content {
+      margin-left: 0;
+      padding: 1rem;
+    }
+  }
+</style>

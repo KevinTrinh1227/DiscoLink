@@ -9,8 +9,9 @@ import {
   upsertUser,
   reactions,
   eq,
-} from "@discord-forum-api/db";
+} from "@discordlink/db";
 import { logger } from "../logger.js";
+import { dispatchWebhookEvent } from "../lib/webhook-dispatcher.js";
 
 function isThreadReaction(reaction: MessageReaction | PartialMessageReaction): boolean {
   return (
@@ -90,6 +91,17 @@ export async function handleReactionAdd(
       count: fullReaction.count,
       userId: fullUser.id,
     });
+
+    // Dispatch webhook event
+    if (fullReaction.message.guildId) {
+      await dispatchWebhookEvent(fullReaction.message.guildId, "reaction.added", {
+        messageId: fullReaction.message.id,
+        emoji: emoji.name ?? emoji.id,
+        emojiUrl,
+        userId: fullUser.id,
+        count: fullReaction.count,
+      });
+    }
   } catch (error) {
     logger.error(`Failed to store reaction`, {
       messageId: fullReaction.message.id,
@@ -147,6 +159,16 @@ export async function handleReactionRemove(
       count: fullReaction.count,
       userId: user.id,
     });
+
+    // Dispatch webhook event
+    if (fullReaction.message.guildId) {
+      await dispatchWebhookEvent(fullReaction.message.guildId, "reaction.removed", {
+        messageId: fullReaction.message.id,
+        emoji: emoji.name ?? emoji.id,
+        userId: user.id,
+        count: fullReaction.count,
+      });
+    }
   } catch (error) {
     logger.error(`Failed to update reaction`, {
       messageId: fullReaction.message.id,

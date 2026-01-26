@@ -1,0 +1,219 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import { getServer, getThreads, getThread, getReadingTime, getAvatarUrl } from '../../lib/discordlink';
+
+export async function getStaticPaths() {
+  const threads = await getThreads();
+  return threads.map((thread) => ({
+    params: { slug: thread.slug },
+    props: { threadId: thread.id },
+  }));
+}
+
+const { threadId } = Astro.props;
+const thread = await getThread(threadId);
+const server = await getServer();
+const threads = await getThreads();
+
+const firstMessage = thread.messages[0];
+const content = firstMessage?.content || '';
+const readingTime = getReadingTime(content);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": thread.title,
+  "datePublished": thread.createdAt,
+  "dateModified": thread.lastActivityAt,
+  "author": thread.author ? {
+    "@type": "Person",
+    "name": thread.author.username,
+  } : undefined,
+  "publisher": {
+    "@type": "Organization",
+    "name": server.name,
+  },
+};
+
+function formatDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+const relatedPosts = threads
+  .filter((t) => t.id !== thread.id)
+  .slice(0, 3);
+---
+
+<BaseLayout
+  title={`${thread.title} - ${server.name}`}
+  description={content.slice(0, 160)}
+  canonical={Astro.url.href}
+  type="article"
+  publishedTime={thread.createdAt}
+  author={thread.author?.username}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <Header siteName={`${server.name} Blog`} />
+
+  <article class="container">
+    <header class="post-header">
+      {thread.tags.length > 0 && (
+        <div class="tags">
+          {thread.tags.map((tag) => (
+            <span class="tag">{tag.emoji || ''}{tag.name}</span>
+          ))}
+        </div>
+      )}
+      <h1>{thread.title}</h1>
+      <div class="post-meta">
+        {thread.author && (
+          <div class="author">
+            <img
+              src={getAvatarUrl(thread.author.id, thread.author.avatar)}
+              alt={thread.author.username}
+              class="avatar"
+            />
+            <span>{thread.author.username}</span>
+          </div>
+        )}
+        <span class="date">{formatDate(thread.createdAt)}</span>
+        <span class="reading-time">{readingTime} min read</span>
+      </div>
+    </header>
+
+    <div class="post-content">
+      {thread.messages.map((msg) => (
+        <div class="message-block">
+          {msg.contentHtml ? (
+            <Fragment set:html={msg.contentHtml} />
+          ) : (
+            msg.content.split('\n\n').map((paragraph) => (
+              <p>{paragraph}</p>
+            ))
+          )}
+        </div>
+      ))}
+    </div>
+
+    {relatedPosts.length > 0 && (
+      <section class="related-posts">
+        <h2>More Posts</h2>
+        <div class="related-grid">
+          {relatedPosts.map((post) => (
+            <a href={`/posts/${post.slug}`} class="related-item">
+              <h3>{post.title}</h3>
+              <span class="date">{formatDate(post.createdAt)}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </article>
+
+  <footer class="site-footer">
+    <p>Powered by <a href="https://discordlink.dev">DiscordLink</a></p>
+  </footer>
+</BaseLayout>
+
+<style>
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  .post-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .tags {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .tag {
+    background: var(--bg-tertiary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+  h1 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+  }
+  .post-meta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+  .author {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+  }
+  .post-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+  }
+  .message-block {
+    margin-bottom: 2rem;
+  }
+  .message-block p {
+    margin-bottom: 1.5rem;
+  }
+  .related-posts {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .related-posts h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .related-grid {
+    display: grid;
+    gap: 1rem;
+  }
+  .related-item {
+    display: block;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    color: var(--text-primary);
+  }
+  .related-item:hover {
+    text-decoration: none;
+    border-color: var(--accent);
+  }
+  .related-item h3 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+  .related-item .date {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+  .site-footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+</style>

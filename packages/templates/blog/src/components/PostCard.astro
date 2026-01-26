@@ -1,0 +1,116 @@
+---
+import { getAvatarUrl } from '../lib/discordlink';
+
+export interface Props {
+  title: string;
+  slug: string;
+  excerpt: string;
+  date: string;
+  readingTime: number;
+  author?: {
+    id: string;
+    username: string;
+    avatar: string | null;
+  };
+  tags?: Array<{ name: string; emoji: string | null }>;
+}
+
+const { title, slug, excerpt, date, readingTime, author, tags = [] } = Astro.props;
+const formattedDate = new Date(date).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+const avatarUrl = author ? getAvatarUrl(author.id, author.avatar) : null;
+---
+
+<article class="post-card">
+  <div class="post-content">
+    <h2><a href={`/posts/${slug}`}>{title}</a></h2>
+    <p class="excerpt">{excerpt}</p>
+
+    <div class="post-meta">
+      {author && (
+        <div class="author">
+          {avatarUrl && <img src={avatarUrl} alt={author.username} class="avatar" />}
+          <span>{author.username}</span>
+        </div>
+      )}
+      <span class="date">{formattedDate}</span>
+      <span class="reading-time">{readingTime} min read</span>
+    </div>
+
+    {tags.length > 0 && (
+      <div class="tags">
+        {tags.map((tag) => (
+          <span class="tag">{tag.emoji || ''}{tag.name}</span>
+        ))}
+      </div>
+    )}
+  </div>
+</article>
+
+<style>
+  .post-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .post-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+  }
+  h2 a {
+    color: var(--text-primary);
+  }
+  h2 a:hover {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .excerpt {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+  }
+  .author {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+  }
+  .tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+  .tag {
+    background: var(--bg-tertiary);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+</style>

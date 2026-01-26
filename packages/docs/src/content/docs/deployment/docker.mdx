@@ -116,8 +116,8 @@ COPY packages/bot packages/bot
 COPY tsconfig.json ./
 
 # Build
-RUN pnpm --filter @discord-forum-api/db build
-RUN pnpm --filter @discord-forum-api/bot build
+RUN pnpm --filter @discordlink/db build
+RUN pnpm --filter @discordlink/bot build
 
 # Production stage
 FROM node:20-alpine
@@ -164,8 +164,8 @@ COPY packages/db packages/db
 COPY packages/api packages/api
 COPY tsconfig.json ./
 
-RUN pnpm --filter @discord-forum-api/db build
-RUN pnpm --filter @discord-forum-api/api build
+RUN pnpm --filter @discordlink/db build
+RUN pnpm --filter @discordlink/api build
 
 # Production stage
 FROM node:20-alpine

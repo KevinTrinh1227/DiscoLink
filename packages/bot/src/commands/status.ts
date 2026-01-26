@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, type ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
-import { getDb, servers, threads, messages, eq, and, isNull } from "@discord-forum-api/db";
+import { getDb, servers, threads, messages, eq, and, isNull } from "@discordlink/db";
 import { getClient } from "../client.js";
 
 export const statusCommand = {
@@ -54,7 +54,7 @@ export const statusCommand = {
     const seconds = Math.floor(uptime % 60);
 
     const embed = new EmbedBuilder()
-      .setTitle("Discord Forum API - Bot Status")
+      .setTitle("DiscordLink - Bot Status")
       .setColor(0x5865f2)
       .addFields(
         { name: "Uptime", value: `${hours}h ${minutes}m ${seconds}s`, inline: true },

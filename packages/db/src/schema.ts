@@ -42,6 +42,7 @@ export const channels = sqliteTable(
     position: integer("position").default(0),
     isNsfw: integer("is_nsfw", { mode: "boolean" }).default(false),
     isSynced: integer("is_synced", { mode: "boolean" }).default(true),
+    syncMode: text("sync_mode", { enum: ["full", "threads_only", "disabled"] }).default("threads_only"),
     createdAt: integer("created_at", { mode: "timestamp" })
       .notNull()
       .$defaultFn(() => new Date()),
@@ -206,9 +207,7 @@ export const messages = sqliteTable(
   "messages",
   {
     id: text("id").primaryKey(), // Discord snowflake
-    threadId: text("thread_id")
-      .notNull()
-      .references(() => threads.id, { onDelete: "cascade" }),
+    threadId: text("thread_id").references(() => threads.id, { onDelete: "cascade" }), // Nullable for non-thread channel messages
     channelId: text("channel_id")
       .notNull()
       .references(() => channels.id, { onDelete: "cascade" }),
@@ -416,6 +415,65 @@ export const syncLog = sqliteTable(
 );
 
 // ============================================================================
+// WEBHOOKS
+// ============================================================================
+export const webhooks = sqliteTable(
+  "webhooks",
+  {
+    id: text("id").primaryKey(), // UUID
+    serverId: text("server_id")
+      .notNull()
+      .references(() => servers.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    url: text("url").notNull(),
+    secret: text("secret").notNull(), // HMAC secret for signature verification
+    events: text("events").notNull(), // JSON array: ["thread.created", "message.created"]
+    isActive: integer("is_active", { mode: "boolean" }).default(true),
+    failureCount: integer("failure_count").default(0),
+    lastTriggeredAt: integer("last_triggered_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [
+    index("webhooks_server_id_idx").on(table.serverId),
+    index("webhooks_is_active_idx").on(table.isActive),
+  ]
+);
+
+// ============================================================================
+// WEBHOOK DELIVERIES (Audit trail)
+// ============================================================================
+export const webhookDeliveries = sqliteTable(
+  "webhook_deliveries",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    webhookId: text("webhook_id")
+      .notNull()
+      .references(() => webhooks.id, { onDelete: "cascade" }),
+    event: text("event").notNull(), // e.g., "thread.created", "message.created"
+    payload: text("payload").notNull(), // JSON payload sent
+    status: text("status", { enum: ["pending", "success", "failed"] }).notNull(),
+    responseCode: integer("response_code"),
+    responseBody: text("response_body"),
+    attemptCount: integer("attempt_count").default(1),
+    nextRetryAt: integer("next_retry_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    completedAt: integer("completed_at", { mode: "timestamp" }),
+  },
+  (table) => [
+    index("webhook_deliveries_webhook_id_idx").on(table.webhookId),
+    index("webhook_deliveries_status_idx").on(table.status),
+    index("webhook_deliveries_created_at_idx").on(table.createdAt),
+  ]
+);
+
+// ============================================================================
 // RELATIONS
 // ============================================================================
 export const serversRelations = relations(servers, ({ many }) => ({
@@ -424,6 +482,7 @@ export const serversRelations = relations(servers, ({ many }) => ({
   messages: many(messages),
   syncLogs: many(syncLog),
   memberRoles: many(memberRoles),
+  webhooks: many(webhooks),
 }));
 
 export const channelsRelations = relations(channels, ({ one, many }) => ({
@@ -569,6 +628,21 @@ export const syncLogRelations = relations(syncLog, ({ one }) => ({
   }),
 }));
 
+export const webhooksRelations = relations(webhooks, ({ one, many }) => ({
+  server: one(servers, {
+    fields: [webhooks.serverId],
+    references: [servers.id],
+  }),
+  deliveries: many(webhookDeliveries),
+}));
+
+export const webhookDeliveriesRelations = relations(webhookDeliveries, ({ one }) => ({
+  webhook: one(webhooks, {
+    fields: [webhookDeliveries.webhookId],
+    references: [webhooks.id],
+  }),
+}));
+
 // ============================================================================
 // TYPE EXPORTS
 // ============================================================================
@@ -600,3 +674,7 @@ export type ReactionUser = typeof reactionUsers.$inferSelect;
 export type NewReactionUser = typeof reactionUsers.$inferInsert;
 export type SyncLogEntry = typeof syncLog.$inferSelect;
 export type NewSyncLogEntry = typeof syncLog.$inferInsert;
+export type Webhook = typeof webhooks.$inferSelect;
+export type NewWebhook = typeof webhooks.$inferInsert;
+export type WebhookDelivery = typeof webhookDeliveries.$inferSelect;
+export type NewWebhookDelivery = typeof webhookDeliveries.$inferInsert;

@@ -1,0 +1,117 @@
+---
+const links = {
+  product: [
+    { href: '/quickstart', label: 'Quickstart' },
+    { href: '/templates', label: 'Templates' },
+    { href: '/compare', label: 'Compare' },
+    { href: '/roadmap', label: 'Roadmap' },
+  ],
+  resources: [
+    { href: '/docs', label: 'Documentation' },
+    { href: '/faq', label: 'FAQ' },
+    { href: '/changelog', label: 'Changelog' },
+    { href: '/security', label: 'Security' },
+  ],
+  community: [
+    { href: 'https://github.com/KevinTrinh1227/discordlink', label: 'GitHub' },
+    { href: 'https://discord.gg/discordlink', label: 'Discord' },
+  ],
+};
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="logo">DiscordLink</span>
+        <p>Turn your Discord forum into a searchable, SEO-optimized knowledge base.</p>
+      </div>
+
+      <div class="footer-links">
+        <div class="link-group">
+          <h4>Product</h4>
+          {links.product.map((link) => (
+            <a href={link.href}>{link.label}</a>
+          ))}
+        </div>
+        <div class="link-group">
+          <h4>Resources</h4>
+          {links.resources.map((link) => (
+            <a href={link.href}>{link.label}</a>
+          ))}
+        </div>
+        <div class="link-group">
+          <h4>Community</h4>
+          {links.community.map((link) => (
+            <a href={link.href}>{link.label}</a>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; {new Date().getFullYear()} DiscordLink. MIT License.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    padding: 4rem 0 2rem;
+    margin-top: 6rem;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    gap: 4rem;
+  }
+  .footer-brand {
+    max-width: 300px;
+  }
+  .logo {
+    font-weight: 700;
+    font-size: 1.25rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .footer-brand p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+  .footer-links {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  .link-group h4 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+  }
+  .link-group a {
+    display: block;
+    color: var(--text);
+    font-size: 0.95rem;
+    padding: 0.3rem 0;
+  }
+  .link-group a:hover {
+    color: var(--accent);
+  }
+  .footer-bottom {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+</style>

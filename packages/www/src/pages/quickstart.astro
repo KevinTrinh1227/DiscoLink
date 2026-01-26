@@ -1,0 +1,166 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout title="Quickstart - DiscordLink">
+  <Header />
+
+  <main>
+    <div class="container">
+      <article class="content">
+        <h1>Quickstart Guide</h1>
+        <p class="intro">Get DiscordLink running in under 5 minutes.</p>
+
+        <section>
+          <h2>Prerequisites</h2>
+          <ul>
+            <li>Node.js 18+</li>
+            <li>pnpm (recommended) or npm</li>
+            <li>A Discord server with forum channels</li>
+            <li>A Discord bot token (<a href="https://discord.com/developers/applications">create one here</a>)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>1. Clone the Repository</h2>
+          <pre><code>git clone https://github.com/KevinTrinh1227/discordlink.git
+cd discordlink
+pnpm install</code></pre>
+        </section>
+
+        <section>
+          <h2>2. Configure Environment</h2>
+          <p>Copy the example environment file and fill in your values:</p>
+          <pre><code>cp .env.example .env</code></pre>
+          <p>Required variables:</p>
+          <pre><code>DISCORD_TOKEN=your_bot_token
+DISCORD_CLIENT_ID=your_client_id
+DATABASE_URL=file:./data/discordlink.db</code></pre>
+        </section>
+
+        <section>
+          <h2>3. Set Up the Database</h2>
+          <pre><code>pnpm db:push</code></pre>
+        </section>
+
+        <section>
+          <h2>4. Start the Services</h2>
+          <p>Run the API and bot together:</p>
+          <pre><code>pnpm dev</code></pre>
+          <p>Or run them separately:</p>
+          <pre><code># Terminal 1 - API
+pnpm --filter @discordlink/api dev
+
+# Terminal 2 - Bot
+pnpm --filter @discordlink/bot dev</code></pre>
+        </section>
+
+        <section>
+          <h2>5. Invite the Bot</h2>
+          <p>Generate an invite link with required permissions:</p>
+          <pre><code>https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=274877908992&scope=bot</code></pre>
+          <p>Required permissions:</p>
+          <ul>
+            <li>Read Messages/View Channels</li>
+            <li>Read Message History</li>
+            <li>Use Slash Commands</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>6. Initial Sync</h2>
+          <p>Use the <code>/sync</code> command in your Discord server to start the initial sync. The bot will index all existing forum threads.</p>
+        </section>
+
+        <section>
+          <h2>7. Generate Static Site</h2>
+          <p>Use the CLI to export your content as a static site:</p>
+          <pre><code>pnpm --filter @discordlink/cli build
+
+# Export all threads
+discordlink export --server YOUR_SERVER_ID --output ./dist --template faq</code></pre>
+        </section>
+
+        <section>
+          <h2>Next Steps</h2>
+          <ul>
+            <li><a href="/templates">Explore templates</a> for FAQ, Changelog, and more</li>
+            <li>Set up <a href="/docs/webhooks">webhooks</a> for real-time notifications</li>
+            <li>Configure <a href="/docs/seo">SEO settings</a> for better search rankings</li>
+          </ul>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  main {
+    padding-top: 120px;
+    padding-bottom: 4rem;
+  }
+  .container {
+    max-width: 800px;
+  }
+  .content {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 3rem;
+  }
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .intro {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 3rem;
+  }
+  section {
+    margin-bottom: 2.5rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  section:first-of-type h2 {
+    border-top: none;
+    padding-top: 0;
+  }
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+  }
+  ul {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+  }
+  li {
+    margin-bottom: 0.5rem;
+  }
+  pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+  code {
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.9rem;
+  }
+  p code {
+    background: var(--bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+  }
+</style>

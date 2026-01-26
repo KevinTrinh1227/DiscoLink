@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { getDb, upsertUser, getUserById, updateUserConsent } from "@discord-forum-api/db";
+import { getDb, upsertUser, getUserById, updateUserConsent } from "@discordlink/db";
 import { getOAuthUrl, exchangeCode, getUser } from "../lib/discord.js";
 import { signJwt } from "../lib/jwt.js";
 import { requireAuth } from "../middleware/auth.js";

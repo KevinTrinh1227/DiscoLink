@@ -1,0 +1,60 @@
+---
+export interface Props {
+  title: string;
+  slug: string;
+  answer: string;
+  author?: string;
+  date: string;
+  messageCount: number;
+}
+
+const { title, slug, answer, author, date, messageCount } = Astro.props;
+const formattedDate = new Date(date).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+---
+
+<article class="faq-item">
+  <h3 class="faq-question">
+    <a href={`/faq/${slug}`}>{title}</a>
+  </h3>
+  <p class="faq-answer">{answer.slice(0, 200)}{answer.length > 200 ? '...' : ''}</p>
+  <div class="faq-meta">
+    {author && <span class="author">by {author}</span>}
+    <span class="date">{formattedDate}</span>
+    <span class="messages">{messageCount} messages</span>
+  </div>
+</article>
+
+<style>
+  .faq-item {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .faq-question {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  .faq-question a {
+    color: var(--text-primary);
+  }
+  .faq-question a:hover {
+    color: var(--accent);
+  }
+  .faq-answer {
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+  }
+  .faq-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+</style>

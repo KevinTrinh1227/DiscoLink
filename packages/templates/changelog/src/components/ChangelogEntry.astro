@@ -1,0 +1,113 @@
+---
+export interface Props {
+  title: string;
+  slug: string;
+  date: string;
+  content: string;
+  author?: string;
+  tags: Array<{ name: string; emoji: string | null }>;
+}
+
+const { title, slug, date, content, author, tags } = Astro.props;
+const formattedDate = new Date(date).toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric',
+});
+
+function getTypeFromTags(tags: Array<{ name: string }>): string {
+  const tagNames = tags.map((t) => t.name.toLowerCase());
+  if (tagNames.some((t) => t.includes('feature') || t.includes('new'))) return 'feature';
+  if (tagNames.some((t) => t.includes('fix') || t.includes('bug'))) return 'fix';
+  if (tagNames.some((t) => t.includes('improve') || t.includes('enhance'))) return 'improvement';
+  if (tagNames.some((t) => t.includes('break') || t.includes('deprecat'))) return 'breaking';
+  return 'update';
+}
+
+const type = getTypeFromTags(tags);
+---
+
+<article class="changelog-entry">
+  <div class="timeline-marker">
+    <span class={`badge badge-${type}`}>{type}</span>
+    <span class="date">{formattedDate}</span>
+  </div>
+  <div class="content">
+    <h3><a href={`/changelog/${slug}`}>{title}</a></h3>
+    <p class="summary">{content.slice(0, 150)}{content.length > 150 ? '...' : ''}</p>
+    {tags.length > 0 && (
+      <div class="tags">
+        {tags.map((tag) => (
+          <span class="tag">{tag.emoji || ''}{tag.name}</span>
+        ))}
+      </div>
+    )}
+    {author && <span class="author">by {author}</span>}
+  </div>
+</article>
+
+<style>
+  .changelog-entry {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .timeline-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 100px;
+    text-align: right;
+  }
+  .badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+  }
+  .badge-feature { background: #dbeafe; color: #1e40af; }
+  .badge-fix { background: #fce7f3; color: #9d174d; }
+  .badge-improvement { background: #d1fae5; color: #065f46; }
+  .badge-breaking { background: #fee2e2; color: #991b1b; }
+  .badge-update { background: var(--bg-tertiary); color: var(--text-secondary); }
+  .date {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+  .content {
+    flex: 1;
+  }
+  h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  h3 a {
+    color: var(--text-primary);
+  }
+  h3 a:hover {
+    color: var(--accent);
+  }
+  .summary {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+  }
+  .tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+  .tag {
+    background: var(--bg-tertiary);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+  .author {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+</style>

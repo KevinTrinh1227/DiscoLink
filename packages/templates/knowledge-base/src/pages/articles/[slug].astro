@@ -1,0 +1,191 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import { getServer, getThreads, getThread, groupByCategory } from '../../lib/discordlink';
+
+export async function getStaticPaths() {
+  const threads = await getThreads();
+  return threads.map((thread) => ({
+    params: { slug: thread.slug },
+    props: { threadId: thread.id },
+  }));
+}
+
+const { threadId } = Astro.props;
+const { slug } = Astro.params;
+const thread = await getThread(threadId);
+const server = await getServer();
+const threads = await getThreads();
+const categories = groupByCategory(threads);
+
+const firstMessage = thread.messages[0];
+const content = firstMessage?.content || '';
+
+function formatDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+// Find related articles (same category or similar)
+const relatedArticles = threads
+  .filter((t) => t.id !== thread.id)
+  .slice(0, 3);
+---
+
+<BaseLayout
+  title={`${thread.title} - ${server.name}`}
+  description={content.slice(0, 160)}
+  canonical={Astro.url.href}
+>
+  <Sidebar categories={categories} currentSlug={slug} />
+
+  <main class="main-content">
+    <nav class="breadcrumb">
+      <a href="/">Home</a>
+      <span>&gt;</span>
+      <span>{thread.title}</span>
+    </nav>
+
+    <article>
+      <header>
+        <h1>{thread.title}</h1>
+        <div class="meta">
+          <span>Last updated: {formatDate(thread.lastActivityAt)}</span>
+          {thread.author && <span>by {thread.author.username}</span>}
+        </div>
+        {thread.tags.length > 0 && (
+          <div class="tags">
+            {thread.tags.map((tag) => (
+              <span class="tag">{tag.emoji || ''}{tag.name}</span>
+            ))}
+          </div>
+        )}
+      </header>
+
+      <div class="article-content">
+        {thread.messages.map((msg, index) => (
+          <div class="message">
+            {msg.contentHtml ? (
+              <Fragment set:html={msg.contentHtml} />
+            ) : (
+              <p>{msg.content}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </article>
+
+    {relatedArticles.length > 0 && (
+      <section class="related">
+        <h2>Related Articles</h2>
+        <ul>
+          {relatedArticles.map((article) => (
+            <li>
+              <a href={`/articles/${article.slug}`}>{article.title}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <footer>
+      <p>Was this article helpful?</p>
+      <p class="powered">Powered by <a href="https://discordlink.dev">DiscordLink</a></p>
+    </footer>
+  </main>
+</BaseLayout>
+
+<style>
+  .main-content {
+    margin-left: var(--sidebar-width);
+    padding: 2rem 3rem;
+    max-width: 800px;
+  }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+  .breadcrumb a {
+    color: var(--text-secondary);
+  }
+  .breadcrumb a:hover {
+    color: var(--accent);
+  }
+  article header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .meta {
+    display: flex;
+    gap: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+  .tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .tag {
+    background: var(--bg-tertiary);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+  .article-content {
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+  .message {
+    margin-bottom: 1.5rem;
+  }
+  .message p {
+    white-space: pre-wrap;
+  }
+  .related {
+    background: var(--bg-tertiary);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+  }
+  .related h2 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  .related ul {
+    list-style: none;
+  }
+  .related li {
+    padding: 0.5rem 0;
+  }
+  footer {
+    text-align: center;
+    padding: 1.5rem 0;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border);
+  }
+  .powered {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 768px) {
+    .main-content {
+      margin-left: 0;
+      padding: 1rem;
+    }
+  }
+</style>

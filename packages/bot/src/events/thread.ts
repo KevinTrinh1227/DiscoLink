@@ -7,8 +7,9 @@ import {
   upsertUser,
   setThreadTags,
   upsertTag,
-} from "@discord-forum-api/db";
+} from "@discordlink/db";
 import { logger } from "../logger.js";
+import { dispatchWebhookEvent } from "../lib/webhook-dispatcher.js";
 
 function isForumThread(thread: AnyThreadChannel): boolean {
   return (
@@ -81,6 +82,17 @@ export async function handleThreadCreate(
     }
 
     logger.info(`Stored thread: ${thread.name}`, { threadId: thread.id, slug: newThread?.slug });
+
+    // Dispatch webhook event
+    if (thread.guildId) {
+      await dispatchWebhookEvent(thread.guildId, "thread.created", {
+        id: thread.id,
+        title: thread.name,
+        channelId: thread.parentId,
+        authorId: thread.ownerId,
+        slug: newThread?.slug,
+      });
+    }
   } catch (error) {
     logger.error(`Failed to store thread ${thread.name}`, {
       threadId: thread.id,
@@ -115,6 +127,18 @@ export async function handleThreadUpdate(
     }
 
     logger.debug(`Updated thread: ${newThread.name}`);
+
+    // Dispatch webhook event
+    if (newThread.guildId) {
+      const eventType = newThread.archived ? "thread.resolved" : "thread.updated";
+      await dispatchWebhookEvent(newThread.guildId, eventType, {
+        id: newThread.id,
+        title: newThread.name,
+        channelId: newThread.parentId,
+        isArchived: newThread.archived,
+        isLocked: newThread.locked,
+      });
+    }
   } catch (error) {
     logger.error(`Failed to update thread ${newThread.name}`, {
       threadId: newThread.id,
@@ -131,6 +155,15 @@ export async function handleThreadDelete(thread: AnyThreadChannel): Promise<void
   try {
     await softDeleteThread(db, thread.id);
     logger.info(`Soft deleted thread: ${thread.name}`);
+
+    // Dispatch webhook event
+    if (thread.guildId) {
+      await dispatchWebhookEvent(thread.guildId, "thread.deleted", {
+        id: thread.id,
+        title: thread.name,
+        channelId: thread.parentId,
+      });
+    }
   } catch (error) {
     logger.error(`Failed to soft delete thread ${thread.name}`, {
       threadId: thread.id,

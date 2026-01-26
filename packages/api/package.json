@@ -1,5 +1,5 @@
 {
-  "name": "@discord-forum-api/api",
+  "name": "@discordlink/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,10 +14,15 @@
     "test:unit": "vitest run --testPathPattern=unit",
     "test:int": "vitest run --testPathPattern=integration",
     "test:cov": "vitest run --coverage",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:production": "wrangler deploy --env production",
+    "d1:create": "wrangler d1 create discordlink",
+    "d1:migrate": "wrangler d1 migrations apply discordlink"
   },
   "dependencies": {
-    "@discord-forum-api/db": "workspace:*",
+    "@discordlink/db": "workspace:*",
     "@hono/node-server": "^1.13.7",
     "dotenv": "^17.2.3",
     "hono": "^4.6.14",
@@ -25,8 +30,10 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241205.0",
     "tsx": "^4.19.2",
     "typescript-eslint": "^8.18.1",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "wrangler": "^3.99.0"
   }
 }

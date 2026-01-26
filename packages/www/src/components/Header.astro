@@ -1,0 +1,83 @@
+---
+const navLinks = [
+  { href: '/quickstart', label: 'Quickstart' },
+  { href: '/templates', label: 'Templates' },
+  { href: '/compare', label: 'Compare' },
+  { href: 'https://github.com/KevinTrinh1227/discordlink', label: 'GitHub' },
+];
+---
+
+<header class="header">
+  <div class="container">
+    <a href="/" class="logo">
+      <span class="logo-text">DiscordLink</span>
+    </a>
+    <nav>
+      {navLinks.map((link) => (
+        <a href={link.href} class="nav-link">{link.label}</a>
+      ))}
+      <a href="/quickstart" class="cta-button">Get Started</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .logo-text {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--text);
+  }
+  .logo:hover {
+    text-decoration: none;
+  }
+  nav {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .nav-link {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    transition: color 0.2s;
+  }
+  .nav-link:hover {
+    color: var(--text);
+    text-decoration: none;
+  }
+  .cta-button {
+    background: var(--accent);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .cta-button:hover {
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--accent-glow);
+  }
+</style>

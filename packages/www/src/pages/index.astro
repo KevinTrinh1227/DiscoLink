@@ -1,0 +1,261 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import FeatureCard from '../components/FeatureCard.astro';
+
+const features = [
+  {
+    icon: '🔍',
+    title: 'Full-Text Search',
+    description: 'FTS5-powered search indexes all your Discord content for instant full-text search.',
+  },
+  {
+    icon: '🌐',
+    title: 'SEO Optimized',
+    description: 'JSON-LD schemas, sitemaps, and meta tags out of the box for maximum search visibility.',
+  },
+  {
+    icon: '🔒',
+    title: 'Privacy First',
+    description: 'Consent-based syncing respects user privacy. Only sync what users agree to share.',
+  },
+  {
+    icon: '⚡',
+    title: 'Real-Time Sync',
+    description: 'Discord bot syncs new messages instantly. No manual exports needed.',
+  },
+  {
+    icon: '🎨',
+    title: 'Ready-Made Templates',
+    description: 'FAQ, Changelog, Knowledge Base, and Blog templates ready to deploy.',
+  },
+  {
+    icon: '🔗',
+    title: 'Webhooks',
+    description: 'Get notified when content changes. Build custom integrations.',
+  },
+];
+---
+
+<BaseLayout title="DiscordLink - Discord to SEO-Optimized Knowledge Base">
+  <Header />
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <span class="badge">Open Source</span>
+          <h1>Turn Discord into a<br><span class="gradient">Knowledge Base</span></h1>
+          <p class="subtitle">
+            DiscordLink syncs your Discord forums and channels to a searchable,
+            SEO-optimized website. Stop losing community knowledge in chat history.
+          </p>
+          <div class="cta-buttons">
+            <a href="/quickstart" class="btn btn-primary">Get Started</a>
+            <a href="https://github.com/KevinTrinh1227/discordlink" class="btn btn-secondary">View on GitHub</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+      <div class="container">
+        <h2>Everything you need</h2>
+        <p class="section-subtitle">A complete platform for making your Discord content searchable and SEO-friendly.</p>
+        <div class="features-grid">
+          {features.map((feature) => (
+            <FeatureCard {...feature} />
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works">
+      <div class="container">
+        <h2>How It Works</h2>
+        <div class="steps">
+          <div class="step">
+            <span class="step-number">1</span>
+            <h3>Add the Bot</h3>
+            <p>Invite the DiscordLink bot to your server and select which channels to sync.</p>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <h3>Sync Content</h3>
+            <p>The bot automatically syncs forum threads and messages to your database.</p>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <h3>Deploy Your Site</h3>
+            <p>Use our CLI to export static HTML or connect a template to the REST API.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+      <div class="container">
+        <h2>Ready to make your Discord searchable?</h2>
+        <p>Get started in under 5 minutes. No credit card required.</p>
+        <a href="/quickstart" class="btn btn-primary btn-large">Start Building</a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  main {
+    padding-top: 80px;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 8rem 0;
+    text-align: center;
+    background: radial-gradient(ellipse at center top, var(--accent-glow), transparent 50%);
+  }
+  .hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+  h1 {
+    font-size: 4rem;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+  }
+  .gradient {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto 2rem;
+  }
+  .cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+  .btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+  .btn-primary:hover {
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px var(--accent-glow);
+  }
+  .btn-secondary {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-secondary:hover {
+    text-decoration: none;
+    border-color: var(--text-secondary);
+  }
+  .btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+
+  /* Features */
+  .features {
+    padding: 6rem 0;
+  }
+  h2 {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+  .section-subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+    font-size: 1.1rem;
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  /* How It Works */
+  .how-it-works {
+    padding: 6rem 0;
+    background: var(--bg-secondary);
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+  .step {
+    text-align: center;
+    padding: 2rem;
+  }
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--accent);
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .step h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+  .step p {
+    color: var(--text-secondary);
+  }
+
+  /* CTA */
+  .cta {
+    padding: 6rem 0;
+    text-align: center;
+  }
+  .cta p {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 768px) {
+    h1 { font-size: 2.5rem; }
+    .features-grid, .steps { grid-template-columns: 1fr; }
+  }
+</style>

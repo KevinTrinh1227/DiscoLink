@@ -12,7 +12,7 @@ import {
   eq,
   and,
   isNull,
-} from "@discord-forum-api/db";
+} from "@discordlink/db";
 import { cacheMiddleware, serverCacheKey } from "../middleware/cache.js";
 
 const app = new Hono();

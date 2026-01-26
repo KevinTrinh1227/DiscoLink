@@ -1,0 +1,102 @@
+---
+import type { Category } from '../lib/discordlink';
+
+export interface Props {
+  categories: Category[];
+  currentSlug?: string;
+}
+
+const { categories, currentSlug } = Astro.props;
+---
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <a href="/" class="logo">Knowledge Base</a>
+  </div>
+
+  <nav class="sidebar-nav">
+    {categories.map((category) => (
+      <div class="category">
+        <h3 class="category-title">
+          {category.emoji && <span class="emoji">{category.emoji}</span>}
+          {category.name}
+        </h3>
+        <ul class="article-list">
+          {category.threads.slice(0, 15).map((thread) => (
+            <li>
+              <a
+                href={`/articles/${thread.slug}`}
+                class:list={['article-link', { active: thread.slug === currentSlug }]}
+              >
+                {thread.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </nav>
+</aside>
+
+<style>
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--bg-primary);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 1.5rem;
+  }
+  .sidebar-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+  }
+  .logo:hover {
+    text-decoration: none;
+    color: var(--accent);
+  }
+  .category {
+    margin-bottom: 1.5rem;
+  }
+  .category-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .article-list {
+    list-style: none;
+  }
+  .article-link {
+    display: block;
+    padding: 0.4rem 0.75rem;
+    margin: 0.2rem 0;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .article-link:hover {
+    background: var(--bg-tertiary);
+    text-decoration: none;
+  }
+  .article-link.active {
+    background: var(--accent);
+    color: white;
+  }
+</style>

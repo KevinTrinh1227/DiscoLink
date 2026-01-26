@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FAQItem from '../components/FAQItem.astro';
+import SearchBox from '../components/SearchBox.astro';
+import { getServer, getResolvedThreads } from '../lib/discordlink';
+
+const server = await getServer();
+const threads = await getResolvedThreads();
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": threads.slice(0, 20).map((thread) => ({
+    "@type": "Question",
+    "name": thread.title,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": thread.title, // Full answer would come from thread.messages
+    },
+  })),
+};
+---
+
+<BaseLayout
+  title={`FAQ - ${server.name}`}
+  description={server.description || `Frequently asked questions from ${server.name}`}
+  canonical={Astro.url.href}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <div class="container">
+    <header>
+      <h1>{server.name} FAQ</h1>
+      <p class="subtitle">{threads.length} answered questions</p>
+    </header>
+
+    <SearchBox />
+
+    <main class="faq-list">
+      {threads.map((thread) => (
+        <FAQItem
+          title={thread.title}
+          slug={thread.slug}
+          answer={thread.title}
+          author={thread.author?.username}
+          date={thread.lastActivityAt}
+          messageCount={thread.messageCount}
+        />
+      ))}
+    </main>
+
+    <footer>
+      <p>Powered by <a href="https://discordlink.dev">DiscordLink</a></p>
+    </footer>
+  </div>
+</BaseLayout>
+
+<style>
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  header {
+    margin-bottom: 2rem;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  .subtitle {
+    color: var(--text-secondary);
+  }
+  .faq-list {
+    margin-bottom: 2rem;
+  }
+  footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border);
+  }
+</style>

@@ -1,5 +1,5 @@
 {
-  "name": "@discord-forum-api/docs",
+  "name": "@discordlink/docs",
   "version": "0.1.0",
   "private": true,
   "type": "module",

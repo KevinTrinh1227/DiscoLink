@@ -9,7 +9,7 @@ import {
   eq,
   and,
   isNull,
-} from "@discord-forum-api/db";
+} from "@discordlink/db";
 import { filterMessagesByConsent, type ConsentCheckContext } from "../lib/consent.js";
 
 const app = new Hono();

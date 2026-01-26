@@ -14,6 +14,8 @@ import userRoutes from "./routes/users.js";
 import searchRoutes from "./routes/search.js";
 import authRoutes from "./routes/auth.js";
 import leaderboardRoutes from "./routes/leaderboard.js";
+import webhookRoutes from "./routes/webhooks.js";
+import feedRoutes from "./routes/feeds.js";
 
 export function createApp(): Hono {
   const app = new Hono();
@@ -34,6 +36,8 @@ export function createApp(): Hono {
   app.route("/search", searchRoutes);
   app.route("/auth", authRoutes);
   app.route("/leaderboard", leaderboardRoutes);
+  app.route("/webhooks", webhookRoutes);
+  app.route("/feeds", feedRoutes);
 
   // Error handling
   app.onError(errorHandler);

@@ -1,0 +1,193 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const templates = [
+  {
+    name: 'FAQ',
+    description: 'Turn resolved Discord threads into a searchable FAQ. Perfect for support communities.',
+    features: ['JSON-LD FAQPage schema', 'Client-side search', 'Tag-based categories', 'Mobile responsive'],
+    package: '@discordlink/template-faq',
+  },
+  {
+    name: 'Changelog',
+    description: 'Timeline view of updates and announcements. Great for product teams.',
+    features: ['Timeline layout', 'Version badges', 'RSS feed', 'Month grouping'],
+    package: '@discordlink/template-changelog',
+  },
+  {
+    name: 'Knowledge Base',
+    description: 'Documentation-style sidebar navigation. Ideal for comprehensive guides.',
+    features: ['Sidebar navigation', 'Related articles', 'Breadcrumbs', 'Full-text search'],
+    package: '@discordlink/template-knowledge-base',
+  },
+  {
+    name: 'Blog',
+    description: 'Modern blog layout with featured posts. Perfect for community updates.',
+    features: ['Featured posts', 'Author avatars', 'Reading time', 'JSON-LD Article schema'],
+    package: '@discordlink/template-blog',
+  },
+];
+---
+
+<BaseLayout title="Templates - DiscordLink">
+  <Header />
+
+  <main>
+    <div class="container">
+      <header class="page-header">
+        <h1>Templates</h1>
+        <p>Ready-to-deploy templates for every use case. All templates include dark mode, SEO optimization, and mobile responsiveness.</p>
+      </header>
+
+      <div class="templates-grid">
+        {templates.map((template) => (
+          <article class="template-card">
+            <div class="template-preview">
+              <div class="preview-placeholder">{template.name}</div>
+            </div>
+            <div class="template-content">
+              <h2>{template.name}</h2>
+              <p>{template.description}</p>
+              <ul class="features">
+                {template.features.map((feature) => (
+                  <li>{feature}</li>
+                ))}
+              </ul>
+              <div class="template-actions">
+                <code>{template.package}</code>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <section class="custom-templates">
+        <h2>Build Your Own</h2>
+        <p>All templates are built with Astro and can be customized. Use our API client to fetch data and build any layout you need.</p>
+        <pre><code>import {'{ getThreads, getThread }'} from '@discordlink/api-client';
+
+const threads = await getThreads(serverId);
+const thread = await getThread(threadId);</code></pre>
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  main {
+    padding-top: 120px;
+    padding-bottom: 4rem;
+  }
+  .page-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+  .page-header h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  .page-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .templates-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-bottom: 4rem;
+  }
+  .template-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .template-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+  }
+  .template-preview {
+    background: var(--bg-secondary);
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .preview-placeholder {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    opacity: 0.3;
+  }
+  .template-content {
+    padding: 1.5rem;
+  }
+  .template-content h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+  .template-content p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+  .features {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .features li {
+    background: var(--bg);
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+  .template-actions code {
+    font-size: 0.85rem;
+    color: var(--accent);
+  }
+  .custom-templates {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+  }
+  .custom-templates h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .custom-templates p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+  .custom-templates pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: left;
+    overflow-x: auto;
+  }
+  .custom-templates code {
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 768px) {
+    .templates-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

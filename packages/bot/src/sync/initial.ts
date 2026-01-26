@@ -16,7 +16,7 @@ import {
   upsertThreadParticipant,
   servers,
   eq,
-} from "@discord-forum-api/db";
+} from "@discordlink/db";
 import { logger } from "../logger.js";
 import { getConfig } from "../config.js";
 import { parseDiscordMarkdown } from "../lib/markdown.js";
