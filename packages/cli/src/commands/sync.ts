@@ -49,7 +49,7 @@ export const syncCommand = new Command("sync")
         throw new Error(`API error: ${response.status} ${response.statusText}`);
       }
 
-      const server = await response.json();
+      const server = await response.json() as { name: string; id: string; memberCount: number | null };
 
       spinner.succeed(`Server "${server.name}" is synced`);
 

@@ -85,7 +85,7 @@ export class ApiClient {
       throw new Error(`Failed to fetch server: ${response.status} ${response.statusText}`);
     }
 
-    return response.json();
+    return response.json() as Promise<Server>;
   }
 
   async getThread(threadId: string): Promise<Thread> {
@@ -95,7 +95,7 @@ export class ApiClient {
       throw new Error(`Failed to fetch thread: ${response.status} ${response.statusText}`);
     }
 
-    return response.json();
+    return response.json() as Promise<Thread>;
   }
 
   async getThreads(
@@ -121,7 +121,7 @@ export class ApiClient {
       throw new Error(`Failed to fetch threads: ${response.status} ${response.statusText}`);
     }
 
-    return response.json();
+    return response.json() as Promise<PaginatedResponse<ThreadSummary>>;
   }
 
   async getAllThreads(serverId: string, channelId?: string): Promise<ThreadSummary[]> {
@@ -130,11 +130,11 @@ export class ApiClient {
     let hasMore = true;
 
     while (hasMore) {
-      const response = await this.getThreads(serverId, {
-        channelId,
-        limit: 100,
-        cursor,
-      });
+      const opts: { channelId?: string; limit: number; cursor?: string } = { limit: 100 };
+      if (channelId) opts.channelId = channelId;
+      if (cursor) opts.cursor = cursor;
+
+      const response = await this.getThreads(serverId, opts);
 
       threads.push(...response.threads);
       hasMore = response.pagination.hasMore;
@@ -151,7 +151,7 @@ export class ApiClient {
       throw new Error(`Failed to fetch channels: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as { channels: Array<{ id: string; name: string; type: number }> };
     return data.channels;
   }
 

@@ -59,7 +59,7 @@ export const exportCommand = new Command("export")
 
         spinner.text = "Generating HTML...";
         const html = generateHtml(thread, options.template, {
-          baseUrl: options.baseUrl,
+          baseUrl: options.baseUrl ?? "",
         });
 
         await writeFile(join(outputDir, "index.html"), html);
@@ -82,7 +82,7 @@ export const exportCommand = new Command("export")
         for (const threadSummary of threads) {
           const thread = await client.getThread(threadSummary.id);
           const html = generateHtml(thread, options.template, {
-            baseUrl: options.baseUrl,
+            baseUrl: options.baseUrl ?? "",
             server,
           });
           await writeFile(join(threadsDir, `${thread.slug}.html`), html);
@@ -90,8 +90,8 @@ export const exportCommand = new Command("export")
 
         // Generate index page
         spinner.text = "Generating index page...";
-        const indexHtml = generateIndexHtml(server, threads, options.template, {
-          baseUrl: options.baseUrl,
+        const indexHtml = generateIndexHtml(server, threads, {
+          baseUrl: options.baseUrl ?? "",
         });
         await writeFile(join(outputDir, "index.html"), indexHtml);
 
@@ -104,8 +104,9 @@ export const exportCommand = new Command("export")
 
         // Generate RSS feed
         spinner.text = "Generating RSS feed...";
-        const rss = generateRss(server, threads, {
+        const rss = generateRss(threads, {
           baseUrl: options.baseUrl ?? `https://${server.name.toLowerCase().replace(/\s+/g, "-")}.discordlink.dev`,
+          server,
         });
         await writeFile(join(outputDir, "feed.xml"), rss);
 
@@ -140,13 +141,9 @@ ${chalk.bold("Generated files:")}
 function generateIndexHtml(
   server: { name: string; description?: string | null },
   threads: Array<{ id: string; title: string; slug: string; status: string; messageCount: number; createdAt: string }>,
-  template: string,
-  options: { baseUrl?: string }
+  options: { baseUrl: string }
 ): string {
-  const baseUrl = options.baseUrl ?? "";
-
-  // Group threads by status for FAQ template
-  const openThreads = threads.filter((t) => t.status === "open");
+  const baseUrl = options.baseUrl;
   const resolvedThreads = threads.filter((t) => t.status === "resolved");
 
   return `<!DOCTYPE html>

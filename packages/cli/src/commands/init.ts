@@ -4,7 +4,6 @@ import chalk from "chalk";
 import inquirer from "inquirer";
 import { writeFile, mkdir } from "fs/promises";
 import { existsSync } from "fs";
-import { join } from "path";
 
 interface InitAnswers {
   serverId: string;
