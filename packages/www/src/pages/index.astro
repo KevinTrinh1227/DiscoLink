@@ -46,15 +46,14 @@ const features = [
     <section class="hero">
       <div class="container">
         <div class="hero-content">
-          <div class="badge-row">
-            <span class="badge">Entirely Free & Open Source</span>
-            <a href="https://github.com/KevinTrinh1227/discolink" target="_blank" rel="noopener" class="star-badge">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/>
-              </svg>
-              <span id="hero-star-count">--</span> on GitHub
-            </a>
-          </div>
+          <a href="https://github.com/KevinTrinh1227/discolink" target="_blank" rel="noopener" class="hero-badge">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" class="star-icon">
+              <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/>
+            </svg>
+            <span id="hero-star-count">--</span>
+            <span class="divider">·</span>
+            <span>Free & Open Source</span>
+          </a>
           <h1>Your Discord Content,<br><span class="gradient">Anywhere You Need It</span></h1>
           <p class="subtitle">
             DiscoLink syncs your Discord forums and channels to a database you control.
@@ -155,7 +154,7 @@ const features = [
 
   /* Hero */
   .hero {
-    padding: 8rem 0;
+    padding: 5rem 0 6rem;
     text-align: center;
     background: radial-gradient(ellipse at center top, var(--accent-glow), transparent 50%);
   }
@@ -163,40 +162,24 @@ const features = [
     max-width: 800px;
     margin: 0 auto;
   }
-  .badge-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-  }
-  .badge {
-    display: inline-block;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-  }
-  .star-badge {
+  .hero-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: var(--text);
-    transition: border-color 0.2s, color 0.2s;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s;
   }
-  .star-badge:hover {
-    border-color: var(--accent);
+  .hero-badge:hover {
+    color: var(--text);
     text-decoration: none;
   }
-  .star-badge svg {
+  .hero-badge .star-icon {
     color: #f59e0b;
+  }
+  .hero-badge .divider {
+    opacity: 0.5;
   }
   h1 {
     font-size: 4rem;
