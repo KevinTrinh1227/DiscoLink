@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="packages/www/public/banner.svg" alt="DiscoLink - Your Discord content, anywhere you need it" width="100%">
+  <img src="packages/www/public/banner.svg" alt="DiscoLink" width="100%">
+</p>
+
+<p align="center">
+  <b>Your Discord content, anywhere you need it.</b>
 </p>
 
 <p align="center">
@@ -9,231 +13,127 @@
   <a href="https://discord.js.org/"><img src="https://img.shields.io/badge/discord.js-v14-5865F2?logo=discord&logoColor=white" alt="discord.js"></a>
 </p>
 
-# DiscoLink
-> **Your Discord content, anywhere you need it.** DiscoLink syncs your Discord forums and channels to a database you control. Build websites, integrate via REST API, or export static files. Your data, your way.
+<p align="center">
+  <a href="https://discolink.pages.dev">Website</a> •
+  <a href="https://discolink.pages.dev/docs">Documentation</a> •
+  <a href="https://discolink.pages.dev/quickstart">Quick Start</a> •
+  <a href="https://discolink.pages.dev/templates">Templates</a>
+</p>
 
 ---
 
-## What is DiscoLink?
+## 🤔 What is DiscoLink?
 
-DiscoLink bridges the gap between Discord and the web. Your community already creates valuable content in Discord—help threads, announcements, tutorials, discussions. DiscoLink captures all of that in real-time and makes it accessible through a REST API, static export, or webhooks.
-
-**The flow is simple:**
+DiscoLink syncs your Discord forums and channels to a database you control. Build FAQ pages, knowledge bases, changelogs, or blogs from your Discord content.
 
 ```
-Discord → Bot syncs content → Database → REST API / Static Export / Webhooks → Your App
+Discord → Bot syncs content → Database → REST API / Static Export → Your Website
 ```
 
-### Use Cases
-
-- **FAQ & Support** — Turn resolved help threads into searchable FAQ pages
-- **Knowledge Base** — Organize forum content into structured documentation
-- **Changelog** — Auto-publish release notes and announcements
-- **Blog** — Transform discussions into blog posts
-- **API Integration** — Build custom apps with full REST API access
+**Use it for:**
+- 💬 **FAQ Pages** — Turn resolved help threads into searchable FAQs
+- 📚 **Knowledge Base** — Organize forum content into documentation
+- 📋 **Changelog** — Auto-publish release notes from announcements
+- ✍️ **Blog** — Transform discussions into blog posts
 
 ---
 
-## Features
+## ✨ Features
 
-| Feature | Description |
-|---------|-------------|
-| **REST API** | Full REST API for integrating Discord content into any application |
-| **Full-Text Search** | FTS5-powered search indexes all your Discord content |
-| **Real-Time Sync** | Discord bot syncs new messages instantly |
-| **Static Export** | Export to static HTML with the CLI. No server required |
-| **Privacy First** | Consent-based syncing respects user privacy |
-| **Webhooks** | Get notified when content changes |
-| **Multi-DB Support** | SQLite locally, Turso for edge/production |
-
----
-
-## Project Structure
-
-```
-discolink/
-├── packages/
-│   ├── db/         # Database schema (Drizzle ORM)
-│   ├── bot/        # Discord bot (discord.js)
-│   ├── api/        # REST API (Hono)
-│   ├── cli/        # Static export CLI
-│   ├── templates/  # Starter templates
-│   ├── docs/       # Documentation (Starlight)
-│   └── www/        # Marketing site (Astro)
-├── turbo.json      # Turborepo config
-└── package.json    # Workspace root
-```
+| Feature | Status |
+|---------|:------:|
+| Forum channel sync | ✅ |
+| Text channel sync | ✅ |
+| Announcement channel sync | ✅ |
+| Real-time sync via bot | ✅ |
+| REST API | ✅ |
+| Webhooks | ✅ |
+| RSS / Atom feeds | ✅ |
+| Full-text search (FTS5) | ✅ |
+| Static site export CLI | ✅ |
+| Official templates | ✅ |
+| Self-hosted | ✅ |
+| Edge deployment (Cloudflare) | ✅ |
+| Privacy controls | ✅ |
+| Consent-based syncing | ✅ |
+| MIT License | ✅ |
+| **100% Free** | ✅ |
 
 ---
 
-## Quick Start
-
-### Prerequisites
-
-- **Node.js 20+** (check with `node -v`)
-- **pnpm 9+** (install with `npm install -g pnpm`)
-- **Discord Application** with Bot Token ([setup guide](https://discolink.pages.dev/docs/guides))
-
-### Environment Variables
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DISCORD_TOKEN` | Yes | Discord bot token |
-| `DISCORD_CLIENT_ID` | Yes | Discord application client ID |
-| `DISCORD_CLIENT_SECRET` | Yes | Discord OAuth2 client secret |
-| `DATABASE_URL` | No | Database connection URL (default: SQLite) |
-| `JWT_SECRET` | Yes | Secret for JWT token signing |
-| `CORS_ORIGINS` | No | Allowed CORS origins (comma-separated) |
-| `TRUSTED_PROXY` | No | Set `true` if behind a reverse proxy |
-
-### Installation
+## 🚀 Quick Start
 
 ```bash
-# Clone the repo
+# Clone and install
 git clone https://github.com/KevinTrinh1227/discolink.git
-cd discolink
+cd discolink && pnpm install
 
-# Install dependencies
-pnpm install
-
-# Configure environment
+# Configure
 cp .env.example .env
-# Edit .env with your Discord credentials
+# Add your Discord bot token and credentials
 
-# Set up database
-pnpm db:push
-
-# Start development
-pnpm dev
+# Run
+pnpm db:push && pnpm dev
 ```
+
+📖 **[Full Setup Guide →](https://discolink.pages.dev/quickstart)**
 
 ---
 
-## API Overview
+## 🛠️ Three Ways to Use
 
-### Endpoints
+| Approach | Best For |
+|----------|----------|
+| **🔗 REST API** | Custom apps, dashboards, integrations |
+| **📦 Static Export** | Simple sites, no server needed |
+| **🎨 Templates** | Quick start with pre-built designs |
 
-| Endpoint | Description |
+---
+
+## 📦 Templates
+
+Ready-to-use templates for common use cases:
+
+| Template | Description |
 |----------|-------------|
-| `GET /servers/:id` | Server info |
-| `GET /servers/:id/stats` | Server statistics |
-| `GET /servers/:id/channels` | Forum channels |
-| `GET /threads` | List/filter threads |
-| `GET /threads/:id` | Thread with messages |
-| `GET /search` | Full-text search |
-| `GET /leaderboard/:serverId` | User leaderboards |
-| `GET /users/:id` | User profile |
-
-### Example Response
-
-```json
-{
-  "threads": [
-    {
-      "id": "111222333",
-      "title": "How do I implement OAuth?",
-      "status": "resolved",
-      "messageCount": 8,
-      "author": { "username": "curious_dev" }
-    }
-  ]
-}
-```
+| [FAQ](packages/templates/faq) | Searchable FAQ from resolved threads |
+| [Knowledge Base](packages/templates/knowledge-base) | Organized documentation |
+| [Changelog](packages/templates/changelog) | Release notes timeline |
+| [Blog](packages/templates/blog) | Blog posts from discussions |
 
 ---
 
-## Documentation
+## 🔒 Privacy First
 
-**[View Full Documentation](https://discolink.pages.dev/docs)**
-
-| Section | Description |
-|---------|-------------|
-| [Getting Started](https://discolink.pages.dev/quickstart) | Installation & setup |
-| [API Reference](https://discolink.pages.dev/docs/api) | All endpoints |
-| [CLI Reference](https://discolink.pages.dev/docs/cli) | Static export commands |
-| [Use Cases](https://discolink.pages.dev/use-cases) | Real-world examples |
+- **Consent-based** — Users can opt out of syncing
+- **Self-hosted** — Your data stays on your infrastructure
+- **No tracking** — We don't collect any data
 
 ---
 
-## Tech Stack
+## 📚 Documentation
 
-| Component | Technology |
-|-----------|------------|
-| **Runtime** | Node.js 20+ |
-| **Language** | TypeScript |
-| **Bot** | discord.js v14 |
-| **API** | Hono |
-| **Database** | Drizzle ORM + SQLite/Turso |
-| **Build** | Turborepo |
-| **Docs** | Starlight (Astro) |
+| Resource | Link |
+|----------|------|
+| Getting Started | [discolink.pages.dev/quickstart](https://discolink.pages.dev/quickstart) |
+| API Reference | [discolink.pages.dev/docs/api](https://discolink.pages.dev/docs/api) |
+| CLI Reference | [discolink.pages.dev/docs/cli](https://discolink.pages.dev/docs/cli) |
+| Templates | [discolink.pages.dev/templates](https://discolink.pages.dev/templates) |
 
 ---
 
-## Scripts
+## 🤝 Contributing
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start all packages |
-| `pnpm build` | Build all packages |
-| `pnpm lint` | Lint code |
-| `pnpm db:push` | Push schema changes |
-| `pnpm db:studio` | Open Drizzle Studio |
-| `pnpm docs:dev` | Run docs locally |
+Contributions welcome! See the [Contributing Guide](https://discolink.pages.dev/docs/guides).
 
 ---
 
-## Troubleshooting
+## 📄 License
 
-### Common Issues
-
-| Issue | Solution |
-|-------|----------|
-| **Bot not responding** | Check `DISCORD_TOKEN` is correct and bot has proper intents enabled |
-| **API returning 401** | Verify `JWT_SECRET` matches between API and clients |
-| **Database errors** | Run `pnpm db:push` to sync schema changes |
-| **CORS errors** | Add your domain to `CORS_ORIGINS` environment variable |
-| **Rate limiting not working** | Set `TRUSTED_PROXY=true` if behind nginx/Cloudflare |
-| **Template build fails** | Ensure `DISCOLINK_SERVER_ID` is set in your `.env` file |
-| **Webhook delivery failing** | Check webhook URL is accessible and returns 2xx status |
-
-### Bot Permissions
-
-The DiscoLink bot requires these Discord permissions:
-
-- **View Channels** (required) - To see channel structure
-- **Read Message History** (required) - To sync existing messages
-- **Send Messages** (optional) - For bot responses
-
-If sync is failing silently, check that your bot has permissions in the channels you want to sync.
-
-### Getting Help
-
-- Check the [documentation](https://discolink.pages.dev/docs)
-- Open an issue on [GitHub](https://github.com/KevinTrinh1227/discolink/issues)
+MIT — Use it however you want.
 
 ---
 
-## Contributing
-
-Contributions are welcome! See the [Contributing Guide](https://discolink.pages.dev/docs/guides) to get started.
-
----
-
-## License
-
-MIT — See [LICENSE](LICENSE) for details.
-
----
-
-<div align="center">
-
-**Disclaimer**
-
-This project is not affiliated with, endorsed by, or connected to Discord Inc.
-"Discord" is a trademark of Discord Inc. This is an independent, open-source project.
-
----
-
-Built with love by [Kevin Trinh](https://github.com/KevinTrinh1227)
-
-</div>
+<p align="center">
+  <sub>Built by <a href="https://github.com/KevinTrinh1227">Kevin Trinh</a> • Not affiliated with Discord Inc.</sub>
+</p>
