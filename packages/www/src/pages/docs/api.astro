@@ -1,0 +1,381 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const endpoints = [
+  {
+    category: 'Servers',
+    items: [
+      { method: 'GET', path: '/servers/:id', description: 'Get server details' },
+      { method: 'GET', path: '/servers/:id/channels', description: 'List server channels' },
+      { method: 'GET', path: '/servers/:id/threads', description: 'List server threads (paginated)' },
+      { method: 'GET', path: '/servers/:id/stats', description: 'Get server statistics' },
+    ],
+  },
+  {
+    category: 'Channels',
+    items: [
+      { method: 'GET', path: '/channels/:id', description: 'Get channel details' },
+      { method: 'GET', path: '/channels/:id/threads', description: 'List channel threads' },
+      { method: 'GET', path: '/channels/:id/messages', description: 'List channel messages (non-thread)' },
+    ],
+  },
+  {
+    category: 'Threads',
+    items: [
+      { method: 'GET', path: '/threads/:id', description: 'Get thread details' },
+      { method: 'GET', path: '/threads/:id/messages', description: 'List thread messages' },
+    ],
+  },
+  {
+    category: 'Search',
+    items: [
+      { method: 'GET', path: '/search', description: 'Full-text search across all content' },
+    ],
+  },
+  {
+    category: 'Webhooks',
+    items: [
+      { method: 'POST', path: '/servers/:id/webhooks', description: 'Register a webhook' },
+      { method: 'GET', path: '/servers/:id/webhooks', description: 'List registered webhooks' },
+      { method: 'PUT', path: '/webhooks/:id', description: 'Update webhook configuration' },
+      { method: 'DELETE', path: '/webhooks/:id', description: 'Delete a webhook' },
+      { method: 'POST', path: '/webhooks/:id/test', description: 'Send test webhook payload' },
+    ],
+  },
+  {
+    category: 'Feeds',
+    items: [
+      { method: 'GET', path: '/feeds/:serverId/rss', description: 'RSS 2.0 feed' },
+      { method: 'GET', path: '/feeds/:serverId/atom', description: 'Atom feed' },
+      { method: 'GET', path: '/feeds/:serverId/json', description: 'JSON Feed' },
+      { method: 'GET', path: '/feeds/:channelId/rss', description: 'Channel-specific RSS feed' },
+    ],
+  },
+];
+
+const webhookEvents = [
+  'thread.created',
+  'thread.updated',
+  'thread.deleted',
+  'thread.resolved',
+  'message.created',
+  'message.updated',
+  'message.deleted',
+  'reaction.added',
+  'reaction.removed',
+  'sync.completed',
+];
+
+const paginationExample = `GET /servers/:id/threads?limit=20&cursor=abc123
+
+Response:
+{
+  "data": [...],
+  "pagination": {
+    "cursor": "xyz789",
+    "hasMore": true
+  }
+}`;
+
+const searchExample = `GET /search?q=authentication&limit=10
+
+Response:
+{
+  "data": [
+    {
+      "id": "123",
+      "type": "thread",
+      "title": "How to implement authentication",
+      "snippet": "...discussing authentication methods...",
+      "score": 0.95
+    }
+  ],
+  "total": 42
+}`;
+
+const webhookPayloadExample = `{
+  "event": "thread.created",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "serverId": "123456789",
+  "data": {
+    "id": "987654321",
+    "title": "New thread title",
+    "channelId": "111222333",
+    "authorId": "444555666"
+  }
+}`;
+
+const signatureExample = `const crypto = require('crypto');
+
+function verifySignature(payload, signature, secret) {
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(payload))
+    .digest('hex');
+  return signature === expected;
+}`;
+
+const errorExample = `{
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Thread not found"
+  }
+}
+
+Common error codes:
+- BAD_REQUEST (400)
+- UNAUTHORIZED (401)
+- NOT_FOUND (404)
+- RATE_LIMITED (429)
+- INTERNAL_ERROR (500)`;
+---
+
+<BaseLayout title="API Reference - DiscordLink">
+  <Header />
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="/docs">Docs</a> / <span>API Reference</span>
+      </nav>
+
+      <header class="page-header">
+        <h1>API Reference</h1>
+        <p>REST API documentation for DiscordLink. All endpoints return JSON.</p>
+      </header>
+
+      <section class="base-url">
+        <h2>Base URL</h2>
+        <p>The API base URL depends on your deployment:</p>
+        <pre><code># Self-hosted
+http://localhost:3000
+
+# Your custom domain
+https://api.yourdomain.com</code></pre>
+      </section>
+
+      <section class="endpoints">
+        <h2>Endpoints</h2>
+        {endpoints.map((group) => (
+          <div class="endpoint-group">
+            <h3>{group.category}</h3>
+            <div class="endpoint-list">
+              {group.items.map((endpoint) => (
+                <div class="endpoint">
+                  <span class={`method method-${endpoint.method.toLowerCase()}`}>{endpoint.method}</span>
+                  <code class="path">{endpoint.path}</code>
+                  <span class="desc">{endpoint.description}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <section class="pagination">
+        <h2>Pagination</h2>
+        <p>List endpoints support cursor-based pagination:</p>
+        <pre><code set:text={paginationExample} /></pre>
+      </section>
+
+      <section class="filtering">
+        <h2>Filtering</h2>
+        <p>Thread list endpoints support filtering:</p>
+        <pre><code># Filter by status
+GET /servers/:id/threads?status=resolved
+
+# Filter by tags
+GET /servers/:id/threads?tags=faq,support
+
+# Filter by date
+GET /servers/:id/threads?after=2024-01-01&before=2024-12-31
+
+# Sort order
+GET /servers/:id/threads?sort=created&order=desc</code></pre>
+      </section>
+
+      <section class="search-api">
+        <h2>Search</h2>
+        <p>Full-text search across all synced content:</p>
+        <pre><code set:text={searchExample} /></pre>
+      </section>
+
+      <section class="webhooks-section">
+        <h2>Webhooks</h2>
+        <p>Register webhooks to receive real-time notifications when content changes.</p>
+
+        <h3>Webhook Events</h3>
+        <div class="events-list">
+          {webhookEvents.map((event) => (
+            <code class="event">{event}</code>
+          ))}
+        </div>
+
+        <h3>Payload Format</h3>
+        <pre><code set:text={webhookPayloadExample} /></pre>
+
+        <h3>Signature Verification</h3>
+        <p>All webhook payloads include an HMAC-SHA256 signature in the <code>X-DiscordLink-Signature</code> header:</p>
+        <pre><code set:text={signatureExample} /></pre>
+      </section>
+
+      <section class="rate-limits">
+        <h2>Rate Limits</h2>
+        <p>Rate limits depend on your deployment configuration. Default limits:</p>
+        <ul>
+          <li><strong>Read endpoints:</strong> 100 requests/minute</li>
+          <li><strong>Search:</strong> 30 requests/minute</li>
+          <li><strong>Webhooks:</strong> 10 requests/minute</li>
+        </ul>
+        <p>Rate limit headers are included in all responses:</p>
+        <pre><code>X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1640000000</code></pre>
+      </section>
+
+      <section class="errors">
+        <h2>Error Responses</h2>
+        <pre><code set:text={errorExample} /></pre>
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  main {
+    padding-top: 120px;
+    padding-bottom: 4rem;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  .breadcrumb {
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+  .breadcrumb a {
+    color: var(--text-secondary);
+  }
+  .breadcrumb a:hover {
+    color: var(--accent);
+  }
+  .page-header {
+    margin-bottom: 3rem;
+  }
+  .page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .page-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+  }
+
+  section {
+    margin-bottom: 3rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 {
+    font-size: 1.1rem;
+    margin: 1.5rem 0 0.75rem;
+  }
+
+  pre {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    font-size: 0.9rem;
+  }
+  code {
+    color: var(--text);
+  }
+
+  .endpoint-group {
+    margin-bottom: 2rem;
+  }
+  .endpoint-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .endpoint {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    flex-wrap: wrap;
+  }
+  .method {
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    min-width: 50px;
+    text-align: center;
+  }
+  .method-get { background: #10b98120; color: #10b981; }
+  .method-post { background: #3b82f620; color: #3b82f6; }
+  .method-put { background: #f59e0b20; color: #f59e0b; }
+  .method-delete { background: #ef444420; color: #ef4444; }
+  .path {
+    font-family: monospace;
+    background: var(--bg-tertiary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+  .desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  .events-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+  .event {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+  }
+
+  ul {
+    padding-left: 1.5rem;
+    color: var(--text-secondary);
+  }
+  li {
+    margin-bottom: 0.5rem;
+  }
+  li strong {
+    color: var(--text);
+  }
+
+  @media (max-width: 768px) {
+    .endpoint {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+  }
+</style>

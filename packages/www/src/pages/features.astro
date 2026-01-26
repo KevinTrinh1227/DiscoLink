@@ -1,0 +1,345 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const features = [
+  { name: 'Forum channel sync', included: true, category: 'Sync' },
+  { name: 'Text channel sync', included: true, category: 'Sync' },
+  { name: 'Announcement channel sync', included: true, category: 'Sync' },
+  { name: 'Real-time sync via bot', included: true, category: 'Sync' },
+  { name: 'REST API', included: true, category: 'API' },
+  { name: 'Webhooks', included: true, category: 'API' },
+  { name: 'RSS / Atom feeds', included: true, category: 'API' },
+  { name: 'Full-text search (FTS5)', included: true, category: 'Search' },
+  { name: 'Search API endpoint', included: true, category: 'Search' },
+  { name: 'Static site export CLI', included: true, category: 'Export' },
+  { name: 'Official templates', included: true, category: 'Export' },
+  { name: 'Self-hosted', included: true, category: 'Deployment' },
+  { name: 'Edge deployment (Cloudflare)', included: true, category: 'Deployment' },
+  { name: 'Privacy controls', included: true, category: 'Privacy' },
+  { name: 'Consent-based syncing', included: true, category: 'Privacy' },
+  { name: 'User opt-out support', included: true, category: 'Privacy' },
+  { name: 'MIT License', included: true, category: 'Open Source' },
+  { name: 'Entirely free', included: true, category: 'Open Source' },
+  { name: 'No usage limits', included: true, category: 'Open Source' },
+];
+
+const categories = [...new Set(features.map(f => f.category))];
+---
+
+<BaseLayout title="Features - DiscordLink">
+  <Header />
+
+  <main>
+    <div class="container">
+      <header class="page-header">
+        <h1>Features</h1>
+        <p>Everything included with DiscordLink. No hidden costs, no premium tiers.</p>
+      </header>
+
+      <section class="free-banner">
+        <div class="banner-content">
+          <span class="banner-badge">100% Free</span>
+          <h2>Entirely Free & Open Source</h2>
+          <p>DiscordLink is MIT licensed and completely free to use. Self-host it on your own infrastructure with no restrictions. No premium tiers, no feature gates, no usage limits.</p>
+        </div>
+      </section>
+
+      <section class="features-table-section">
+        <h2>Complete Feature List</h2>
+        <div class="table-container">
+          <table class="features-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Category</th>
+                <th>Included</th>
+              </tr>
+            </thead>
+            <tbody>
+              {features.map((feature) => (
+                <tr>
+                  <td>{feature.name}</td>
+                  <td><span class="category-badge">{feature.category}</span></td>
+                  <td class="included">✓</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="paths-section">
+        <h2>Multiple Ways to Use</h2>
+        <p class="section-subtitle">Choose the approach that fits your needs</p>
+        <div class="paths-grid">
+          <div class="path-card">
+            <span class="path-icon">🔗</span>
+            <h3>REST API</h3>
+            <p>Query your Discord content programmatically. Build custom apps, dashboards, or integrate with existing systems.</p>
+            <ul>
+              <li>Full CRUD operations</li>
+              <li>Pagination & filtering</li>
+              <li>Search endpoints</li>
+              <li>Webhook notifications</li>
+            </ul>
+            <a href="/docs/api" class="path-link">API Reference →</a>
+          </div>
+          <div class="path-card">
+            <span class="path-icon">📦</span>
+            <h3>Static Export</h3>
+            <p>Export your content to static HTML files. Deploy anywhere without a server. Perfect for simple sites.</p>
+            <ul>
+              <li>CLI tool included</li>
+              <li>Sitemap generation</li>
+              <li>RSS feed generation</li>
+              <li>SEO optimized output</li>
+            </ul>
+            <a href="/docs/cli" class="path-link">CLI Reference →</a>
+          </div>
+          <div class="path-card">
+            <span class="path-icon">🎨</span>
+            <h3>Templates</h3>
+            <p>Use our pre-built templates for common use cases. Customize the design or use them as starting points.</p>
+            <ul>
+              <li>FAQ template</li>
+              <li>Changelog template</li>
+              <li>Knowledge Base template</li>
+              <li>Blog template</li>
+            </ul>
+            <a href="/templates" class="path-link">View Templates →</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="why-section">
+        <h2>Why DiscordLink?</h2>
+        <div class="reasons-grid">
+          <div class="reason">
+            <h3>Your Data, Your Control</h3>
+            <p>Self-host on your infrastructure. Your Discord content stays in your database, not on third-party servers.</p>
+          </div>
+          <div class="reason">
+            <h3>Developer-First</h3>
+            <p>Full REST API with webhooks. Build exactly what you need, not what a template allows.</p>
+          </div>
+          <div class="reason">
+            <h3>Privacy Focused</h3>
+            <p>Consent-based syncing respects your community. Users can opt out of having their content synced.</p>
+          </div>
+          <div class="reason">
+            <h3>No Vendor Lock-in</h3>
+            <p>MIT licensed with standard SQLite database. Export your data anytime, switch tools if needed.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  main {
+    padding-top: 120px;
+    padding-bottom: 4rem;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  .page-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+  .page-header h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  .page-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+  }
+
+  /* Free Banner */
+  .free-banner {
+    background: linear-gradient(135deg, rgba(88, 101, 242, 0.1), rgba(88, 101, 242, 0.05));
+    border: 1px solid var(--accent);
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+  .banner-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  .free-banner h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  .free-banner p {
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* Features Table */
+  .features-table-section {
+    margin-bottom: 4rem;
+  }
+  .features-table-section h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+  .table-container {
+    overflow-x: auto;
+  }
+  .features-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-card);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .category-badge {
+    display: inline-block;
+    background: var(--bg-tertiary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+  .included {
+    color: #10b981;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* Paths Section */
+  .paths-section {
+    margin-bottom: 4rem;
+  }
+  .paths-section h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  .section-subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+  }
+  .paths-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .path-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+  }
+  .path-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .path-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .path-card > p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  .path-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+  }
+  .path-card li {
+    padding: 0.3rem 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+  .path-card li::before {
+    content: "✓ ";
+    color: #10b981;
+  }
+  .path-link {
+    color: var(--accent);
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+  .path-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Why Section */
+  .why-section {
+    text-align: center;
+  }
+  .why-section h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+  .reasons-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .reason {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: left;
+  }
+  .reason h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  .reason p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 900px) {
+    .paths-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .reasons-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

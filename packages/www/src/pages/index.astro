@@ -6,19 +6,14 @@ import FeatureCard from '../components/FeatureCard.astro';
 
 const features = [
   {
+    icon: '🔗',
+    title: 'REST API',
+    description: 'Full REST API for integrating Discord content into any application, service, or workflow.',
+  },
+  {
     icon: '🔍',
     title: 'Full-Text Search',
     description: 'FTS5-powered search indexes all your Discord content for instant full-text search.',
-  },
-  {
-    icon: '🌐',
-    title: 'SEO Optimized',
-    description: 'JSON-LD schemas, sitemaps, and meta tags out of the box for maximum search visibility.',
-  },
-  {
-    icon: '🔒',
-    title: 'Privacy First',
-    description: 'Consent-based syncing respects user privacy. Only sync what users agree to share.',
   },
   {
     icon: '⚡',
@@ -26,14 +21,19 @@ const features = [
     description: 'Discord bot syncs new messages instantly. No manual exports needed.',
   },
   {
-    icon: '🎨',
-    title: 'Ready-Made Templates',
-    description: 'FAQ, Changelog, Knowledge Base, and Blog templates ready to deploy.',
+    icon: '📦',
+    title: 'Static Export',
+    description: 'Export to static HTML with our CLI. No server required for simple use cases.',
   },
   {
-    icon: '🔗',
+    icon: '🔒',
+    title: 'Privacy First',
+    description: 'Consent-based syncing respects user privacy. Only sync what users agree to share.',
+  },
+  {
+    icon: '📡',
     title: 'Webhooks',
-    description: 'Get notified when content changes. Build custom integrations.',
+    description: 'Get notified when content changes. Build reactive integrations.',
   },
 ];
 ---
@@ -46,15 +46,15 @@ const features = [
     <section class="hero">
       <div class="container">
         <div class="hero-content">
-          <span class="badge">Open Source</span>
-          <h1>Turn Discord into a<br><span class="gradient">Knowledge Base</span></h1>
+          <span class="badge">Entirely Free & Open Source</span>
+          <h1>Your Discord Content,<br><span class="gradient">Anywhere You Need It</span></h1>
           <p class="subtitle">
-            DiscordLink syncs your Discord forums and channels to a searchable,
-            SEO-optimized website. Stop losing community knowledge in chat history.
+            DiscordLink syncs your Discord forums and channels to a database you control.
+            Build websites, integrate via REST API, or export static files. Your data, your way.
           </p>
           <div class="cta-buttons">
             <a href="/quickstart" class="btn btn-primary">Get Started</a>
-            <a href="https://github.com/KevinTrinh1227/discordlink" class="btn btn-secondary">View on GitHub</a>
+            <a href="/docs/api" class="btn btn-secondary">API Reference</a>
           </div>
         </div>
       </div>
@@ -86,13 +86,43 @@ const features = [
           <div class="step">
             <span class="step-number">2</span>
             <h3>Sync Content</h3>
-            <p>The bot automatically syncs forum threads and messages to your database.</p>
+            <p>The bot automatically syncs forum threads and messages to your self-hosted database.</p>
           </div>
           <div class="step">
             <span class="step-number">3</span>
-            <h3>Deploy Your Site</h3>
-            <p>Use our CLI to export static HTML or connect a template to the REST API.</p>
+            <h3>Use It Your Way</h3>
+            <p>Query via REST API, export static HTML, or use our templates. Build whatever you need.</p>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Use Cases Preview -->
+    <section class="use-cases-preview">
+      <div class="container">
+        <h2>Built for Many Use Cases</h2>
+        <p class="section-subtitle">Whether you're building a website, integrating with your app, or just need access to your Discord data.</p>
+        <div class="use-cases-grid">
+          <a href="/use-cases/faq" class="use-case-card">
+            <span class="use-case-icon">❓</span>
+            <h3>FAQ & Support</h3>
+            <p>Turn resolved threads into searchable FAQ pages.</p>
+          </a>
+          <a href="/use-cases/knowledge-base" class="use-case-card">
+            <span class="use-case-icon">📚</span>
+            <h3>Knowledge Base</h3>
+            <p>Build documentation from Discord content.</p>
+          </a>
+          <a href="/use-cases/api-integration" class="use-case-card">
+            <span class="use-case-icon">⚙️</span>
+            <h3>API Integration</h3>
+            <p>Build custom apps with our REST API.</p>
+          </a>
+          <a href="/use-cases" class="use-case-card view-all">
+            <span class="use-case-icon">→</span>
+            <h3>View All Use Cases</h3>
+            <p>See all the ways you can use DiscordLink.</p>
+          </a>
         </div>
       </div>
     </section>
@@ -254,8 +284,56 @@ const features = [
     font-size: 1.1rem;
   }
 
+  /* Use Cases Preview */
+  .use-cases-preview {
+    padding: 6rem 0;
+  }
+  .use-cases-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+  .use-case-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .use-case-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+  .use-case-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .use-case-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  .use-case-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+  .use-case-card.view-all {
+    background: var(--bg-secondary);
+    border-style: dashed;
+  }
+
+  @media (max-width: 900px) {
+    .use-cases-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
   @media (max-width: 768px) {
     h1 { font-size: 2.5rem; }
     .features-grid, .steps { grid-template-columns: 1fr; }
+    .use-cases-grid { grid-template-columns: 1fr; }
   }
 </style>

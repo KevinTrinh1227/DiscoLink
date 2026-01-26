@@ -2,19 +2,19 @@
 const links = {
   product: [
     { href: '/quickstart', label: 'Quickstart' },
+    { href: '/features', label: 'Features' },
+    { href: '/use-cases', label: 'Use Cases' },
     { href: '/templates', label: 'Templates' },
-    { href: '/compare', label: 'Compare' },
-    { href: '/roadmap', label: 'Roadmap' },
   ],
   resources: [
     { href: '/docs', label: 'Documentation' },
-    { href: '/faq', label: 'FAQ' },
-    { href: '/changelog', label: 'Changelog' },
-    { href: '/security', label: 'Security' },
+    { href: '/docs/api', label: 'API Reference' },
+    { href: '/docs/guides', label: 'Guides' },
+    { href: '/docs/cli', label: 'CLI Reference' },
   ],
-  community: [
+  links: [
     { href: 'https://github.com/KevinTrinh1227/discordlink', label: 'GitHub' },
-    { href: 'https://discord.gg/discordlink', label: 'Discord' },
+    { href: 'https://github.com/KevinTrinh1227/discordlink/issues', label: 'Report Issue' },
   ],
 };
 ---
@@ -24,7 +24,7 @@ const links = {
     <div class="footer-grid">
       <div class="footer-brand">
         <span class="logo">DiscordLink</span>
-        <p>Turn your Discord forum into a searchable, SEO-optimized knowledge base.</p>
+        <p>Open-source platform for syncing Discord content. Build knowledge bases, integrate with your apps via REST API, or export static sites. Use it however you want.</p>
       </div>
 
       <div class="footer-links">
@@ -41,9 +41,9 @@ const links = {
           ))}
         </div>
         <div class="link-group">
-          <h4>Community</h4>
-          {links.community.map((link) => (
-            <a href={link.href}>{link.label}</a>
+          <h4>Links</h4>
+          {links.links.map((link) => (
+            <a href={link.href} target="_blank" rel="noopener">{link.label}</a>
           ))}
         </div>
       </div>
@@ -51,6 +51,7 @@ const links = {
 
     <div class="footer-bottom">
       <p>&copy; {new Date().getFullYear()} DiscordLink. MIT License.</p>
+      <p class="disclaimer">DiscordLink is not affiliated with, endorsed by, or connected to Discord Inc.</p>
     </div>
   </div>
 </footer>
@@ -113,5 +114,19 @@ const links = {
     text-align: center;
     color: var(--text-secondary);
     font-size: 0.9rem;
+  }
+  .disclaimer {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    opacity: 0.7;
+  }
+  @media (max-width: 768px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .footer-links {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

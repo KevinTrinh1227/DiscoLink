@@ -1,9 +1,17 @@
 ---
 const navLinks = [
   { href: '/quickstart', label: 'Quickstart' },
-  { href: '/templates', label: 'Templates' },
-  { href: '/compare', label: 'Compare' },
-  { href: 'https://github.com/KevinTrinh1227/discordlink', label: 'GitHub' },
+  { href: '/features', label: 'Features' },
+  { href: '/use-cases', label: 'Use Cases', hasDropdown: true },
+  { href: '/docs', label: 'Docs' },
+];
+
+const useCases = [
+  { href: '/use-cases/faq', label: 'FAQ & Support', description: 'Turn resolved threads into searchable FAQ' },
+  { href: '/use-cases/knowledge-base', label: 'Knowledge Base', description: 'Build documentation from Discord content' },
+  { href: '/use-cases/changelog', label: 'Changelog', description: 'Publish updates and announcements' },
+  { href: '/use-cases/blog', label: 'Community Blog', description: 'Transform discussions into blog posts' },
+  { href: '/use-cases/api-integration', label: 'API Integration', description: 'Build custom apps with our REST API' },
 ];
 ---
 
@@ -12,12 +20,47 @@ const navLinks = [
     <a href="/" class="logo">
       <span class="logo-text">DiscordLink</span>
     </a>
-    <nav>
+
+    <nav class="nav-center">
       {navLinks.map((link) => (
-        <a href={link.href} class="nav-link">{link.label}</a>
+        link.hasDropdown ? (
+          <div class="dropdown">
+            <a href={link.href} class="nav-link dropdown-trigger">
+              {link.label}
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              </svg>
+            </a>
+            <div class="dropdown-menu">
+              {useCases.map((useCase) => (
+                <a href={useCase.href} class="dropdown-item">
+                  <span class="dropdown-item-label">{useCase.label}</span>
+                  <span class="dropdown-item-desc">{useCase.description}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <a href={link.href} class="nav-link">{link.label}</a>
+        )
       ))}
-      <a href="/quickstart" class="cta-button">Get Started</a>
     </nav>
+
+    <div class="nav-right">
+      <a href="https://github.com/KevinTrinh1227/threadlink" class="github-link" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        </svg>
+        GitHub
+      </a>
+      <a href="/quickstart" class="cta-button">Get Started</a>
+    </div>
+
+    <button class="mobile-menu-btn" aria-label="Toggle menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 12h18M3 6h18M3 18h18"/>
+      </svg>
+    </button>
   </div>
 </header>
 
@@ -28,7 +71,7 @@ const navLinks = [
     left: 0;
     right: 0;
     z-index: 100;
-    background: rgba(10, 10, 10, 0.8);
+    background: rgba(10, 10, 10, 0.9);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border);
   }
@@ -44,6 +87,7 @@ const navLinks = [
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-shrink: 0;
   }
   .logo-text {
     font-weight: 700;
@@ -53,17 +97,91 @@ const navLinks = [
   .logo:hover {
     text-decoration: none;
   }
-  nav {
+
+  /* Centered nav */
+  .nav-center {
     display: flex;
     align-items: center;
     gap: 2rem;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
   }
   .nav-link {
     color: var(--text-secondary);
     font-size: 0.95rem;
     transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
   }
   .nav-link:hover {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  /* Dropdown */
+  .dropdown {
+    position: relative;
+  }
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 0.75rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.5rem;
+    min-width: 280px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  }
+  .dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+  }
+  .dropdown-item {
+    display: block;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    transition: background 0.2s;
+  }
+  .dropdown-item:hover {
+    background: var(--bg-tertiary);
+    text-decoration: none;
+  }
+  .dropdown-item-label {
+    display: block;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+  .dropdown-item-desc {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  /* Right side */
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+  }
+  .github-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    transition: color 0.2s;
+  }
+  .github-link:hover {
     color: var(--text);
     text-decoration: none;
   }
@@ -79,5 +197,25 @@ const navLinks = [
     text-decoration: none;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px var(--accent-glow);
+  }
+
+  .mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  @media (max-width: 900px) {
+    .nav-center {
+      display: none;
+    }
+    .nav-right {
+      display: none;
+    }
+    .mobile-menu-btn {
+      display: block;
+    }
   }
 </style>

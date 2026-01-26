@@ -1,0 +1,259 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<BaseLayout title="Knowledge Base - DiscordLink Use Cases">
+  <Header />
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="/use-cases">Use Cases</a> / <span>Knowledge Base</span>
+      </nav>
+
+      <header class="page-header">
+        <span class="icon">📚</span>
+        <h1>Knowledge Base</h1>
+        <p>Build comprehensive documentation from your Discord discussions. Organize by tags and categories for easy navigation.</p>
+      </header>
+
+      <section class="overview">
+        <h2>How It Works</h2>
+        <div class="steps">
+          <div class="step">
+            <span class="step-num">1</span>
+            <h3>Discussions happen in Discord</h3>
+            <p>Your team and community share knowledge in forum channels, organized by topic tags.</p>
+          </div>
+          <div class="step">
+            <span class="step-num">2</span>
+            <h3>DiscordLink syncs everything</h3>
+            <p>All threads, messages, and tags are synced to your database with full-text search indexing.</p>
+          </div>
+          <div class="step">
+            <span class="step-num">3</span>
+            <h3>Knowledge base is always current</h3>
+            <p>Your public docs site reflects the latest discussions, searchable and well-organized.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="benefits">
+        <h2>Benefits</h2>
+        <div class="benefits-grid">
+          <div class="benefit">
+            <h3>Structured Navigation</h3>
+            <p>Discord tags become categories. Sidebar navigation makes finding content intuitive.</p>
+          </div>
+          <div class="benefit">
+            <h3>Powerful Search</h3>
+            <p>FTS5 full-text search across all content. Users find what they need instantly.</p>
+          </div>
+          <div class="benefit">
+            <h3>Community-Driven</h3>
+            <p>Content comes from real discussions. Authentic answers, not marketing copy.</p>
+          </div>
+          <div class="benefit">
+            <h3>Low Maintenance</h3>
+            <p>No separate docs to maintain. Discord is your CMS, the knowledge base updates automatically.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="implementation">
+        <h2>Implementation Options</h2>
+        <div class="options-grid">
+          <div class="option">
+            <h3>Knowledge Base Template</h3>
+            <p>Pre-built Astro template with sidebar navigation, search, and breadcrumbs.</p>
+            <pre><code>npx create-discordlink@latest --template knowledge-base</code></pre>
+            <a href="/templates" class="link">View Templates →</a>
+          </div>
+          <div class="option">
+            <h3>Static Export</h3>
+            <p>Export all content to static HTML. Organize by channel or tag structure.</p>
+            <pre><code>discordlink export --server YOUR_ID --template kb --output ./docs</code></pre>
+            <a href="/docs/cli" class="link">CLI Documentation →</a>
+          </div>
+          <div class="option">
+            <h3>Custom Integration</h3>
+            <p>Use the API to build into your existing docs system (Docusaurus, GitBook, etc.).</p>
+            <pre><code>GET /servers/:id/threads?tags=getting-started</code></pre>
+            <a href="/docs/api" class="link">API Reference →</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta">
+        <h2>Ready to build your knowledge base?</h2>
+        <a href="/quickstart" class="btn btn-primary">Get Started</a>
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  main {
+    padding-top: 120px;
+    padding-bottom: 4rem;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  .breadcrumb {
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+  .breadcrumb a {
+    color: var(--text-secondary);
+  }
+  .breadcrumb a:hover {
+    color: var(--accent);
+  }
+  .page-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+  .icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  .page-header p {
+    color: var(--text-secondary);
+    font-size: 1.15rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  section {
+    margin-bottom: 4rem;
+  }
+  h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .step {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 40px;
+    height: 40px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  .step p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  .benefit {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .benefit h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  .benefit p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+
+  .options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .option {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .option h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  .option p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+  }
+  .option pre {
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+  .option code {
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+  .link {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .cta {
+    text-align: center;
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 3rem;
+  }
+  .cta h2 {
+    margin-bottom: 1.5rem;
+  }
+  .btn-primary {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+  .btn-primary:hover {
+    text-decoration: none;
+  }
+
+  @media (max-width: 768px) {
+    .benefits-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

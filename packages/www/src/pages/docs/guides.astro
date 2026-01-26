@@ -1,0 +1,254 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const guides = [
+  {
+    title: 'Setting Up the Discord Bot',
+    description: 'Install and configure the DiscordLink bot on your server.',
+    steps: [
+      'Create a Discord application at discord.com/developers',
+      'Generate a bot token and enable required intents',
+      'Invite the bot to your server with proper permissions',
+      'Configure environment variables',
+      'Start the bot and run initial sync',
+    ],
+  },
+  {
+    title: 'Deploying the API',
+    description: 'Self-host the DiscordLink API on your infrastructure.',
+    steps: [
+      'Clone the repository',
+      'Configure database (SQLite, Turso, or D1)',
+      'Set environment variables',
+      'Build and start the API server',
+      'Optionally deploy to Cloudflare Workers',
+    ],
+  },
+  {
+    title: 'Building a FAQ Site',
+    description: 'Create a searchable FAQ from your Discord support forum.',
+    steps: [
+      'Set up a forum channel for Q&A',
+      'Configure the bot to sync resolved threads',
+      'Use the CLI to export or connect a template',
+      'Deploy to your hosting provider',
+      'Set up automated rebuilds',
+    ],
+  },
+  {
+    title: 'Setting Up Webhooks',
+    description: 'Receive real-time notifications when content changes.',
+    steps: [
+      'Create a webhook endpoint in your application',
+      'Register the webhook via API',
+      'Implement signature verification',
+      'Handle events and update your application',
+      'Monitor webhook deliveries',
+    ],
+  },
+  {
+    title: 'Configuring Privacy Controls',
+    description: 'Set up consent-based syncing for your community.',
+    steps: [
+      'Understand the privacy model',
+      'Configure default consent settings',
+      'Set up opt-out commands for users',
+      'Handle data deletion requests',
+      'Document your privacy practices',
+    ],
+  },
+];
+---
+
+<BaseLayout title="Guides - DiscordLink">
+  <Header />
+
+  <main>
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="/docs">Docs</a> / <span>Guides</span>
+      </nav>
+
+      <header class="page-header">
+        <h1>Guides</h1>
+        <p>Step-by-step tutorials for common tasks.</p>
+      </header>
+
+      <div class="guides-list">
+        {guides.map((guide, index) => (
+          <div class="guide-card">
+            <div class="guide-header">
+              <span class="guide-number">{index + 1}</span>
+              <div>
+                <h2>{guide.title}</h2>
+                <p>{guide.description}</p>
+              </div>
+            </div>
+            <div class="guide-steps">
+              <h3>Steps</h3>
+              <ol>
+                {guide.steps.map((step) => (
+                  <li>{step}</li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <section class="more-help">
+        <h2>Need More Help?</h2>
+        <div class="help-options">
+          <a href="https://github.com/KevinTrinh1227/discordlink/issues" target="_blank" rel="noopener" class="help-option">
+            <h3>GitHub Issues</h3>
+            <p>Report bugs or request features</p>
+          </a>
+          <a href="https://github.com/KevinTrinh1227/discordlink/discussions" target="_blank" rel="noopener" class="help-option">
+            <h3>GitHub Discussions</h3>
+            <p>Ask questions and share ideas</p>
+          </a>
+          <a href="/docs/api" class="help-option">
+            <h3>API Reference</h3>
+            <p>Detailed endpoint documentation</p>
+          </a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  main {
+    padding-top: 120px;
+    padding-bottom: 4rem;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  .breadcrumb {
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+  .breadcrumb a {
+    color: var(--text-secondary);
+  }
+  .breadcrumb a:hover {
+    color: var(--accent);
+  }
+  .page-header {
+    margin-bottom: 3rem;
+  }
+  .page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .page-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+  }
+
+  .guides-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+  }
+
+  .guide-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .guide-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .guide-number {
+    width: 40px;
+    height: 40px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .guide-header h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+  .guide-header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+
+  .guide-steps {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+  }
+  .guide-steps h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+  }
+  .guide-steps ol {
+    padding-left: 1.25rem;
+    margin: 0;
+  }
+  .guide-steps li {
+    padding: 0.3rem 0;
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+
+  .more-help h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  .help-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  .help-option {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    text-align: center;
+    transition: all 0.2s;
+    color: var(--text);
+  }
+  .help-option:hover {
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+  .help-option h3 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+  .help-option p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 768px) {
+    .help-options {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
