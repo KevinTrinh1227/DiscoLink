@@ -15,7 +15,7 @@ threads.data.forEach(thread => {
 const webhookExample = `import crypto from 'crypto';
 
 app.post('/webhook', (req, res) => {
-  const signature = req.headers['x-discordlink-signature'];
+  const signature = req.headers['x-discolink-signature'];
   const expected = crypto
     .createHmac('sha256', WEBHOOK_SECRET)
     .update(JSON.stringify(req.body))
@@ -42,7 +42,7 @@ for item in results['data']:
     print(item['title'], '-', item['snippet'])`;
 ---
 
-<BaseLayout title="API Integration - DiscordLink Use Cases">
+<BaseLayout title="API Integration - DiscoLink Use Cases">
   <Header />
 
   <main>

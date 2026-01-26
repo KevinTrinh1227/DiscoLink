@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
-import { getServer, getThreads, getThread, getReadingTime, getAvatarUrl } from '../../lib/discordlink';
+import { getServer, getThreads, getThread, getReadingTime, getAvatarUrl } from '../../lib/discolink';
 
 export async function getStaticPaths() {
   const threads = await getThreads();
@@ -117,7 +117,7 @@ const relatedPosts = threads
   </article>
 
   <footer class="site-footer">
-    <p>Powered by <a href="https://discordlink.dev">DiscordLink</a></p>
+    <p>Powered by <a href="https://discolink.dev">DiscoLink</a></p>
   </footer>
 </BaseLayout>
 

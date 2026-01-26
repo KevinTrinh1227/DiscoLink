@@ -14,7 +14,7 @@ import {
   getWebhookDeliveriesByWebhookId,
   eq,
   and,
-} from "@discordlink/db";
+} from "@discolink/db";
 import { requireAuth } from "../middleware/auth.js";
 
 const app = new Hono();
@@ -245,7 +245,7 @@ app.post("/:webhookId/test", requireAuth, async (c) => {
     timestamp: new Date().toISOString(),
     serverId: webhook.serverId,
     data: {
-      message: "This is a test webhook delivery from DiscordLink",
+      message: "This is a test webhook delivery from DiscoLink",
     },
   };
 

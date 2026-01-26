@@ -1,6 +1,6 @@
-# DiscordLink FAQ Template
+# DiscoLink FAQ Template
 
-A ready-to-use FAQ template powered by DiscordLink API.
+A ready-to-use FAQ template powered by DiscoLink API.
 
 ## Setup
 

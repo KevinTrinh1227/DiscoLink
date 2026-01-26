@@ -11,7 +11,7 @@ import {
   like,
   desc,
   sql,
-} from "@discordlink/db";
+} from "@discolink/db";
 import { filterThreadsByConsent, filterMessagesByConsent, type ConsentCheckContext } from "../lib/consent.js";
 import { cacheMiddleware, publicCacheKey } from "../middleware/cache.js";
 

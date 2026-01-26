@@ -8,7 +8,7 @@ import {
   incrementWebhookFailureCount,
   resetWebhookFailureCount,
   disableWebhook,
-} from "@discordlink/db";
+} from "@discolink/db";
 
 export type WebhookEvent =
   | "thread.created"
@@ -50,9 +50,9 @@ async function sendWebhookRequest(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-DiscordLink-Signature": `sha256=${signature}`,
-        "X-DiscordLink-Event": payload.event,
-        "X-DiscordLink-Delivery": `${Date.now()}-${attempt}`,
+        "X-DiscoLink-Signature": `sha256=${signature}`,
+        "X-DiscoLink-Event": payload.event,
+        "X-DiscoLink-Delivery": `${Date.now()}-${attempt}`,
       },
       body: payloadStr,
     });

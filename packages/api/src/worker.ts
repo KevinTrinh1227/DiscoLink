@@ -1,12 +1,12 @@
 /**
- * Cloudflare Workers entry point for DiscordLink API
+ * Cloudflare Workers entry point for DiscoLink API
  *
  * This file exports a Cloudflare Worker that can be deployed to
  * Cloudflare's edge network with D1 database support.
  */
 
 import { createApp } from "./app.js";
-import { createD1Client, setDb } from "@discordlink/db";
+import { createD1Client, setDb } from "@discolink/db";
 
 export interface Env {
   // Cloudflare D1 database binding

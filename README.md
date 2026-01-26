@@ -1,17 +1,22 @@
-# DiscordLink
+<p align="center">
+  <img src="packages/www/public/banner.svg" alt="DiscoLink - Your Discord content, anywhere you need it" width="100%">
+</p>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-20+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![discord.js](https://img.shields.io/badge/discord.js-v14-5865F2?logo=discord&logoColor=white)](https://discord.js.org/)
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-20+-339933?logo=node.js&logoColor=white" alt="Node.js"></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript&logoColor=white" alt="TypeScript"></a>
+  <a href="https://discord.js.org/"><img src="https://img.shields.io/badge/discord.js-v14-5865F2?logo=discord&logoColor=white" alt="discord.js"></a>
+</p>
 
-> **Your Discord content, anywhere you need it.** DiscordLink syncs your Discord forums and channels to a database you control. Build websites, integrate via REST API, or export static files. Your data, your way.
+# DiscoLink
+> **Your Discord content, anywhere you need it.** DiscoLink syncs your Discord forums and channels to a database you control. Build websites, integrate via REST API, or export static files. Your data, your way.
 
 ---
 
-## What is DiscordLink?
+## What is DiscoLink?
 
-DiscordLink bridges the gap between Discord and the web. Your community already creates valuable content in Discord—help threads, announcements, tutorials, discussions. DiscordLink captures all of that in real-time and makes it accessible through a REST API, static export, or webhooks.
+DiscoLink bridges the gap between Discord and the web. Your community already creates valuable content in Discord—help threads, announcements, tutorials, discussions. DiscoLink captures all of that in real-time and makes it accessible through a REST API, static export, or webhooks.
 
 **The flow is simple:**
 
@@ -46,7 +51,7 @@ Discord → Bot syncs content → Database → REST API / Static Export / Webhoo
 ## Project Structure
 
 ```
-discordlink/
+discolink/
 ├── packages/
 │   ├── db/         # Database schema (Drizzle ORM)
 │   ├── bot/        # Discord bot (discord.js)
@@ -67,14 +72,14 @@ discordlink/
 
 - Node.js 20+
 - pnpm 9+
-- Discord Application ([setup guide](https://discordlink.pages.dev/docs/guides))
+- Discord Application ([setup guide](https://discolink.pages.dev/docs/guides))
 
 ### Installation
 
 ```bash
 # Clone the repo
-git clone https://github.com/KevinTrinh1227/discordlink.git
-cd discordlink
+git clone https://github.com/KevinTrinh1227/discolink.git
+cd discolink
 
 # Install dependencies
 pnpm install
@@ -127,14 +132,14 @@ pnpm dev
 
 ## Documentation
 
-**[View Full Documentation](https://discordlink.pages.dev/docs)**
+**[View Full Documentation](https://discolink.pages.dev/docs)**
 
 | Section | Description |
 |---------|-------------|
-| [Getting Started](https://discordlink.pages.dev/quickstart) | Installation & setup |
-| [API Reference](https://discordlink.pages.dev/docs/api) | All endpoints |
-| [CLI Reference](https://discordlink.pages.dev/docs/cli) | Static export commands |
-| [Use Cases](https://discordlink.pages.dev/use-cases) | Real-world examples |
+| [Getting Started](https://discolink.pages.dev/quickstart) | Installation & setup |
+| [API Reference](https://discolink.pages.dev/docs/api) | All endpoints |
+| [CLI Reference](https://discolink.pages.dev/docs/cli) | Static export commands |
+| [Use Cases](https://discolink.pages.dev/use-cases) | Real-world examples |
 
 ---
 
@@ -167,7 +172,7 @@ pnpm dev
 
 ## Contributing
 
-Contributions are welcome! See the [Contributing Guide](https://discordlink.pages.dev/docs/guides) to get started.
+Contributions are welcome! See the [Contributing Guide](https://discolink.pages.dev/docs/guides) to get started.
 
 ---
 

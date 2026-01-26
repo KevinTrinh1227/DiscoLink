@@ -1,4 +1,4 @@
-import type { User, Message, Thread } from "@discordlink/db";
+import type { User, Message, Thread } from "@discolink/db";
 
 export interface AnonymousUser {
   id: "anonymous";

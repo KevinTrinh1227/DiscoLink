@@ -1,5 +1,5 @@
 import { type Guild } from "discord.js";
-import { getDb, upsertServer, markServerInactive } from "@discordlink/db";
+import { getDb, upsertServer, markServerInactive } from "@discolink/db";
 import { queueInitialSync } from "../sync/initial.js";
 import { logger } from "../logger.js";
 

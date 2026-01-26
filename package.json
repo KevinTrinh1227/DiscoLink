@@ -1,5 +1,5 @@
 {
-  "name": "discordlink",
+  "name": "discolink",
   "version": "0.1.0",
   "private": true,
   "description": "Complete Discord-as-CMS platform that syncs server content to a database and exposes it via REST API",
@@ -21,13 +21,13 @@
     "typecheck": "turbo run typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "db:generate": "pnpm --filter @discordlink/db generate",
-    "db:migrate": "pnpm --filter @discordlink/db migrate",
-    "db:push": "pnpm --filter @discordlink/db push",
-    "db:studio": "pnpm --filter @discordlink/db studio",
-    "docs:dev": "pnpm --filter @discordlink/docs dev",
-    "docs:build": "pnpm --filter @discordlink/docs build",
-    "docs:preview": "pnpm --filter @discordlink/docs preview"
+    "db:generate": "pnpm --filter @discolink/db generate",
+    "db:migrate": "pnpm --filter @discolink/db migrate",
+    "db:push": "pnpm --filter @discolink/db push",
+    "db:studio": "pnpm --filter @discolink/db studio",
+    "docs:dev": "pnpm --filter @discolink/docs dev",
+    "docs:build": "pnpm --filter @discolink/docs build",
+    "docs:preview": "pnpm --filter @discolink/docs preview"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

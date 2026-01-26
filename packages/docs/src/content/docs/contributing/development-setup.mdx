@@ -130,9 +130,9 @@ discord-forum-api/
 
 ```bash
 # Run command in specific package
-pnpm --filter @discordlink/api dev
-pnpm --filter @discordlink/bot build
-pnpm --filter @discordlink/db test
+pnpm --filter @discolink/api dev
+pnpm --filter @discolink/bot build
+pnpm --filter @discolink/db test
 ```
 
 ## IDE Setup
@@ -185,7 +185,7 @@ pnpm test
 
 ```bash
 # By package
-pnpm --filter @discordlink/api test
+pnpm --filter @discolink/api test
 
 # By pattern
 pnpm test -- --grep "threads"
@@ -297,7 +297,7 @@ seed();
 Run with:
 
 ```bash
-pnpm --filter @discordlink/db tsx src/seed.ts
+pnpm --filter @discolink/db tsx src/seed.ts
 ```
 
 ## Environment Variables
@@ -345,7 +345,7 @@ Create `.vscode/launch.json`:
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "@discordlink/api", "dev"],
+      "runtimeArgs": ["--filter", "@discolink/api", "dev"],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal"
     },
@@ -354,7 +354,7 @@ Create `.vscode/launch.json`:
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "@discordlink/bot", "dev"],
+      "runtimeArgs": ["--filter", "@discolink/bot", "dev"],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal"
     }

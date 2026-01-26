@@ -1,7 +1,7 @@
-# Cloudflare Workers configuration for DiscordLink API
+# Cloudflare Workers configuration for DiscoLink API
 # See: https://developers.cloudflare.com/workers/wrangler/configuration/
 
-name = "discordlink-api"
+name = "discolink-api"
 main = "dist/worker.js"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
@@ -9,8 +9,8 @@ compatibility_flags = ["nodejs_compat"]
 # D1 Database binding
 [[d1_databases]]
 binding = "DB"
-database_name = "discordlink"
-database_id = "" # Set this after creating the database with: wrangler d1 create discordlink
+database_name = "discolink"
+database_id = "" # Set this after creating the database with: wrangler d1 create discolink
 
 # Environment variables (optional, can also be set in dashboard)
 # [vars]
@@ -19,18 +19,18 @@ database_id = "" # Set this after creating the database with: wrangler d1 create
 
 # Production environment
 [env.production]
-name = "discordlink-api-production"
+name = "discolink-api-production"
 
 [[env.production.d1_databases]]
 binding = "DB"
-database_name = "discordlink-production"
+database_name = "discolink-production"
 database_id = "" # Set this after creating the production database
 
 # Staging environment
 [env.staging]
-name = "discordlink-api-staging"
+name = "discolink-api-staging"
 
 [[env.staging.d1_databases]]
 binding = "DB"
-database_name = "discordlink-staging"
+database_name = "discolink-staging"
 database_id = "" # Set this after creating the staging database

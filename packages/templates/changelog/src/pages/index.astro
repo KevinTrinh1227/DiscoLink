@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ChangelogEntry from '../components/ChangelogEntry.astro';
-import { getServer, getThreads, groupByMonth, formatMonthYear } from '../lib/discordlink';
+import { getServer, getThreads, groupByMonth, formatMonthYear } from '../lib/discolink';
 
 const server = await getServer();
 const threads = await getThreads();
@@ -52,7 +52,7 @@ const jsonLd = {
     </main>
 
     <footer>
-      <p>Powered by <a href="https://discordlink.dev">DiscordLink</a></p>
+      <p>Powered by <a href="https://discolink.dev">DiscoLink</a></p>
     </footer>
   </div>
 </BaseLayout>

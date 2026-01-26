@@ -30,7 +30,7 @@ export function generateRss(
   options: RssOptions
 ): string {
   const { baseUrl, server } = options;
-  const title = server?.name ?? "DiscordLink";
+  const title = server?.name ?? "DiscoLink";
   const description = server?.description ?? "Discord forum threads";
   const now = new Date().toUTCString();
 

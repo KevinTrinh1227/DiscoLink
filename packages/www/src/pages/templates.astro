@@ -8,30 +8,30 @@ const templates = [
     name: 'FAQ',
     description: 'Turn resolved Discord threads into a searchable FAQ. Perfect for support communities.',
     features: ['JSON-LD FAQPage schema', 'Client-side search', 'Tag-based categories', 'Mobile responsive'],
-    package: '@discordlink/template-faq',
+    package: '@discolink/template-faq',
   },
   {
     name: 'Changelog',
     description: 'Timeline view of updates and announcements. Great for product teams.',
     features: ['Timeline layout', 'Version badges', 'RSS feed', 'Month grouping'],
-    package: '@discordlink/template-changelog',
+    package: '@discolink/template-changelog',
   },
   {
     name: 'Knowledge Base',
     description: 'Documentation-style sidebar navigation. Ideal for comprehensive guides.',
     features: ['Sidebar navigation', 'Related articles', 'Breadcrumbs', 'Full-text search'],
-    package: '@discordlink/template-knowledge-base',
+    package: '@discolink/template-knowledge-base',
   },
   {
     name: 'Blog',
     description: 'Modern blog layout with featured posts. Perfect for community updates.',
     features: ['Featured posts', 'Author avatars', 'Reading time', 'JSON-LD Article schema'],
-    package: '@discordlink/template-blog',
+    package: '@discolink/template-blog',
   },
 ];
 ---
 
-<BaseLayout title="Templates - DiscordLink">
+<BaseLayout title="Templates - DiscoLink">
   <Header />
 
   <main>
@@ -66,7 +66,7 @@ const templates = [
       <section class="custom-templates">
         <h2>Build Your Own</h2>
         <p>All templates are built with Astro and can be customized. Use our API client to fetch data and build any layout you need.</p>
-        <pre><code>import {'{ getThreads, getThread }'} from '@discordlink/api-client';
+        <pre><code>import {'{ getThreads, getThread }'} from '@discolink/api-client';
 
 const threads = await getThreads(serverId);
 const thread = await getThread(threadId);</code></pre>

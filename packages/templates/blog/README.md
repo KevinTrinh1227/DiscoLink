@@ -1,6 +1,6 @@
-# DiscordLink Blog Template
+# DiscoLink Blog Template
 
-A modern blog template powered by DiscordLink API.
+A modern blog template powered by DiscoLink API.
 
 ## Setup
 

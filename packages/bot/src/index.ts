@@ -10,12 +10,12 @@ config({ path: resolve(__dirname, "../../../.env") });
 
 import { createClient, loginClient, destroyClient } from "./client.js";
 import { registerEvents } from "./events/index.js";
-import { createDbClient, getDbConfigFromEnv, setDb } from "@discordlink/db";
+import { createDbClient, getDbConfigFromEnv, setDb } from "@discolink/db";
 import { logger } from "./logger.js";
 import { getConfig } from "./config.js";
 
 async function main(): Promise<void> {
-  logger.info("Starting DiscordLink Bot...");
+  logger.info("Starting DiscoLink Bot...");
 
   // Validate config
   try {

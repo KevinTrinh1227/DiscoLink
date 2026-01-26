@@ -3,7 +3,7 @@ import {
   type ChatInputCommandInteraction,
   EmbedBuilder,
 } from "discord.js";
-import { getDb, upsertUser, updateUserConsent, getUserById } from "@discordlink/db";
+import { getDb, upsertUser, updateUserConsent, getUserById } from "@discolink/db";
 
 export const consentCommand = {
   data: new SlashCommandBuilder()

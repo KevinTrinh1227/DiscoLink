@@ -2,5 +2,5 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   output: 'static',
-  site: 'https://discordlink.dev',
+  site: 'https://discolink.dev',
 });

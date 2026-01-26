@@ -10,18 +10,18 @@ interface Config {
 }
 
 async function loadConfig(): Promise<Config | null> {
-  if (!existsSync("discordlink.config.json")) {
+  if (!existsSync("discolink.config.json")) {
     return null;
   }
 
-  const content = await readFile("discordlink.config.json", "utf-8");
+  const content = await readFile("discolink.config.json", "utf-8");
   return JSON.parse(content);
 }
 
 export const syncCommand = new Command("sync")
   .description("Trigger a manual sync from Discord")
   .option("-s, --server <id>", "Server ID to sync")
-  .option("--api-url <url>", "DiscordLink API URL")
+  .option("--api-url <url>", "DiscoLink API URL")
   .action(async (options: { server?: string; apiUrl?: string }) => {
     const spinner = ora("Loading configuration...").start();
 
@@ -34,7 +34,7 @@ export const syncCommand = new Command("sync")
 
       if (!serverId) {
         spinner.fail(
-          "No server ID provided. Use --server <id> or run 'discordlink init' first."
+          "No server ID provided. Use --server <id> or run 'discolink init' first."
         );
         process.exit(1);
       }

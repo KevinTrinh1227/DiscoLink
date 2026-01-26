@@ -28,7 +28,7 @@ export const exportCommand = new Command("export")
   .option("-o, --output <dir>", "Output directory", "./dist")
   .option("--template <name>", "Template to use (faq, changelog, kb, blog)", "faq")
   .option("--base-url <url>", "Base URL for generated links")
-  .option("--api-url <url>", "DiscordLink API URL", "http://localhost:3000")
+  .option("--api-url <url>", "DiscoLink API URL", "http://localhost:3000")
   .option("--clean", "Clean output directory before export", false)
   .action(async (options: ExportOptions) => {
     const spinner = ora("Starting export...").start();
@@ -98,14 +98,14 @@ export const exportCommand = new Command("export")
         // Generate sitemap
         spinner.text = "Generating sitemap...";
         const sitemap = generateSitemap(threads, {
-          baseUrl: options.baseUrl ?? `https://${server.name.toLowerCase().replace(/\s+/g, "-")}.discordlink.dev`,
+          baseUrl: options.baseUrl ?? `https://${server.name.toLowerCase().replace(/\s+/g, "-")}.discolink.dev`,
         });
         await writeFile(join(outputDir, "sitemap.xml"), sitemap);
 
         // Generate RSS feed
         spinner.text = "Generating RSS feed...";
         const rss = generateRss(threads, {
-          baseUrl: options.baseUrl ?? `https://${server.name.toLowerCase().replace(/\s+/g, "-")}.discordlink.dev`,
+          baseUrl: options.baseUrl ?? `https://${server.name.toLowerCase().replace(/\s+/g, "-")}.discolink.dev`,
           server,
         });
         await writeFile(join(outputDir, "feed.xml"), rss);
@@ -151,7 +151,7 @@ function generateIndexHtml(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${server.name} - DiscordLink</title>
+  <title>${server.name} - DiscoLink</title>
   <meta name="description" content="${server.description ?? `Community content from ${server.name}`}">
   <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="${baseUrl}/feed.xml">
   <style>
@@ -253,7 +253,7 @@ ${threads
     </main>
 
     <footer>
-      <p>Powered by <a href="https://discordlink.dev">DiscordLink</a></p>
+      <p>Powered by <a href="https://discolink.dev">DiscoLink</a></p>
     </footer>
   </div>
 </body>

@@ -84,11 +84,11 @@ This starts:
 
 ```bash
 # Run specific package
-pnpm --filter @discordlink/api dev
-pnpm --filter @discordlink/bot dev
+pnpm --filter @discolink/api dev
+pnpm --filter @discolink/bot dev
 
 # Build specific package
-pnpm --filter @discordlink/db build
+pnpm --filter @discolink/db build
 ```
 
 ## Project Structure

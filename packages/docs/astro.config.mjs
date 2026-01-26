@@ -4,10 +4,10 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
   integrations: [
     starlight({
-      title: 'DiscordLink',
+      title: 'DiscoLink',
       description: 'Sync your Discord content to a database you control. Build websites, integrate via REST API, or export static files. Your data, your way.',
       social: {
-        github: 'https://github.com/KevinTrinh1227/discordlink',
+        github: 'https://github.com/KevinTrinh1227/discolink',
       },
       customCss: ['./src/styles/custom.css'],
       logo: {
@@ -15,7 +15,7 @@ export default defineConfig({
         replacesTitle: false,
       },
       editLink: {
-        baseUrl: 'https://github.com/KevinTrinh1227/discordlink/edit/main/packages/docs/',
+        baseUrl: 'https://github.com/KevinTrinh1227/discolink/edit/main/packages/docs/',
       },
       sidebar: [
         {

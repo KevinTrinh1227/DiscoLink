@@ -16,7 +16,7 @@ import {
   desc,
   asc,
   inArray,
-} from "@discordlink/db";
+} from "@discolink/db";
 import { filterThreadsByConsent, filterMessagesByConsent, type ConsentCheckContext } from "../lib/consent.js";
 
 const app = new Hono();

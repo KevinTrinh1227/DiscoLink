@@ -1,6 +1,6 @@
-# DiscordLink Changelog Template
+# DiscoLink Changelog Template
 
-A timeline-style changelog template powered by DiscordLink API.
+A timeline-style changelog template powered by DiscoLink API.
 
 ## Setup
 

@@ -8,8 +8,8 @@ import { syncCommand } from "./commands/sync.js";
 const program = new Command();
 
 program
-  .name("discordlink")
-  .description("DiscordLink CLI - Export Discord content to static websites")
+  .name("discolink")
+  .description("DiscoLink CLI - Export Discord content to static websites")
   .version("0.1.0");
 
 // Register commands

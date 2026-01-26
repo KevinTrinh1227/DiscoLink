@@ -4,7 +4,7 @@ import {
   PermissionFlagsBits,
   EmbedBuilder,
 } from "discord.js";
-import { getDb, servers, eq } from "@discordlink/db";
+import { getDb, servers, eq } from "@discolink/db";
 
 export const settingsCommand = {
   data: new SlashCommandBuilder()

@@ -1,5 +1,5 @@
 {
-  "name": "@discordlink/api",
+  "name": "@discolink/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -18,11 +18,11 @@
     "deploy": "wrangler deploy",
     "deploy:staging": "wrangler deploy --env staging",
     "deploy:production": "wrangler deploy --env production",
-    "d1:create": "wrangler d1 create discordlink",
-    "d1:migrate": "wrangler d1 migrations apply discordlink"
+    "d1:create": "wrangler d1 create discolink",
+    "d1:migrate": "wrangler d1 migrations apply discolink"
   },
   "dependencies": {
-    "@discordlink/db": "workspace:*",
+    "@discolink/db": "workspace:*",
     "@hono/node-server": "^1.13.7",
     "dotenv": "^17.2.3",
     "hono": "^4.6.14",

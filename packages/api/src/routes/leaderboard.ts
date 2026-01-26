@@ -10,7 +10,7 @@ import {
   and,
   isNull,
   ne,
-} from "@discordlink/db";
+} from "@discolink/db";
 import { cacheMiddleware, serverCacheKey } from "../middleware/cache.js";
 
 const app = new Hono();

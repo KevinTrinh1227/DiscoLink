@@ -17,7 +17,7 @@ const initConfigExample = `{
 
 const vercelExample = `# vercel.json
 {
-  "buildCommand": "discordlink export --server YOUR_ID",
+  "buildCommand": "discolink export --server YOUR_ID",
   "outputDirectory": "dist"
 }`;
 
@@ -35,8 +35,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: npm install -g @discordlink/cli
-      - run: discordlink export --server \${{ secrets.SERVER_ID }} --api-url \${{ secrets.API_URL }}
+      - run: npm install -g @discolink/cli
+      - run: discolink export --server \${{ secrets.SERVER_ID }} --api-url \${{ secrets.API_URL }}
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: \${{ secrets.GITHUB_TOKEN }}
@@ -59,7 +59,7 @@ const fullConfigExample = `{
 }`;
 ---
 
-<BaseLayout title="CLI Reference - DiscordLink">
+<BaseLayout title="CLI Reference - DiscoLink">
   <Header />
 
   <main>
@@ -76,27 +76,27 @@ const fullConfigExample = `{
       <section class="installation">
         <h2>Installation</h2>
         <pre><code># Install globally
-npm install -g @discordlink/cli
+npm install -g @discolink/cli
 
 # Or use npx
-npx @discordlink/cli export --help</code></pre>
+npx @discolink/cli export --help</code></pre>
       </section>
 
       <section class="commands">
         <h2>Commands</h2>
 
         <div class="command">
-          <h3>discordlink init</h3>
-          <p>Initialize a new DiscordLink project with interactive prompts.</p>
-          <pre><code>discordlink init</code></pre>
-          <p>Creates <code>discordlink.config.json</code> with your configuration:</p>
+          <h3>discolink init</h3>
+          <p>Initialize a new DiscoLink project with interactive prompts.</p>
+          <pre><code>discolink init</code></pre>
+          <p>Creates <code>discolink.config.json</code> with your configuration:</p>
           <pre><code set:text={initConfigExample} /></pre>
         </div>
 
         <div class="command">
-          <h3>discordlink export</h3>
+          <h3>discolink export</h3>
           <p>Export Discord content to static HTML files.</p>
-          <pre><code>discordlink export [options]</code></pre>
+          <pre><code>discolink export [options]</code></pre>
 
           <h4>Options</h4>
           <table class="options-table">
@@ -140,7 +140,7 @@ npx @discordlink/cli export --help</code></pre>
               </tr>
               <tr>
                 <td><code>--api-url &lt;url&gt;</code></td>
-                <td>DiscordLink API URL</td>
+                <td>DiscoLink API URL</td>
                 <td>http://localhost:3000</td>
               </tr>
               <tr>
@@ -153,22 +153,22 @@ npx @discordlink/cli export --help</code></pre>
 
           <h4>Examples</h4>
           <pre><code># Export entire server
-discordlink export --server 123456789 --output ./dist
+discolink export --server 123456789 --output ./dist
 
 # Export with custom template
-discordlink export --server 123456789 --template changelog
+discolink export --server 123456789 --template changelog
 
 # Export single thread
-discordlink export --thread 987654321
+discolink export --thread 987654321
 
 # Export with base URL for production
-discordlink export --server 123456789 --base-url https://faq.example.com</code></pre>
+discolink export --server 123456789 --base-url https://faq.example.com</code></pre>
         </div>
 
         <div class="command">
-          <h3>discordlink sync</h3>
+          <h3>discolink sync</h3>
           <p>Verify API connection and show server status.</p>
-          <pre><code>discordlink sync [options]</code></pre>
+          <pre><code>discolink sync [options]</code></pre>
 
           <h4>Options</h4>
           <table class="options-table">
@@ -187,7 +187,7 @@ discordlink export --server 123456789 --base-url https://faq.example.com</code><
               </tr>
               <tr>
                 <td><code>--api-url &lt;url&gt;</code></td>
-                <td>DiscordLink API URL</td>
+                <td>DiscoLink API URL</td>
                 <td>http://localhost:3000</td>
               </tr>
             </tbody>
@@ -197,7 +197,7 @@ discordlink export --server 123456789 --base-url https://faq.example.com</code><
 
       <section class="output">
         <h2>Output Structure</h2>
-        <p>After running <code>discordlink export</code>, you'll have:</p>
+        <p>After running <code>discolink export</code>, you'll have:</p>
         <pre><code>dist/
 ├── index.html          # Main listing page
 ├── threads/
@@ -216,7 +216,7 @@ discordlink export --server 123456789 --base-url https://faq.example.com</code><
         <h3>Netlify</h3>
         <pre><code># netlify.toml
 [build]
-  command = "discordlink export --server YOUR_ID"
+  command = "discolink export --server YOUR_ID"
   publish = "dist"</code></pre>
 
         <h3>Vercel</h3>
@@ -228,7 +228,7 @@ discordlink export --server 123456789 --base-url https://faq.example.com</code><
 
       <section class="config">
         <h2>Configuration File</h2>
-        <p>The <code>discordlink.config.json</code> file supports:</p>
+        <p>The <code>discolink.config.json</code> file supports:</p>
         <pre><code set:text={fullConfigExample} /></pre>
       </section>
     </div>

@@ -13,17 +13,17 @@ interface InitAnswers {
 }
 
 export const initCommand = new Command("init")
-  .description("Initialize a new DiscordLink project")
+  .description("Initialize a new DiscoLink project")
   .action(async () => {
-    console.log(chalk.bold("\n  Welcome to DiscordLink! \n"));
+    console.log(chalk.bold("\n  Welcome to DiscoLink! \n"));
 
     // Check if config already exists
-    if (existsSync("discordlink.config.json")) {
+    if (existsSync("discolink.config.json")) {
       const { overwrite } = await inquirer.prompt([
         {
           type: "confirm",
           name: "overwrite",
-          message: "discordlink.config.json already exists. Overwrite?",
+          message: "discolink.config.json already exists. Overwrite?",
           default: false,
         },
       ]);
@@ -46,7 +46,7 @@ export const initCommand = new Command("init")
       {
         type: "input",
         name: "apiUrl",
-        message: "DiscordLink API URL:",
+        message: "DiscoLink API URL:",
         default: "http://localhost:3000",
       },
       {
@@ -84,13 +84,13 @@ export const initCommand = new Command("init")
           generateRss: true,
         },
         seo: {
-          titleSuffix: " - DiscordLink",
+          titleSuffix: " - DiscoLink",
           defaultDescription: "Community knowledge base",
         },
       };
 
       await writeFile(
-        "discordlink.config.json",
+        "discolink.config.json",
         JSON.stringify(config, null, 2)
       );
 
@@ -101,7 +101,7 @@ export const initCommand = new Command("init")
       if (!existsSync(".gitignore")) {
         await writeFile(
           ".gitignore",
-          `# DiscordLink
+          `# DiscoLink
 ${answers.outputDir}
 node_modules
 .env
@@ -114,16 +114,16 @@ node_modules
       console.log(`
 ${chalk.bold("Next steps:")}
 
-  1. Make sure your DiscordLink API is running at ${chalk.cyan(answers.apiUrl)}
-  2. Run ${chalk.cyan("discordlink export")} to generate your static site
+  1. Make sure your DiscoLink API is running at ${chalk.cyan(answers.apiUrl)}
+  2. Run ${chalk.cyan("discolink export")} to generate your static site
   3. Deploy the ${chalk.cyan(answers.outputDir)} folder to your hosting provider
 
 ${chalk.bold("Commands:")}
 
-  ${chalk.cyan("discordlink export")}     Generate static HTML files
-  ${chalk.cyan("discordlink sync")}       Trigger a manual sync from Discord
+  ${chalk.cyan("discolink export")}     Generate static HTML files
+  ${chalk.cyan("discolink sync")}       Trigger a manual sync from Discord
 
-${chalk.dim("Config saved to discordlink.config.json")}
+${chalk.dim("Config saved to discolink.config.json")}
 `);
     } catch (error) {
       spinner.fail(

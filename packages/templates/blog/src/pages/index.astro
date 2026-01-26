@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import PostCard from '../components/PostCard.astro';
-import { getServer, getThreads, getExcerpt, getReadingTime } from '../lib/discordlink';
+import { getServer, getThreads, getExcerpt, getReadingTime } from '../lib/discolink';
 
 const server = await getServer();
 const threads = await getThreads();
@@ -57,7 +57,7 @@ const recentPosts = postsWithExcerpts.slice(1, 7);
   </main>
 
   <footer class="site-footer">
-    <p>Powered by <a href="https://discordlink.dev">DiscordLink</a></p>
+    <p>Powered by <a href="https://discolink.dev">DiscoLink</a></p>
   </footer>
 </BaseLayout>
 

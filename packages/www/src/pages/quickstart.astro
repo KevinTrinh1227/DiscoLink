@@ -4,14 +4,14 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<BaseLayout title="Quickstart - DiscordLink">
+<BaseLayout title="Quickstart - DiscoLink">
   <Header />
 
   <main>
     <div class="container">
       <article class="content">
         <h1>Quickstart Guide</h1>
-        <p class="intro">Get DiscordLink running in under 5 minutes.</p>
+        <p class="intro">Get DiscoLink running in under 5 minutes.</p>
 
         <section>
           <h2>Prerequisites</h2>
@@ -25,8 +25,8 @@ import Footer from '../components/Footer.astro';
 
         <section>
           <h2>1. Clone the Repository</h2>
-          <pre><code>git clone https://github.com/KevinTrinh1227/discordlink.git
-cd discordlink
+          <pre><code>git clone https://github.com/KevinTrinh1227/discolink.git
+cd discolink
 pnpm install</code></pre>
         </section>
 
@@ -37,7 +37,7 @@ pnpm install</code></pre>
           <p>Required variables:</p>
           <pre><code>DISCORD_TOKEN=your_bot_token
 DISCORD_CLIENT_ID=your_client_id
-DATABASE_URL=file:./data/discordlink.db</code></pre>
+DATABASE_URL=file:./data/discolink.db</code></pre>
         </section>
 
         <section>
@@ -51,10 +51,10 @@ DATABASE_URL=file:./data/discordlink.db</code></pre>
           <pre><code>pnpm dev</code></pre>
           <p>Or run them separately:</p>
           <pre><code># Terminal 1 - API
-pnpm --filter @discordlink/api dev
+pnpm --filter @discolink/api dev
 
 # Terminal 2 - Bot
-pnpm --filter @discordlink/bot dev</code></pre>
+pnpm --filter @discolink/bot dev</code></pre>
         </section>
 
         <section>
@@ -77,10 +77,10 @@ pnpm --filter @discordlink/bot dev</code></pre>
         <section>
           <h2>7. Generate Static Site</h2>
           <p>Use the CLI to export your content as a static site:</p>
-          <pre><code>pnpm --filter @discordlink/cli build
+          <pre><code>pnpm --filter @discolink/cli build
 
 # Export all threads
-discordlink export --server YOUR_SERVER_ID --output ./dist --template faq</code></pre>
+discolink export --server YOUR_SERVER_ID --output ./dist --template faq</code></pre>
         </section>
 
         <section>

@@ -9,7 +9,7 @@ import {
   upsertUser,
   reactions,
   eq,
-} from "@discordlink/db";
+} from "@discolink/db";
 import { logger } from "../logger.js";
 import { dispatchWebhookEvent } from "../lib/webhook-dispatcher.js";
 

@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import FAQItem from '../components/FAQItem.astro';
 import SearchBox from '../components/SearchBox.astro';
-import { getServer, getResolvedThreads } from '../lib/discordlink';
+import { getServer, getResolvedThreads } from '../lib/discolink';
 
 const server = await getServer();
 const threads = await getResolvedThreads();
@@ -50,7 +50,7 @@ const jsonLd = {
     </main>
 
     <footer>
-      <p>Powered by <a href="https://discordlink.dev">DiscordLink</a></p>
+      <p>Powered by <a href="https://discolink.dev">DiscoLink</a></p>
     </footer>
   </div>
 </BaseLayout>

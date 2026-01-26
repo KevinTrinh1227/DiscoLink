@@ -1,6 +1,6 @@
-# DiscordLink Knowledge Base Template
+# DiscoLink Knowledge Base Template
 
-A documentation-style knowledge base template powered by DiscordLink API.
+A documentation-style knowledge base template powered by DiscoLink API.
 
 ## Setup
 
@@ -39,5 +39,5 @@ A documentation-style knowledge base template powered by DiscordLink API.
 ## Customization
 
 - Edit `src/components/Sidebar.astro` to customize navigation
-- Modify `src/lib/discordlink.ts` `groupByCategory` function for custom categorization
+- Modify `src/lib/discolink.ts` `groupByCategory` function for custom categorization
 - Update `src/layouts/BaseLayout.astro` for global styles

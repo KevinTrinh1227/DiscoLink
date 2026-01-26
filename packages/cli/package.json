@@ -1,11 +1,11 @@
 {
-  "name": "@discordlink/cli",
+  "name": "@discolink/cli",
   "version": "0.1.0",
-  "description": "DiscordLink CLI for static site generation and management",
+  "description": "DiscoLink CLI for static site generation and management",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {
-    "discordlink": "./dist/index.js"
+    "discolink": "./dist/index.js"
   },
   "exports": {
     ".": {

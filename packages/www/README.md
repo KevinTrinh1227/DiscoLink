@@ -1,6 +1,6 @@
-# DiscordLink Marketing Site
+# DiscoLink Marketing Site
 
-The official marketing site for DiscordLink.
+The official marketing site for DiscoLink.
 
 ## Development
 

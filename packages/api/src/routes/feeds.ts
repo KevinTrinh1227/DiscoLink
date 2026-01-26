@@ -9,7 +9,7 @@ import {
   and,
   isNull,
   desc,
-} from "@discordlink/db";
+} from "@discolink/db";
 import { cacheMiddleware, serverCacheKey } from "../middleware/cache.js";
 
 const app = new Hono();
@@ -82,13 +82,13 @@ app.get("/:serverId/rss", async (c) => {
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>${escapeXml(server.name)} - DiscordLink</title>
+    <title>${escapeXml(server.name)} - DiscoLink</title>
     <link>${escapeXml(baseUrl)}</link>
     <description>${escapeXml(server.description ?? `Threads from ${server.name}`)}</description>
     <language>en</language>
     <lastBuildDate>${lastBuildDate.toUTCString()}</lastBuildDate>
     <atom:link href="${escapeXml(feedUrl)}" rel="self" type="application/rss+xml"/>
-    <generator>DiscordLink</generator>
+    <generator>DiscoLink</generator>
 ${threadList
   .map((row) => {
     const thread = row.threads;
@@ -141,13 +141,13 @@ app.get("/:serverId/atom", async (c) => {
 
   const atom = `<?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>${escapeXml(server.name)} - DiscordLink</title>
+  <title>${escapeXml(server.name)} - DiscoLink</title>
   <link href="${escapeXml(baseUrl)}" rel="alternate"/>
   <link href="${escapeXml(feedUrl)}" rel="self"/>
   <id>${escapeXml(`${baseUrl}/feeds/${serverId}/atom`)}</id>
   <updated>${updatedAt.toISOString()}</updated>
   <subtitle>${escapeXml(server.description ?? `Threads from ${server.name}`)}</subtitle>
-  <generator uri="https://discordlink.dev">DiscordLink</generator>
+  <generator uri="https://discolink.dev">DiscoLink</generator>
 ${threadList
   .map((row) => {
     const thread = row.threads;
@@ -201,7 +201,7 @@ app.get("/:serverId/json", async (c) => {
 
   const jsonFeed = {
     version: "https://jsonfeed.org/version/1.1",
-    title: `${server.name} - DiscordLink`,
+    title: `${server.name} - DiscoLink`,
     home_page_url: baseUrl,
     feed_url: feedUrl,
     description: server.description ?? `Threads from ${server.name}`,
@@ -231,7 +231,7 @@ app.get("/:serverId/json", async (c) => {
           },
         ],
         tags: [channel?.name ?? "General", thread.status],
-        _discordlink: {
+        _discolink: {
           thread_id: thread.id,
           channel_id: thread.channelId,
           message_count: thread.messageCount,

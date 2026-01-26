@@ -184,7 +184,7 @@ export const threads = sqliteTable('threads', {
 ### Imports Order
 
 1. External packages
-2. Internal packages (@discordlink/*)
+2. Internal packages (@discolink/*)
 3. Relative imports (../ then ./)
 4. Type imports last
 
@@ -194,7 +194,7 @@ import { Hono } from 'hono';
 import { eq } from 'drizzle-orm';
 
 // Internal packages
-import { db, threads } from '@discordlink/db';
+import { db, threads } from '@discolink/db';
 
 // Relative
 import { validateParams } from '../lib/validation';

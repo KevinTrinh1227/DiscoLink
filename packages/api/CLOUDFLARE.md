@@ -1,6 +1,6 @@
-# Deploying DiscordLink API to Cloudflare Workers
+# Deploying DiscoLink API to Cloudflare Workers
 
-This guide explains how to deploy the DiscordLink API to Cloudflare's edge network using Workers and D1.
+This guide explains how to deploy the DiscoLink API to Cloudflare's edge network using Workers and D1.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ This guide explains how to deploy the DiscordLink API to Cloudflare's edge netwo
 
 ```bash
 # Create the database
-pnpm --filter @discordlink/api d1:create
+pnpm --filter @discolink/api d1:create
 
 # Note the database_id from the output
 ```
@@ -26,7 +26,7 @@ Update `packages/api/wrangler.toml` with your database ID:
 ```toml
 [[d1_databases]]
 binding = "DB"
-database_name = "discordlink"
+database_name = "discolink"
 database_id = "YOUR_DATABASE_ID"  # Replace with actual ID
 ```
 
@@ -36,20 +36,20 @@ Create migrations from your Drizzle schema and apply them to D1:
 
 ```bash
 # Generate SQL migrations
-pnpm --filter @discordlink/db generate
+pnpm --filter @discolink/db generate
 
 # Apply to D1 (you may need to manually run the SQL)
-wrangler d1 execute discordlink --file=packages/db/drizzle/0001_initial.sql
+wrangler d1 execute discolink --file=packages/db/drizzle/0001_initial.sql
 ```
 
 ### 4. Build and Deploy
 
 ```bash
 # Build the API
-pnpm --filter @discordlink/api build
+pnpm --filter @discolink/api build
 
 # Deploy to Cloudflare Workers
-pnpm --filter @discordlink/api deploy
+pnpm --filter @discolink/api deploy
 ```
 
 ## Environment Variables
@@ -70,10 +70,10 @@ The wrangler.toml includes staging and production environments:
 
 ```bash
 # Deploy to staging
-pnpm --filter @discordlink/api deploy:staging
+pnpm --filter @discolink/api deploy:staging
 
 # Deploy to production
-pnpm --filter @discordlink/api deploy:production
+pnpm --filter @discolink/api deploy:production
 ```
 
 ## Architecture Notes
@@ -101,7 +101,7 @@ For self-hosted setups, you can use a single SQLite/Turso database shared betwee
 
 Add a custom domain in the Cloudflare dashboard:
 1. Go to Workers & Pages > your worker > Settings > Domains & Routes
-2. Add a custom domain (e.g., `api.discordlink.dev`)
+2. Add a custom domain (e.g., `api.discolink.dev`)
 
 ## Monitoring
 

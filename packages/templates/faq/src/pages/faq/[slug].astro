@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getServer, getThreads, getThread } from '../../lib/discordlink';
+import { getServer, getThreads, getThread } from '../../lib/discolink';
 
 export async function getStaticPaths() {
   const threads = await getThreads();
@@ -88,7 +88,7 @@ function formatDate(dateStr: string): string {
     </article>
 
     <footer>
-      <p>Powered by <a href="https://discordlink.dev">DiscordLink</a></p>
+      <p>Powered by <a href="https://discolink.dev">DiscoLink</a></p>
     </footer>
   </div>
 </BaseLayout>

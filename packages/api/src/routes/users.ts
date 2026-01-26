@@ -8,7 +8,7 @@ import {
   and,
   isNull,
   desc,
-} from "@discordlink/db";
+} from "@discolink/db";
 import { type ConsentCheckContext } from "../lib/consent.js";
 
 const app = new Hono();
