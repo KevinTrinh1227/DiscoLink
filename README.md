@@ -3,13 +3,13 @@
 </p>
 
 <p align="center">
-  <b>Your Discord content, anywhere you need it.</b>
+  <b>Your Discord content, anywhere you need it. Entirely free and open source.</b>
 </p>
 
 <p align="center">
   <a href="https://github.com/KevinTrinh1227/discolink/stargazers"><img src="https://img.shields.io/github/stars/KevinTrinh1227/discolink?style=for-the-badge&logo=github&color=yellow" alt="Stars"></a>
   <a href="https://github.com/KevinTrinh1227/discolink/releases"><img src="https://img.shields.io/github/v/release/KevinTrinh1227/discolink?style=for-the-badge&logo=github&color=blue" alt="Release"></a>
-  <a href="https://discolink.pages.dev/docs"><img src="https://img.shields.io/badge/Docs-Visit-8A2BE2?style=for-the-badge&logo=gitbook&logoColor=white" alt="Documentation"></a>
+  <a href="https://docs.discolink.dev/docs"><img src="https://img.shields.io/badge/Docs-Visit-8A2BE2?style=for-the-badge&logo=gitbook&logoColor=white" alt="Documentation"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License"></a>
 </p>
 
@@ -29,96 +29,41 @@ Discord → Bot syncs content → Database → REST API / Static Export → Your
 - 📋 **Changelog** — Auto-publish release notes from announcements
 - ✍️ **Blog** — Transform discussions into blog posts
 
+<details>
+<summary><b>Why I built this</b></summary>
+<br>
+
+I'm working on a project called [CoogCasa](https://github.com/KevinTrinh1227/CoogCasa) where I wanted to integrate heavily with Discord—but in a specific way. I needed certain threads and content from Discord to be pulled and displayed on a custom app I was building, fully SEO optimized.
+
+I couldn't find an existing tool that did exactly what I needed. Most solutions were either too rigid, didn't offer the level of control I wanted, or weren't designed for custom integrations. So I decided to build my own.
+
+While there are other amazing tools out there that sync Discord content, DiscoLink was built differently:
+- **You own your data** — Self-hosted with your own database
+- **Flexible output** — REST API, static export, or webhooks—your choice
+- **Privacy focused** — Consent-based syncing with full user control
+- **Developer first** — Built for integration into custom apps, not just standalone sites
+
+</details>
+
 ---
 
 ## ✨ Features
 
-<details>
-<summary>🔄 <b>Real-Time Sync</b></summary>
-<br>
-Discord bot syncs forum posts, text channels, and announcements in real-time. Never miss an update—content is captured the moment it's posted.
-</details>
-
-<details>
-<summary>🔍 <b>Full-Text Search</b></summary>
-<br>
-FTS5-powered search indexes all your Discord content. Find threads, messages, and answers instantly with typo-tolerant queries.
-</details>
-
-<details>
-<summary>🌐 <b>REST API</b></summary>
-<br>
-Full REST API with endpoints for servers, channels, threads, messages, users, and search. Paginated responses, filtering, and webhooks included.
-</details>
-
-<details>
-<summary>📦 <b>Static Export</b></summary>
-<br>
-Export your content to static HTML with the CLI. Deploy anywhere—no server required. Perfect for documentation sites and blogs.
-</details>
-
-<details>
-<summary>🎨 <b>Official Templates</b></summary>
-<br>
-Ready-to-use Astro templates for FAQ, Knowledge Base, Changelog, and Blog. Just configure and deploy.
-</details>
-
-<details>
-<summary>☁️ <b>Edge Deployment</b></summary>
-<br>
-Deploy to Cloudflare Workers with Turso database for global low-latency access. Or self-host with SQLite locally.
-</details>
-
-<details>
-<summary>🔒 <b>Privacy Controls</b></summary>
-<br>
-Consent-based syncing lets users opt out. Self-hosted means your data stays on your infrastructure. No tracking, no data collection.
-</details>
+- 🔄 **Real-Time Sync** — Discord bot syncs forum posts, text channels, and announcements instantly
+- 🔍 **Full-Text Search** — FTS5-powered search with typo-tolerant queries
+- 🌐 **REST API** — Full API with endpoints for servers, channels, threads, messages, and users
+- 📦 **Static Export** — Export to static HTML with the CLI, deploy anywhere
+- 🎨 **Official Templates** — Ready-to-use Astro templates for FAQ, KB, Changelog, and Blog
+- ☁️ **Edge Deployment** — Deploy to Cloudflare Workers with Turso, or self-host with SQLite
+- 🔒 **Privacy Controls** — Consent-based syncing, self-hosted, no tracking
 
 ---
 
 ## 🛠️ Three Ways to Use — All Free
 
-<details>
-<summary>🔗 <b>REST API</b> — For custom apps & integrations</summary>
-<br>
-
-Build custom applications with full API access. Perfect for dashboards, integrations, and dynamic websites.
-
-- Full CRUD operations
-- Webhook notifications
-- RSS/Atom feeds
-- Rate limiting included
-
-</details>
-
-<details>
-<summary>📦 <b>Static Export</b> — No server needed</summary>
-<br>
-
-Export to static HTML and host anywhere. Great for simple sites, GitHub Pages, or CDN hosting.
-
-- Zero runtime dependencies
-- Fast page loads
-- SEO optimized
-- Works offline
-
-</details>
-
-<details>
-<summary>🎨 <b>Templates</b> — Quick start with pre-built designs</summary>
-<br>
-
-Get started in minutes with official templates:
-
-| Template | Description |
-|----------|-------------|
-| [FAQ](packages/templates/faq) | Searchable FAQ from resolved threads |
-| [Knowledge Base](packages/templates/knowledge-base) | Organized documentation |
-| [Changelog](packages/templates/changelog) | Release notes timeline |
-| [Blog](packages/templates/blog) | Blog posts from discussions |
-
-</details>
+- 🔗 **REST API** — Build custom apps, dashboards, and integrations with full API access
+- 📦 **Static Export** — Export to static HTML and host anywhere, no server needed
+- 🎨 **Templates** — Get started in minutes with pre-built FAQ, KB, Changelog, or Blog templates
 
 ---
 
@@ -137,18 +82,17 @@ cp .env.example .env
 pnpm db:push && pnpm dev
 ```
 
-📖 **[Full Setup Guide →](https://discolink.pages.dev/quickstart)**
+📖 **[Full Setup Guide →](https://docs.discolink.dev/quickstart)**
 
 ---
 
-## 📚 Documentation
+## 📚 Documentation & Contributing
 
-| Resource | Link |
-|----------|------|
-| Getting Started | [discolink.pages.dev/quickstart](https://discolink.pages.dev/quickstart) |
-| API Reference | [discolink.pages.dev/docs/api](https://discolink.pages.dev/docs/api) |
-| CLI Reference | [discolink.pages.dev/docs/cli](https://discolink.pages.dev/docs/cli) |
-| Templates | [discolink.pages.dev/templates](https://discolink.pages.dev/templates) |
+- 🚀 [Getting Started](https://docs.discolink.dev/quickstart)
+- 📖 [API Reference](https://docs.discolink.dev/docs/api)
+- 💻 [CLI Reference](https://docs.discolink.dev/docs/cli)
+- 🎨 [Templates](https://docs.discolink.dev/templates)
+- 🤝 [Contributing Guide](https://docs.discolink.dev/docs/guides) — Contributions welcome!
 
 ---
 
@@ -161,11 +105,3 @@ pnpm db:push && pnpm dev
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=KevinTrinh1227/discolink&type=Date" />
  </picture>
 </a>
-
----
-
-## 📄 License & Contributing
-
-**MIT License** — Use it however you want. See [LICENSE](LICENSE) for details.
-
-Contributions welcome! Check out the [Contributing Guide](https://discolink.pages.dev/docs/guides) to get started.
