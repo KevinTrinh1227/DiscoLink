@@ -1,5 +1,0 @@
-# Cloudflare Pages configuration for DiscoLink Marketing Site
-# Deploy with: wrangler pages deploy dist --project-name discolink-www
-
-name = "discolink-www"
-compatibility_date = "2024-01-01"

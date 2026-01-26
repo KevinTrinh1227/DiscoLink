@@ -1,15 +1,34 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Background circle (disco ball) -->
+  <circle cx="16" cy="16" r="14" fill="url(#grad)" />
+
+  <!-- Mirror tiles pattern (simplified for small size) -->
+  <g opacity="0.9">
+    <rect x="11" y="6" width="4" height="3" rx="0.5" fill="white" opacity="0.85"/>
+    <rect x="16" y="7" width="3" height="2.5" rx="0.5" fill="white" opacity="0.7"/>
+
+    <rect x="7" y="11" width="4" height="3.5" rx="0.5" fill="white" opacity="0.8"/>
+    <rect x="12" y="11" width="5" height="4" rx="0.5" fill="white" opacity="0.95"/>
+    <rect x="18" y="11" width="4" height="3.5" rx="0.5" fill="white" opacity="0.75"/>
+
+    <rect x="6" y="16" width="4" height="4" rx="0.5" fill="white" opacity="0.7"/>
+    <rect x="11" y="16" width="5" height="4.5" rx="0.5" fill="white" opacity="1"/>
+    <rect x="17" y="16" width="5" height="4" rx="0.5" fill="white" opacity="0.85"/>
+    <rect x="23" y="17" width="3" height="3" rx="0.5" fill="white" opacity="0.6"/>
+
+    <rect x="9" y="22" width="4" height="3" rx="0.5" fill="white" opacity="0.75"/>
+    <rect x="14" y="22" width="4" height="3" rx="0.5" fill="white" opacity="0.8"/>
+    <rect x="19" y="23" width="3" height="2.5" rx="0.5" fill="white" opacity="0.65"/>
+  </g>
+
+  <!-- Sparkle -->
+  <circle cx="26" cy="8" r="1.5" fill="white" opacity="0.9"/>
+
   <defs>
-    <linearGradient id="blurple-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#5865f2"/>
-      <stop offset="100%" style="stop-color:#7983f5"/>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6"/>
+      <stop offset="50%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
     </linearGradient>
   </defs>
-  <!-- Discord-inspired forum icon -->
-  <rect x="2" y="4" width="28" height="24" rx="4" fill="url(#blurple-gradient)"/>
-  <!-- Chat bubbles representing forum threads -->
-  <rect x="6" y="8" width="14" height="3" rx="1.5" fill="white" opacity="0.9"/>
-  <rect x="6" y="13" width="20" height="3" rx="1.5" fill="white" opacity="0.7"/>
-  <rect x="6" y="18" width="16" height="3" rx="1.5" fill="white" opacity="0.5"/>
-  <rect x="6" y="23" width="12" height="3" rx="1.5" fill="white" opacity="0.3"/>
 </svg>
