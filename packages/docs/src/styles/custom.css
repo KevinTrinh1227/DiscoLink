@@ -112,12 +112,6 @@ main .sl-markdown-content {
   line-height: 1.7;
 }
 
-/* Centered search bar in navbar */
-header.header {
-  display: flex;
-  justify-content: space-between;
-}
-
 /* GitHub star button styles */
 .github-star-btn {
   display: inline-flex;
