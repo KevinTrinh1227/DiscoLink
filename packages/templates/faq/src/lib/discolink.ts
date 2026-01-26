@@ -52,8 +52,8 @@ export interface Server {
   description: string | null;
 }
 
-const API_URL = import.meta.env.DISCORDLINK_API_URL || 'http://localhost:3000';
-const SERVER_ID = import.meta.env.DISCORDLINK_SERVER_ID;
+const API_URL = import.meta.env.DISCOLINK_API_URL || 'http://localhost:3000';
+const SERVER_ID = import.meta.env.DISCOLINK_SERVER_ID;
 
 export async function getServer(): Promise<Server> {
   const response = await fetch(`${API_URL}/servers/${SERVER_ID}`);
@@ -83,10 +83,7 @@ export async function getThreads(): Promise<ThreadSummary[]> {
     cursor = data.pagination.nextCursor;
   }
 
-  // Sort by creation date, newest first
-  return threads.sort((a, b) =>
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
+  return threads;
 }
 
 export async function getThread(threadId: string): Promise<Thread> {
@@ -97,24 +94,13 @@ export async function getThread(threadId: string): Promise<Thread> {
   return response.json();
 }
 
-export function groupByMonth(threads: ThreadSummary[]): Map<string, ThreadSummary[]> {
-  const grouped = new Map<string, ThreadSummary[]>();
-
-  for (const thread of threads) {
-    const date = new Date(thread.createdAt);
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-
-    if (!grouped.has(key)) {
-      grouped.set(key, []);
-    }
-    grouped.get(key)!.push(thread);
-  }
-
-  return grouped;
+export async function getResolvedThreads(): Promise<ThreadSummary[]> {
+  const threads = await getThreads();
+  return threads.filter((t) => t.status === 'resolved');
 }
 
-export function formatMonthYear(key: string): string {
-  const [year, month] = key.split('-');
-  const date = new Date(parseInt(year), parseInt(month) - 1);
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+export function getTagsFromThreads(threads: ThreadSummary[]): string[] {
+  const tagSet = new Set<string>();
+  // Note: ThreadSummary doesn't include tags, so this would need full thread data
+  return Array.from(tagSet);
 }

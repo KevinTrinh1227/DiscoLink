@@ -52,8 +52,8 @@ export interface Server {
   description: string | null;
 }
 
-const API_URL = import.meta.env.DISCORDLINK_API_URL || 'http://localhost:3000';
-const SERVER_ID = import.meta.env.DISCORDLINK_SERVER_ID;
+const API_URL = import.meta.env.DISCOLINK_API_URL || 'http://localhost:3000';
+const SERVER_ID = import.meta.env.DISCOLINK_SERVER_ID;
 
 export async function getServer(): Promise<Server> {
   const response = await fetch(`${API_URL}/servers/${SERVER_ID}`);
@@ -83,7 +83,7 @@ export async function getThreads(): Promise<ThreadSummary[]> {
     cursor = data.pagination.nextCursor;
   }
 
-  // Sort by creation date, newest first (blog posts)
+  // Sort by creation date, newest first
   return threads.sort((a, b) =>
     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
@@ -97,22 +97,24 @@ export async function getThread(threadId: string): Promise<Thread> {
   return response.json();
 }
 
-export function getExcerpt(content: string, maxLength: number = 200): string {
-  if (content.length <= maxLength) return content;
-  const truncated = content.slice(0, maxLength);
-  const lastSpace = truncated.lastIndexOf(' ');
-  return (lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated) + '...';
-}
+export function groupByMonth(threads: ThreadSummary[]): Map<string, ThreadSummary[]> {
+  const grouped = new Map<string, ThreadSummary[]>();
 
-export function getReadingTime(content: string): number {
-  const wordsPerMinute = 200;
-  const words = content.trim().split(/\s+/).length;
-  return Math.max(1, Math.ceil(words / wordsPerMinute));
-}
+  for (const thread of threads) {
+    const date = new Date(thread.createdAt);
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
-export function getAvatarUrl(userId: string, avatar: string | null): string {
-  if (avatar) {
-    return `https://cdn.discordapp.com/avatars/${userId}/${avatar}.png`;
+    if (!grouped.has(key)) {
+      grouped.set(key, []);
+    }
+    grouped.get(key)!.push(thread);
   }
-  return `https://cdn.discordapp.com/embed/avatars/${parseInt(userId) % 5}.png`;
+
+  return grouped;
+}
+
+export function formatMonthYear(key: string): string {
+  const [year, month] = key.split('-');
+  const date = new Date(parseInt(year), parseInt(month) - 1);
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
 }

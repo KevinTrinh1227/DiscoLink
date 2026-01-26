@@ -6,8 +6,8 @@ A modern blog template powered by DiscoLink API.
 
 1. Set environment variables:
    ```
-   DISCORDLINK_API_URL=http://localhost:3000
-   DISCORDLINK_SERVER_ID=your-server-id
+   DISCOLINK_API_URL=http://localhost:3000
+   DISCOLINK_SERVER_ID=your-server-id
    SITE_URL=https://your-domain.com
    ```
 

@@ -52,8 +52,8 @@ export interface Server {
   description: string | null;
 }
 
-const API_URL = import.meta.env.DISCORDLINK_API_URL || 'http://localhost:3000';
-const SERVER_ID = import.meta.env.DISCORDLINK_SERVER_ID;
+const API_URL = import.meta.env.DISCOLINK_API_URL || 'http://localhost:3000';
+const SERVER_ID = import.meta.env.DISCOLINK_SERVER_ID;
 
 export async function getServer(): Promise<Server> {
   const response = await fetch(`${API_URL}/servers/${SERVER_ID}`);
