@@ -1,0 +1,311 @@
+---
+title: Users
+description: API endpoints for Discord user profiles
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Endpoints for retrieving Discord user profile information.
+
+## Get User Profile
+
+Retrieve a user's profile information.
+
+```http
+GET /api/users/:userId
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `userId` | string | Discord user ID |
+
+### Response
+
+```json
+{
+  "id": "user123",
+  "username": "developer_dave",
+  "globalName": "Dave the Developer",
+  "avatar": "abc123def456",
+  "banner": "banner789",
+  "accentColor": 5814783,
+  "isBot": false,
+  "badges": ["verified_developer", "early_supporter"],
+  "premiumType": "Nitro"
+}
+```
+
+### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Discord user ID |
+| `username` | string | Username (without discriminator) |
+| `globalName` | string \| null | Display name |
+| `avatar` | string \| null | Avatar hash |
+| `banner` | string \| null | Banner hash (Nitro users) |
+| `accentColor` | number \| null | Profile accent color |
+| `isBot` | boolean | Whether user is a bot |
+| `badges` | string[] | Profile badges |
+| `premiumType` | string \| null | Nitro subscription type |
+
+### Badge Values
+
+| Badge | Description |
+|-------|-------------|
+| `staff` | Discord Employee |
+| `partner` | Discord Partner |
+| `hypesquad` | HypeSquad Events member |
+| `bug_hunter_level_1` | Bug Hunter Level 1 |
+| `bug_hunter_level_2` | Bug Hunter Level 2 |
+| `hypesquad_bravery` | HypeSquad Bravery |
+| `hypesquad_brilliance` | HypeSquad Brilliance |
+| `hypesquad_balance` | HypeSquad Balance |
+| `early_supporter` | Early Nitro Supporter |
+| `verified_developer` | Verified Bot Developer |
+| `active_developer` | Active Developer |
+| `certified_moderator` | Discord Certified Moderator |
+
+### Premium Types
+
+| Value | Description |
+|-------|-------------|
+| `null` | No Nitro |
+| `Nitro Classic` | Nitro Classic |
+| `Nitro` | Full Nitro |
+| `Nitro Basic` | Nitro Basic |
+
+### Example
+
+<Tabs>
+  <TabItem label="curl">
+    ```bash
+    curl http://localhost:3000/api/users/123456789012345678
+    ```
+  </TabItem>
+  <TabItem label="JavaScript">
+    ```javascript
+    const response = await fetch('http://localhost:3000/api/users/123456789012345678');
+    const user = await response.json();
+    console.log(user.globalName); // "Dave the Developer"
+    ```
+  </TabItem>
+</Tabs>
+
+### Errors
+
+| Status | Code | Description |
+|--------|------|-------------|
+| 404 | `NOT_FOUND` | User not found (never synced) |
+
+---
+
+## Avatar URLs
+
+Construct avatar URLs using the avatar hash:
+
+### Default Avatar
+
+```javascript
+function getDefaultAvatar(userId) {
+  // Discord uses (userId >> 22) % 6 for default avatar index
+  const index = (BigInt(userId) >> 22n) % 6n;
+  return `https://cdn.discordapp.com/embed/avatars/${index}.png`;
+}
+```
+
+### Custom Avatar
+
+```javascript
+function getAvatarUrl(user, size = 128) {
+  if (!user.avatar) {
+    return getDefaultAvatar(user.id);
+  }
+
+  const ext = user.avatar.startsWith('a_') ? 'gif' : 'png';
+  return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${ext}?size=${size}`;
+}
+```
+
+### Available Sizes
+
+Valid size values: `16`, `32`, `64`, `128`, `256`, `512`, `1024`, `2048`, `4096`
+
+---
+
+## Banner URLs
+
+For users with Nitro who have set a banner:
+
+```javascript
+function getBannerUrl(user, size = 600) {
+  if (!user.banner) return null;
+
+  const ext = user.banner.startsWith('a_') ? 'gif' : 'png';
+  return `https://cdn.discordapp.com/banners/${user.id}/${user.banner}.${ext}?size=${size}`;
+}
+```
+
+---
+
+## Accent Color
+
+The accent color is stored as a decimal integer. Convert to hex:
+
+```javascript
+function getAccentColorHex(user) {
+  if (!user.accentColor) return null;
+  return '#' + user.accentColor.toString(16).padStart(6, '0');
+}
+
+// Example: 5814783 -> "#58a6ff"
+```
+
+---
+
+## Common Patterns
+
+### User Profile Card
+
+```javascript
+function UserProfile({ user }) {
+  const avatarUrl = getAvatarUrl(user, 256);
+  const bannerUrl = getBannerUrl(user);
+  const accentColor = getAccentColorHex(user);
+
+  return (
+    <div className="profile-card">
+      {bannerUrl ? (
+        <img className="banner" src={bannerUrl} alt="" />
+      ) : accentColor ? (
+        <div className="banner" style={{ background: accentColor }} />
+      ) : null}
+
+      <img className="avatar" src={avatarUrl} alt={user.username} />
+
+      <div className="info">
+        <h2>{user.globalName || user.username}</h2>
+        <span className="username">@{user.username}</span>
+
+        {user.badges.length > 0 && (
+          <div className="badges">
+            {user.badges.map(badge => (
+              <BadgeIcon key={badge} badge={badge} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+```
+
+### Badge Icons
+
+```javascript
+const BADGE_ICONS = {
+  staff: '/badges/staff.svg',
+  partner: '/badges/partner.svg',
+  hypesquad: '/badges/hypesquad.svg',
+  bug_hunter_level_1: '/badges/bug_hunter.svg',
+  bug_hunter_level_2: '/badges/bug_hunter_gold.svg',
+  hypesquad_bravery: '/badges/bravery.svg',
+  hypesquad_brilliance: '/badges/brilliance.svg',
+  hypesquad_balance: '/badges/balance.svg',
+  early_supporter: '/badges/early_supporter.svg',
+  verified_developer: '/badges/verified_developer.svg',
+  active_developer: '/badges/active_developer.svg',
+  certified_moderator: '/badges/certified_moderator.svg',
+};
+
+function BadgeIcon({ badge }) {
+  const icon = BADGE_ICONS[badge];
+  if (!icon) return null;
+
+  return (
+    <img
+      className="badge"
+      src={icon}
+      alt={badge.replace(/_/g, ' ')}
+      title={badge.replace(/_/g, ' ')}
+    />
+  );
+}
+```
+
+### Mini User Display
+
+```javascript
+function UserMini({ user }) {
+  return (
+    <div className="user-mini">
+      <img src={getAvatarUrl(user, 32)} alt="" />
+      <span>{user.globalName || user.username}</span>
+      {user.isBot && <span className="bot-tag">BOT</span>}
+    </div>
+  );
+}
+```
+
+### CSS Example
+
+```css
+.profile-card {
+  width: 300px;
+  background: #292b2f;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.profile-card .banner {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+}
+
+.profile-card .avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 6px solid #292b2f;
+  margin: -40px auto 0;
+  display: block;
+}
+
+.profile-card .info {
+  padding: 16px;
+  text-align: center;
+}
+
+.profile-card h2 {
+  color: white;
+  margin: 0;
+}
+
+.profile-card .username {
+  color: #b9bbbe;
+}
+
+.profile-card .badges {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.profile-card .badge {
+  width: 24px;
+  height: 24px;
+}
+
+.bot-tag {
+  background: #5865f2;
+  color: white;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+```

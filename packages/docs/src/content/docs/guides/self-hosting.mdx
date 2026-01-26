@@ -1,0 +1,401 @@
+---
+title: Self-Hosting
+description: Deploy Discord Forum API on your own infrastructure
+---
+
+import { Steps, Aside, Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+This guide covers self-hosting Discord Forum API on your own servers.
+
+<Aside>
+  For managed deployment options, see our [Deployment guides](/deployment) covering Vercel, Railway, and more.
+</Aside>
+
+## Architecture Overview
+
+Discord Forum API consists of two services:
+
+| Service | Purpose | Requirements |
+|---------|---------|--------------|
+| **Bot** | Connects to Discord, syncs content | Persistent connection (WebSocket) |
+| **API** | Serves REST endpoints | HTTP server |
+
+Both services share the same database.
+
+```
+                    ┌─────────────┐
+                    │   Discord   │
+                    └──────┬──────┘
+                           │ WebSocket
+                    ┌──────▼──────┐
+                    │     Bot     │
+                    └──────┬──────┘
+                           │ Write
+                    ┌──────▼──────┐
+                    │  Database   │◄──── Read ────┐
+                    │  (SQLite/   │               │
+                    │   Turso)    │        ┌──────┴──────┐
+                    └─────────────┘        │     API     │
+                                           └──────┬──────┘
+                                                  │ HTTP
+                                           ┌──────▼──────┐
+                                           │   Clients   │
+                                           └─────────────┘
+```
+
+## Requirements
+
+| Component | Minimum | Recommended |
+|-----------|---------|-------------|
+| **RAM** | 512MB | 1GB |
+| **Storage** | 1GB | 5GB+ |
+| **Node.js** | 20.x | 20.x LTS |
+| **OS** | Linux (any) | Ubuntu 22.04 |
+
+## Quick Deploy
+
+<Steps>
+
+1. **Clone and build**
+
+   ```bash
+   git clone https://github.com/KevinTrinh1227/discord-forum-api.git
+   cd discord-forum-api
+   pnpm install
+   pnpm build
+   ```
+
+2. **Configure environment**
+
+   ```bash
+   cp .env.example .env
+   nano .env  # Edit with your values
+   ```
+
+3. **Initialize database**
+
+   ```bash
+   pnpm db:push
+   ```
+
+4. **Start services**
+
+   ```bash
+   # Start both bot and API
+   node packages/bot/dist/index.js &
+   node packages/api/dist/index.js &
+   ```
+
+</Steps>
+
+## Production Setup with PM2
+
+[PM2](https://pm2.keymetrics.io/) is recommended for production deployments.
+
+<Steps>
+
+1. **Install PM2**
+
+   ```bash
+   npm install -g pm2
+   ```
+
+2. **Create ecosystem file**
+
+   Create `ecosystem.config.js`:
+
+   ```javascript
+   module.exports = {
+     apps: [
+       {
+         name: 'forum-bot',
+         script: 'packages/bot/dist/index.js',
+         env: {
+           NODE_ENV: 'production',
+         },
+         instances: 1,  // Bot must be single instance
+         autorestart: true,
+         max_restarts: 10,
+         restart_delay: 5000,
+       },
+       {
+         name: 'forum-api',
+         script: 'packages/api/dist/index.js',
+         env: {
+           NODE_ENV: 'production',
+         },
+         instances: 'max',  // API can scale
+         exec_mode: 'cluster',
+         autorestart: true,
+       },
+     ],
+   };
+   ```
+
+3. **Start with PM2**
+
+   ```bash
+   pm2 start ecosystem.config.js
+   ```
+
+4. **Enable startup on boot**
+
+   ```bash
+   pm2 save
+   pm2 startup
+   ```
+
+5. **Monitor processes**
+
+   ```bash
+   pm2 status
+   pm2 logs
+   pm2 monit
+   ```
+
+</Steps>
+
+### PM2 Commands
+
+| Command | Description |
+|---------|-------------|
+| `pm2 status` | View process status |
+| `pm2 logs` | View logs |
+| `pm2 restart all` | Restart all processes |
+| `pm2 reload forum-api` | Zero-downtime reload |
+| `pm2 stop all` | Stop all processes |
+
+## Reverse Proxy with Nginx
+
+Set up Nginx as a reverse proxy for the API.
+
+<Steps>
+
+1. **Install Nginx**
+
+   ```bash
+   sudo apt install nginx
+   ```
+
+2. **Create configuration**
+
+   Create `/etc/nginx/sites-available/forum-api`:
+
+   ```nginx
+   server {
+       listen 80;
+       server_name api.yourdomain.com;
+
+       location / {
+           proxy_pass http://localhost:3000;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
+           proxy_cache_bypass $http_upgrade;
+       }
+   }
+   ```
+
+3. **Enable the site**
+
+   ```bash
+   sudo ln -s /etc/nginx/sites-available/forum-api /etc/nginx/sites-enabled/
+   sudo nginx -t
+   sudo systemctl reload nginx
+   ```
+
+4. **Add SSL with Certbot**
+
+   ```bash
+   sudo apt install certbot python3-certbot-nginx
+   sudo certbot --nginx -d api.yourdomain.com
+   ```
+
+</Steps>
+
+## systemd Service (Alternative to PM2)
+
+If you prefer systemd over PM2:
+
+### Bot Service
+
+Create `/etc/systemd/system/forum-bot.service`:
+
+```ini
+[Unit]
+Description=Discord Forum Bot
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/discord-forum-api
+ExecStart=/usr/bin/node packages/bot/dist/index.js
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### API Service
+
+Create `/etc/systemd/system/forum-api.service`:
+
+```ini
+[Unit]
+Description=Discord Forum API
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/discord-forum-api
+ExecStart=/usr/bin/node packages/api/dist/index.js
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Enable Services
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable forum-bot forum-api
+sudo systemctl start forum-bot forum-api
+```
+
+## Environment Variables
+
+Production `.env` example:
+
+```env
+# Discord
+DISCORD_TOKEN=your_bot_token
+DISCORD_CLIENT_ID=your_client_id
+DISCORD_CLIENT_SECRET=your_client_secret
+
+# Database (Turso recommended for production)
+DATABASE_TYPE=turso
+TURSO_DATABASE_URL=libsql://your-db.turso.io
+TURSO_AUTH_TOKEN=your-token
+
+# API
+NODE_ENV=production
+API_PORT=3000
+CORS_ORIGIN=https://yourdomain.com
+
+# Optional
+LOG_LEVEL=info
+SYNC_BOT_MESSAGES=true
+```
+
+## Production Checklist
+
+### Security
+
+- [ ] Use HTTPS for all API traffic
+- [ ] Set restrictive CORS origins
+- [ ] Use a secrets manager for credentials
+- [ ] Regular security updates
+- [ ] Firewall configured (only expose port 443)
+- [ ] Bot token rotated regularly
+
+### Performance
+
+- [ ] Enable response caching
+- [ ] Use CDN for static assets
+- [ ] Monitor memory usage
+- [ ] Set up database backups
+- [ ] Configure log rotation
+
+### Monitoring
+
+- [ ] Application logging configured
+- [ ] Error tracking (Sentry, etc.)
+- [ ] Uptime monitoring
+- [ ] Resource alerts (CPU, memory, disk)
+
+### Maintenance
+
+- [ ] Automated backups scheduled
+- [ ] Update strategy documented
+- [ ] Rollback plan ready
+- [ ] On-call rotation (if applicable)
+
+## Scaling
+
+### Horizontal Scaling
+
+For high availability:
+
+| Component | Scaling Strategy |
+|-----------|-----------------|
+| **API** | Multiple instances behind load balancer |
+| **Bot** | Single instance only (Discord limitation) |
+| **Database** | Use Turso for multi-region reads |
+
+### Database Considerations
+
+For multi-instance API:
+
+1. **SQLite**: Not recommended (file locking issues)
+2. **Turso**: Recommended (handles concurrent access)
+3. **PostgreSQL**: Coming soon
+
+### Caching
+
+The API includes built-in caching. For additional caching:
+
+- Use Redis for shared cache across instances
+- Configure CDN caching for public endpoints
+- Adjust cache TTLs based on your needs
+
+## Troubleshooting
+
+### High memory usage
+
+```bash
+# Check current memory
+pm2 monit
+
+# Increase Node.js heap size
+NODE_OPTIONS="--max-old-space-size=1024" pm2 restart forum-api
+```
+
+### Bot disconnecting
+
+- Check network stability
+- Verify token is valid
+- Monitor [Discord Status](https://discordstatus.com/)
+- Review rate limiting in logs
+
+### API slow responses
+
+- Enable caching if disabled
+- Check database query performance
+- Profile with `NODE_DEBUG=http`
+- Add indexes if needed
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="Docker Deployment"
+    href="/deployment/docker"
+    description="Containerized deployment"
+  />
+  <LinkCard
+    title="VPS Providers"
+    href="/deployment/vps"
+    description="DigitalOcean, AWS, and more"
+  />
+</CardGrid>

@@ -1,0 +1,179 @@
+---
+title: Quick Start
+description: Get Discord Forum API running in 5 minutes
+---
+
+import { Steps, Aside, Tabs, TabItem, Code } from '@astrojs/starlight/components';
+
+Get Discord Forum API running locally in just a few minutes.
+
+<Aside type="caution">
+  You'll need a Discord bot token. If you don't have one, complete the [Discord Bot Setup](/guides/discord-bot-setup) guide first.
+</Aside>
+
+## Installation
+
+<Steps>
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/KevinTrinh1227/discord-forum-api.git
+   cd discord-forum-api
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   pnpm install
+   ```
+
+3. **Configure environment**
+
+   ```bash
+   cp .env.example .env
+   ```
+
+4. **Edit `.env`** with your Discord credentials:
+
+   ```env
+   # Required
+   DISCORD_TOKEN=your_bot_token_here
+   DISCORD_CLIENT_ID=your_application_id_here
+
+   # Optional (for OAuth)
+   DISCORD_CLIENT_SECRET=your_client_secret_here
+   ```
+
+5. **Initialize the database**
+
+   ```bash
+   pnpm db:push
+   ```
+
+6. **Start development servers**
+
+   ```bash
+   pnpm dev
+   ```
+
+</Steps>
+
+That's it! The bot will connect to Discord and the API will be available at `http://localhost:3000`.
+
+## What's Running?
+
+After `pnpm dev`, you have:
+
+| Service | URL/Status | Purpose |
+|---------|------------|---------|
+| **Bot** | Connected to Discord | Syncs forum content |
+| **API** | `http://localhost:3000` | REST endpoints |
+| **Database** | `./data/discord-forum.db` | SQLite storage |
+
+## Verify It's Working
+
+### Check API health
+
+```bash
+curl http://localhost:3000/health
+```
+
+Expected response:
+
+```json
+{
+  "status": "ok",
+  "timestamp": "2024-01-15T12:00:00.000Z"
+}
+```
+
+### Check bot connection
+
+Look for this in your terminal:
+
+```
+[INFO] Logged in as YourBot#1234
+[INFO] Connected to X guilds
+```
+
+## Add Bot to Your Server
+
+If you haven't already, invite the bot to your Discord server:
+
+1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
+2. Select your application → OAuth2 → URL Generator
+3. Select scopes: `bot`, `applications.commands`
+4. Select permissions: `View Channels`, `Read Message History`
+5. Copy and open the generated URL
+
+<Aside type="tip">
+  The bot only needs read permissions. It doesn't send messages or modify your server.
+</Aside>
+
+## Initial Sync
+
+When the bot joins a server, it automatically:
+
+1. Syncs server metadata (name, icon, member count)
+2. Discovers all forum channels
+3. Syncs existing threads and messages
+
+For large servers, initial sync may take a few minutes. You can monitor progress in the console logs.
+
+## Project Structure
+
+```
+discord-forum-api/
+├── packages/
+│   ├── api/          # REST API (Hono)
+│   ├── bot/          # Discord bot (discord.js)
+│   └── db/           # Database (Drizzle ORM)
+├── data/             # SQLite database file
+├── .env              # Your configuration
+└── package.json      # Root workspace
+```
+
+## Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start all services in watch mode |
+| `pnpm build` | Build all packages |
+| `pnpm db:studio` | Open Drizzle Studio (database GUI) |
+| `pnpm db:push` | Push schema changes to database |
+| `pnpm lint` | Run linting |
+| `pnpm test` | Run tests |
+
+## Next Steps
+
+Now that you're running, try:
+
+1. [Make your first API call](/getting-started/first-api-call)
+2. [Explore the API reference](/api/overview)
+3. [See use case examples](/use-cases)
+
+## Troubleshooting
+
+### "Cannot find module" errors
+
+Run `pnpm build` to compile TypeScript:
+
+```bash
+pnpm build
+pnpm dev
+```
+
+### Bot not connecting
+
+- Verify `DISCORD_TOKEN` is correct
+- Check token hasn't expired (regenerate in Developer Portal if needed)
+- Ensure bot has proper intents enabled
+
+### No threads syncing
+
+- Verify the bot can see your forum channels
+- Check that Message Content Intent is enabled in Developer Portal
+- Look for error messages in console
+
+See the [Discord Bot Setup](/guides/discord-bot-setup) troubleshooting section for more help.

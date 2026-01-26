@@ -51,12 +51,11 @@ threadlink/
 ├── packages/
 │   ├── db/      # 🗄️ Database schema (Drizzle ORM)
 │   ├── bot/     # 🤖 Discord bot (discord.js)
-│   └── api/     # 🌐 REST API (Hono)
+│   ├── api/     # 🌐 REST API (Hono)
+│   └── docs/    # 📚 Documentation (Starlight)
 ├── turbo.json   # ⚡ Turborepo config
 └── package.json # 📋 Workspace root
 ```
-
-> **Note:** Documentation site lives in a separate repository: [threadlink-docs](https://github.com/KevinTrinh1227/threadlink-docs)
 
 ---
 
@@ -160,6 +159,7 @@ pnpm dev
 | `pnpm lint` | Lint code |
 | `pnpm db:push` | Push schema changes |
 | `pnpm db:studio` | Open Drizzle Studio |
+| `pnpm docs:dev` | Run docs locally |
 
 ---
 

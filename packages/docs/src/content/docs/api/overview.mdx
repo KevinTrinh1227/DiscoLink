@@ -1,0 +1,223 @@
+---
+title: API Overview
+description: Introduction to the Discord Forum API REST endpoints
+---
+
+import { Aside, Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The Discord Forum API exposes RESTful endpoints for accessing synced Discord forum content.
+
+## Base URL
+
+```
+http://localhost:3000/api
+```
+
+In production, replace with your deployed API URL.
+
+## API Design
+
+The API follows REST conventions:
+
+- **JSON responses** for all endpoints
+- **HTTP status codes** indicate success/failure
+- **Cursor-based pagination** for list endpoints
+- **Consistent error format** across all endpoints
+
+## Authentication
+
+Most endpoints are **public** and require no authentication. This makes it easy to:
+
+- Build static sites
+- Create public FAQs
+- Power search widgets
+
+Protected endpoints (admin actions) require Discord OAuth:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+See [Authentication](/api/authentication) for details.
+
+## Quick Reference
+
+### Servers
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/servers/:serverId` | Get server info |
+| GET | `/servers/:serverId/channels` | List forum channels |
+| GET | `/servers/:serverId/tags` | List all tags |
+| GET | `/servers/:serverId/stats` | Get statistics |
+
+### Threads
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/threads` | List threads with filters |
+| GET | `/threads/:threadId` | Get thread with messages |
+| GET | `/threads/:threadId/participants` | Get thread participants |
+
+### Search
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/search` | Search threads and messages |
+
+### Users
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/users/:userId` | Get user profile |
+| GET | `/leaderboard/:serverId` | Get user leaderboard |
+
+## Response Format
+
+### Successful Response
+
+```json
+{
+  "data": { ... },
+  "meta": {
+    "timestamp": "2024-01-15T12:00:00.000Z"
+  }
+}
+```
+
+Or for lists:
+
+```json
+{
+  "threads": [ ... ],
+  "nextCursor": "abc123",
+  "hasMore": true
+}
+```
+
+### Error Response
+
+```json
+{
+  "error": "Human-readable message",
+  "code": "ERROR_CODE"
+}
+```
+
+## Common Parameters
+
+### Pagination
+
+List endpoints support cursor-based pagination:
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `limit` | number | 20 | Results per page (1-100) |
+| `cursor` | string | - | Pagination cursor from previous response |
+
+Example:
+
+```bash
+# First page
+curl "http://localhost:3000/api/threads?limit=10"
+
+# Next page
+curl "http://localhost:3000/api/threads?limit=10&cursor=abc123"
+```
+
+### Filtering
+
+Most list endpoints support filtering:
+
+| Parameter | Description |
+|-----------|-------------|
+| `serverId` | Filter by Discord server |
+| `channelId` | Filter by forum channel |
+| `tag` | Filter by thread tag |
+| `status` | Filter by thread status |
+
+## Caching
+
+The API implements caching for expensive operations:
+
+| Endpoint | Cache TTL |
+|----------|-----------|
+| `/servers/:id/stats` | 60 seconds |
+| `/leaderboard/:serverId` | 120 seconds |
+
+Cache status is returned in headers:
+
+```http
+X-Cache: HIT
+X-Cache-TTL: 45
+```
+
+## Rate Limiting
+
+Currently, there are no hard rate limits on the API. However:
+
+- Expensive endpoints are cached
+- Abuse may result in IP blocking
+- Consider implementing client-side caching
+
+<Aside type="tip">
+  If building a high-traffic application, implement caching on your end to reduce API load.
+</Aside>
+
+## SDKs & Libraries
+
+No official SDKs yet, but the API works great with:
+
+- **fetch** / **axios** in JavaScript
+- **requests** in Python
+- **curl** from command line
+- Any HTTP client in any language
+
+### Example: JavaScript Fetch
+
+```javascript
+const API_BASE = 'http://localhost:3000/api';
+
+async function getThreads(serverId, options = {}) {
+  const params = new URLSearchParams({
+    serverId,
+    limit: options.limit || 20,
+    ...(options.cursor && { cursor: options.cursor }),
+    ...(options.status && { status: options.status }),
+  });
+
+  const response = await fetch(`${API_BASE}/threads?${params}`);
+  return response.json();
+}
+
+// Usage
+const { threads, hasMore, nextCursor } = await getThreads('123456789', {
+  limit: 10,
+  status: 'resolved'
+});
+```
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="Authentication"
+    href="/api/authentication"
+    description="Learn about OAuth and protected endpoints"
+  />
+  <LinkCard
+    title="Servers"
+    href="/api/servers"
+    description="Server metadata and channels"
+  />
+  <LinkCard
+    title="Threads"
+    href="/api/threads"
+    description="Forum threads and messages"
+  />
+  <LinkCard
+    title="Search"
+    href="/api/search"
+    description="Full-text search"
+  />
+</CardGrid>

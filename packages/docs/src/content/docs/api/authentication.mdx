@@ -1,0 +1,282 @@
+---
+title: Authentication
+description: Authentication methods for the Discord Forum API
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Most API endpoints are public and require no authentication. This page covers authentication for protected endpoints.
+
+## Public vs Protected Endpoints
+
+### Public Endpoints (No Auth Required)
+
+- `GET /threads` - List threads
+- `GET /threads/:id` - Get thread details
+- `GET /servers/:id` - Get server info
+- `GET /search` - Search content
+- `GET /users/:id` - Get user profile
+- `GET /leaderboard/:id` - Get leaderboard
+
+### Protected Endpoints (Auth Required)
+
+- `POST /admin/*` - Admin actions
+- `DELETE /admin/*` - Admin actions
+- `GET /me` - Current user info (OAuth)
+
+## Discord OAuth
+
+For user-specific actions, use Discord OAuth2.
+
+### OAuth Flow
+
+<Steps>
+
+1. **Redirect user to Discord**
+
+   ```
+   https://discord.com/oauth2/authorize
+     ?client_id=YOUR_CLIENT_ID
+     &redirect_uri=YOUR_CALLBACK_URL
+     &response_type=code
+     &scope=identify
+   ```
+
+2. **User authorizes your app**
+
+   Discord redirects back with a code:
+
+   ```
+   https://yourdomain.com/auth/callback?code=abc123
+   ```
+
+3. **Exchange code for token**
+
+   ```bash
+   curl -X POST https://discord.com/api/oauth2/token \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "client_id=YOUR_CLIENT_ID" \
+     -d "client_secret=YOUR_CLIENT_SECRET" \
+     -d "grant_type=authorization_code" \
+     -d "code=abc123" \
+     -d "redirect_uri=YOUR_CALLBACK_URL"
+   ```
+
+   Response:
+
+   ```json
+   {
+     "access_token": "6qrZcUqja7812RVdnEKjpzOL4CvHBFG",
+     "token_type": "Bearer",
+     "expires_in": 604800,
+     "refresh_token": "D43f5y0ahjqew82jZ4NViEr2YafMKhue",
+     "scope": "identify"
+   }
+   ```
+
+4. **Use token with API**
+
+   ```bash
+   curl http://localhost:3000/api/me \
+     -H "Authorization: Bearer 6qrZcUqja7812RVdnEKjpzOL4CvHBFG"
+   ```
+
+</Steps>
+
+### Scopes
+
+| Scope | Description | Required For |
+|-------|-------------|--------------|
+| `identify` | Access user's ID and username | Basic user info |
+| `email` | Access user's email | Email verification |
+| `guilds` | Access user's server list | Server membership checks |
+
+### Token Storage
+
+<Aside type="caution">
+  Store tokens securely! Never expose them in client-side code or URLs.
+</Aside>
+
+Recommended storage:
+
+- **Server-side sessions**: Most secure
+- **HTTP-only cookies**: Secure, automatic
+- **Encrypted local storage**: Client-side only
+
+## API Key Authentication
+
+For server-to-server communication, use API keys.
+
+### Generating an API Key
+
+```bash
+# Generate via CLI (if available)
+pnpm admin:generate-key --name "My Integration"
+```
+
+Or create manually in your database.
+
+### Using API Keys
+
+Include in the `X-API-Key` header:
+
+```bash
+curl http://localhost:3000/api/admin/stats \
+  -H "X-API-Key: your-api-key-here"
+```
+
+### Key Permissions
+
+API keys can have different permission levels:
+
+| Permission | Access |
+|------------|--------|
+| `read` | Read-only access to all data |
+| `write` | Create/update operations |
+| `admin` | Full administrative access |
+
+## JWT Tokens
+
+For stateless authentication, the API supports JWTs.
+
+### Token Structure
+
+```json
+{
+  "sub": "user_id",
+  "iat": 1704067200,
+  "exp": 1704672000,
+  "scope": ["read", "write"]
+}
+```
+
+### Verifying Tokens
+
+Tokens are signed with `JWT_SECRET` from your environment:
+
+```env
+JWT_SECRET=your-super-secret-key-min-32-chars
+```
+
+### Token Endpoints
+
+```bash
+# Get token (after OAuth)
+POST /auth/token
+Content-Type: application/json
+
+{
+  "grant_type": "authorization_code",
+  "code": "discord-oauth-code"
+}
+
+# Response
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "token_type": "Bearer",
+  "expires_in": 86400
+}
+```
+
+## Error Responses
+
+### 401 Unauthorized
+
+No credentials provided:
+
+```json
+{
+  "error": "Authentication required",
+  "code": "UNAUTHORIZED"
+}
+```
+
+### 403 Forbidden
+
+Invalid or insufficient permissions:
+
+```json
+{
+  "error": "Insufficient permissions",
+  "code": "FORBIDDEN"
+}
+```
+
+### 401 Token Expired
+
+```json
+{
+  "error": "Token has expired",
+  "code": "TOKEN_EXPIRED"
+}
+```
+
+## Best Practices
+
+### 1. Use HTTPS
+
+Always use HTTPS in production to protect credentials in transit.
+
+### 2. Rotate Secrets
+
+Regularly rotate:
+- API keys
+- JWT secrets
+- OAuth client secrets
+
+### 3. Minimize Scopes
+
+Request only the OAuth scopes you need.
+
+### 4. Implement Refresh
+
+Use refresh tokens to avoid requiring re-authentication:
+
+```bash
+POST /auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "your-refresh-token"
+}
+```
+
+### 5. Handle Errors Gracefully
+
+```javascript
+async function fetchWithAuth(url, token) {
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  if (response.status === 401) {
+    // Token expired, try refresh
+    const newToken = await refreshToken();
+    return fetchWithAuth(url, newToken);
+  }
+
+  return response.json();
+}
+```
+
+## Testing Authentication
+
+### Development Mode
+
+In development, you can disable authentication:
+
+```env
+DISABLE_AUTH=true  # Only in development!
+```
+
+### Test Token
+
+Generate a test token for development:
+
+```bash
+pnpm admin:generate-test-token
+```
+
+<Aside type="danger">
+  Never use `DISABLE_AUTH=true` or test tokens in production!
+</Aside>

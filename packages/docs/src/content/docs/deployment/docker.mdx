@@ -1,0 +1,490 @@
+---
+title: Docker Deployment
+description: Deploy Discord Forum API with Docker
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Docker provides consistent, reproducible deployments across any environment.
+
+## Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) installed
+- [Docker Compose](https://docs.docker.com/compose/install/) (included with Docker Desktop)
+- Discord bot token
+
+## Quick Start
+
+<Steps>
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/KevinTrinh1227/discord-forum-api.git
+   cd discord-forum-api
+   ```
+
+2. **Create environment file**
+
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Edit `.env`** with your credentials
+
+4. **Start with Docker Compose**
+
+   ```bash
+   docker-compose up -d
+   ```
+
+</Steps>
+
+## Docker Compose Configuration
+
+Create `docker-compose.yml` in the project root:
+
+```yaml
+version: '3.8'
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.bot
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    depends_on:
+      - api
+    networks:
+      - forum-network
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+      - API_PORT=3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    networks:
+      - forum-network
+
+networks:
+  forum-network:
+    driver: bridge
+
+volumes:
+  data:
+```
+
+## Dockerfiles
+
+### Bot Dockerfile
+
+Create `docker/Dockerfile.bot`:
+
+```dockerfile
+# Build stage
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Enable pnpm
+RUN corepack enable pnpm
+
+# Copy package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/db/package.json packages/db/
+COPY packages/bot/package.json packages/bot/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY packages/db packages/db
+COPY packages/bot packages/bot
+COPY tsconfig.json ./
+
+# Build
+RUN pnpm --filter @discord-forum-api/db build
+RUN pnpm --filter @discord-forum-api/bot build
+
+# Production stage
+FROM node:20-alpine
+
+WORKDIR /app
+
+RUN corepack enable pnpm
+
+# Copy built files
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/packages/db/package.json packages/db/
+COPY --from=builder /app/packages/db/dist packages/db/dist
+COPY --from=builder /app/packages/bot/package.json packages/bot/
+COPY --from=builder /app/packages/bot/dist packages/bot/dist
+
+# Install production dependencies only
+RUN pnpm install --frozen-lockfile --prod
+
+# Create data directory
+RUN mkdir -p /app/data
+
+CMD ["node", "packages/bot/dist/index.js"]
+```
+
+### API Dockerfile
+
+Create `docker/Dockerfile.api`:
+
+```dockerfile
+# Build stage
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+RUN corepack enable pnpm
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/db/package.json packages/db/
+COPY packages/api/package.json packages/api/
+
+RUN pnpm install --frozen-lockfile
+
+COPY packages/db packages/db
+COPY packages/api packages/api
+COPY tsconfig.json ./
+
+RUN pnpm --filter @discord-forum-api/db build
+RUN pnpm --filter @discord-forum-api/api build
+
+# Production stage
+FROM node:20-alpine
+
+WORKDIR /app
+
+RUN corepack enable pnpm
+
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/packages/db/package.json packages/db/
+COPY --from=builder /app/packages/db/dist packages/db/dist
+COPY --from=builder /app/packages/api/package.json packages/api/
+COPY --from=builder /app/packages/api/dist packages/api/dist
+
+RUN pnpm install --frozen-lockfile --prod
+
+RUN mkdir -p /app/data
+
+EXPOSE 3000
+
+CMD ["node", "packages/api/dist/index.js"]
+```
+
+## Environment File
+
+Create `.env`:
+
+```env
+# Discord
+DISCORD_TOKEN=your_bot_token
+DISCORD_CLIENT_ID=your_client_id
+DISCORD_CLIENT_SECRET=your_client_secret
+
+# Database (SQLite for Docker)
+DATABASE_TYPE=sqlite
+DATABASE_PATH=/app/data/discord-forum.db
+
+# API
+API_PORT=3000
+CORS_ORIGIN=https://yourdomain.com
+NODE_ENV=production
+```
+
+## Commands
+
+### Build and Start
+
+```bash
+# Build images
+docker-compose build
+
+# Start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+### Individual Services
+
+```bash
+# Start only the bot
+docker-compose up -d bot
+
+# Rebuild specific service
+docker-compose build api
+docker-compose up -d api
+
+# View specific logs
+docker-compose logs -f bot
+```
+
+### Shell Access
+
+```bash
+# Access bot container
+docker-compose exec bot sh
+
+# Access API container
+docker-compose exec api sh
+```
+
+## With Reverse Proxy
+
+### Nginx Configuration
+
+Create `docker/nginx.conf`:
+
+```nginx
+upstream api {
+    server api:3000;
+}
+
+server {
+    listen 80;
+    server_name api.yourdomain.com;
+
+    location / {
+        proxy_pass http://api;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+### Docker Compose with Nginx
+
+```yaml
+version: '3.8'
+
+services:
+  bot:
+    # ... same as before
+
+  api:
+    # ... same as before but remove ports
+    expose:
+      - "3000"
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+    depends_on:
+      - api
+    networks:
+      - forum-network
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+```
+
+## Health Checks
+
+Add health checks to docker-compose:
+
+```yaml
+services:
+  api:
+    # ... other config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+```
+
+## Production Optimizations
+
+### Multi-stage Build
+
+The Dockerfiles above use multi-stage builds to:
+
+1. Keep final images small
+2. Exclude dev dependencies
+3. Separate build tools from runtime
+
+### Security
+
+```yaml
+services:
+  api:
+    # Run as non-root user
+    user: "1000:1000"
+    # Read-only filesystem (except data)
+    read_only: true
+    tmpfs:
+      - /tmp
+    # Limit capabilities
+    cap_drop:
+      - ALL
+```
+
+### Resource Limits
+
+```yaml
+services:
+  bot:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  api:
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+```
+
+## Persistent Data
+
+### SQLite Volume
+
+```yaml
+volumes:
+  forum-data:
+    driver: local
+
+services:
+  bot:
+    volumes:
+      - forum-data:/app/data
+  api:
+    volumes:
+      - forum-data:/app/data
+```
+
+### Backup
+
+```bash
+# Backup database
+docker-compose exec bot cp /app/data/discord-forum.db /app/data/backup-$(date +%Y%m%d).db
+
+# Or from host
+docker cp $(docker-compose ps -q bot):/app/data/discord-forum.db ./backup.db
+```
+
+## Using with Turso
+
+For Turso instead of SQLite:
+
+```env
+DATABASE_TYPE=turso
+TURSO_DATABASE_URL=libsql://your-db.turso.io
+TURSO_AUTH_TOKEN=your_token
+```
+
+Remove the `volumes` for `/app/data` since Turso is remote.
+
+## CI/CD Integration
+
+### GitHub Actions
+
+```yaml
+# .github/workflows/docker.yml
+name: Docker Build
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile.api
+          push: true
+          tags: ghcr.io/${{ github.repository }}/api:latest
+```
+
+## Troubleshooting
+
+### Container Won't Start
+
+```bash
+# Check logs
+docker-compose logs bot
+
+# Check if build succeeded
+docker-compose build --no-cache bot
+```
+
+### Database Locked
+
+Multiple containers accessing SQLite can cause locks:
+
+1. Ensure only one bot instance
+2. Consider using Turso for multi-container setups
+3. Add WAL mode to SQLite config
+
+### Out of Memory
+
+```bash
+# Check container memory
+docker stats
+
+# Increase limits in docker-compose.yml
+```
+
+### Network Issues
+
+```bash
+# Check network
+docker network ls
+docker network inspect discord-forum-api_forum-network
+
+# Verify services can communicate
+docker-compose exec api ping bot
+```

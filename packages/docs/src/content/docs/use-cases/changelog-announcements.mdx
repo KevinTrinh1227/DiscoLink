@@ -1,0 +1,623 @@
+---
+title: Changelog
+description: Auto-publish announcements with RSS feeds
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Create an automated changelog that publishes your Discord announcements with version tags and RSS support.
+
+## Overview
+
+Keep your users informed with a changelog that:
+
+- **Auto-publishes** from your Discord announcements
+- **Version tagging** for releases (v1.0.0, v1.1.0, etc.)
+- **Category badges** (feature, fix, improvement)
+- **RSS feed** for subscribers
+- **Email digest** integration
+
+## Architecture
+
+```
+Discord Announcements Forum
+├── Thread: "v1.2.0 - User Dashboard"
+├── Thread: "v1.1.5 - Bug Fixes"
+└── Thread: "v1.1.0 - API Improvements"
+        │
+        ▼
+   Discord Forum API
+        │
+        ├── GET /threads → Changelog entries
+        └── RSS feed generation
+        │
+        ▼
+    Changelog Website
+```
+
+## Discord Setup
+
+### 1. Create Announcements Channel
+
+Set up a forum channel for changelogs:
+
+<Steps>
+
+1. Create a forum channel named "changelog" or "releases"
+2. Add version tags:
+   - `major` - Breaking changes (x.0.0)
+   - `minor` - New features (0.x.0)
+   - `patch` - Bug fixes (0.0.x)
+3. Add type tags:
+   - `feature` - New functionality
+   - `fix` - Bug fixes
+   - `improvement` - Enhancements
+   - `security` - Security updates
+   - `deprecated` - Deprecated features
+
+</Steps>
+
+### 2. Naming Convention
+
+Use consistent thread titles:
+
+```
+v1.2.0 - User Dashboard Redesign
+v1.1.5 - Fix login timeout issue
+v1.1.0 - API Rate Limiting
+```
+
+## Implementation
+
+### 1. Changelog API
+
+```javascript
+// lib/changelog.js
+const API_BASE = process.env.API_URL;
+const CHANGELOG_CHANNEL_ID = process.env.CHANGELOG_CHANNEL_ID;
+
+export async function getChangelogs({ limit = 20, cursor } = {}) {
+  const params = new URLSearchParams({
+    channelId: CHANGELOG_CHANNEL_ID,
+    sort: 'latest',
+    limit: limit.toString(),
+  });
+
+  if (cursor) params.set('cursor', cursor);
+
+  const response = await fetch(`${API_BASE}/threads?${params}`);
+  const data = await response.json();
+
+  // Parse version from titles
+  return {
+    ...data,
+    threads: data.threads.map(parseChangelog),
+  };
+}
+
+export async function getChangelog(slug) {
+  const response = await fetch(`${API_BASE}/threads/${slug}`);
+  const data = await response.json();
+  return parseChangelog(data);
+}
+
+function parseChangelog(thread) {
+  // Extract version from title (e.g., "v1.2.0 - Description")
+  const versionMatch = thread.title.match(/^v?(\d+\.\d+\.\d+)/);
+  const version = versionMatch ? versionMatch[1] : null;
+
+  // Extract description (everything after version)
+  const description = thread.title.replace(/^v?\d+\.\d+\.\d+\s*-?\s*/, '');
+
+  // Determine release type from tags or version
+  let releaseType = 'patch';
+  if (thread.tags.includes('major')) {
+    releaseType = 'major';
+  } else if (thread.tags.includes('minor')) {
+    releaseType = 'minor';
+  }
+
+  // Get change types from tags
+  const changeTypes = thread.tags.filter((t) =>
+    ['feature', 'fix', 'improvement', 'security', 'deprecated'].includes(t)
+  );
+
+  return {
+    ...thread,
+    version,
+    description,
+    releaseType,
+    changeTypes,
+  };
+}
+```
+
+### 2. Changelog Homepage
+
+```jsx
+// pages/changelog/index.jsx
+import { getChangelogs } from '@/lib/changelog';
+
+export async function getStaticProps() {
+  const { threads } = await getChangelogs({ limit: 50 });
+
+  // Group by major version
+  const grouped = threads.reduce((acc, entry) => {
+    if (!entry.version) return acc;
+
+    const majorVersion = entry.version.split('.')[0];
+    const key = `v${majorVersion}.x`;
+
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(entry);
+
+    return acc;
+  }, {});
+
+  return {
+    props: {
+      entries: threads,
+      grouped,
+      latestVersion: threads[0]?.version,
+    },
+    revalidate: 300,
+  };
+}
+
+export default function ChangelogPage({ entries, grouped, latestVersion }) {
+  return (
+    <main className="changelog-page">
+      <header>
+        <h1>Changelog</h1>
+        <p>
+          Latest version: <strong>v{latestVersion}</strong>
+        </p>
+        <div className="actions">
+          <a href="/changelog/rss.xml" className="rss-link">
+            📡 RSS Feed
+          </a>
+        </div>
+      </header>
+
+      <div className="changelog-timeline">
+        {entries.map((entry, index) => (
+          <ChangelogEntry
+            key={entry.id}
+            entry={entry}
+            isLatest={index === 0}
+          />
+        ))}
+      </div>
+    </main>
+  );
+}
+
+function ChangelogEntry({ entry, isLatest }) {
+  return (
+    <article className={`changelog-entry ${isLatest ? 'latest' : ''}`}>
+      <div className="timeline-marker">
+        <span className={`dot ${entry.releaseType}`} />
+      </div>
+
+      <div className="entry-content">
+        <header>
+          <div className="version-badge">
+            {isLatest && <span className="latest-tag">Latest</span>}
+            <span className={`version ${entry.releaseType}`}>
+              v{entry.version}
+            </span>
+          </div>
+          <time>{formatDate(entry.createdAt)}</time>
+        </header>
+
+        <h2>
+          <a href={`/changelog/${entry.slug}`}>{entry.description}</a>
+        </h2>
+
+        <div className="change-types">
+          {entry.changeTypes.map((type) => (
+            <span key={type} className={`change-type type-${type}`}>
+              {type}
+            </span>
+          ))}
+        </div>
+
+        <p className="preview">{entry.preview}</p>
+
+        <a href={`/changelog/${entry.slug}`} className="read-more">
+          Read full release notes →
+        </a>
+      </div>
+    </article>
+  );
+}
+```
+
+### 3. Changelog Detail Page
+
+```jsx
+// pages/changelog/[slug].jsx
+import { getChangelog, getChangelogs } from '@/lib/changelog';
+
+export async function getStaticPaths() {
+  const { threads } = await getChangelogs({ limit: 100 });
+  return {
+    paths: threads.map((t) => ({ params: { slug: t.slug } })),
+    fallback: 'blocking',
+  };
+}
+
+export async function getStaticProps({ params }) {
+  const entry = await getChangelog(params.slug);
+
+  if (!entry) {
+    return { notFound: true };
+  }
+
+  return {
+    props: { entry },
+    revalidate: 300,
+  };
+}
+
+export default function ChangelogEntryPage({ entry }) {
+  const [content, ...comments] = entry.messages;
+
+  return (
+    <main className="changelog-detail">
+      <Breadcrumb
+        items={[
+          { label: 'Changelog', href: '/changelog' },
+          `v${entry.version}`,
+        ]}
+      />
+
+      <article>
+        <header>
+          <span className={`version-badge ${entry.releaseType}`}>
+            v{entry.version}
+          </span>
+          <h1>{entry.description}</h1>
+          <div className="meta">
+            <time>{formatDate(entry.createdAt)}</time>
+            <div className="change-types">
+              {entry.changeTypes.map((type) => (
+                <span key={type} className={`change-type type-${type}`}>
+                  {type}
+                </span>
+              ))}
+            </div>
+          </div>
+        </header>
+
+        <div
+          className="content"
+          dangerouslySetInnerHTML={{ __html: content.contentHtml }}
+        />
+
+        {content.attachments.length > 0 && (
+          <div className="attachments">
+            {content.attachments
+              .filter((a) => a.contentType?.startsWith('image/'))
+              .map((att) => (
+                <img key={att.id} src={att.url} alt="" />
+              ))}
+          </div>
+        )}
+
+        <footer>
+          <div className="nav-links">
+            <a href="/changelog">← All Releases</a>
+            <a
+              href={`https://discord.com/channels/${entry.serverId}/${entry.id}`}
+              target="_blank"
+              rel="noopener"
+            >
+              View on Discord →
+            </a>
+          </div>
+        </footer>
+      </article>
+    </main>
+  );
+}
+```
+
+### 4. RSS Feed
+
+```javascript
+// pages/changelog/rss.xml.js
+import { getChangelogs } from '@/lib/changelog';
+
+export async function getServerSideProps({ res }) {
+  const { threads } = await getChangelogs({ limit: 50 });
+
+  const rss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Product Changelog</title>
+    <description>Latest updates and releases</description>
+    <link>https://yourdomain.com/changelog</link>
+    <atom:link href="https://yourdomain.com/changelog/rss.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <language>en-us</language>
+    ${threads.map((entry) => `
+    <item>
+      <title><![CDATA[v${entry.version} - ${entry.description}]]></title>
+      <description><![CDATA[${entry.preview}]]></description>
+      <link>https://yourdomain.com/changelog/${entry.slug}</link>
+      <guid isPermaLink="true">https://yourdomain.com/changelog/${entry.slug}</guid>
+      <pubDate>${new Date(entry.createdAt).toUTCString()}</pubDate>
+      ${entry.changeTypes.map((t) => `<category>${t}</category>`).join('')}
+    </item>
+    `).join('')}
+  </channel>
+</rss>`;
+
+  res.setHeader('Content-Type', 'application/xml');
+  res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
+  res.write(rss);
+  res.end();
+
+  return { props: {} };
+}
+
+export default function RSS() {
+  return null;
+}
+```
+
+### 5. JSON Feed (Alternative)
+
+```javascript
+// pages/api/changelog.json.js
+import { getChangelogs } from '@/lib/changelog';
+
+export default async function handler(req, res) {
+  const { threads } = await getChangelogs({ limit: 50 });
+
+  const feed = {
+    version: 'https://jsonfeed.org/version/1.1',
+    title: 'Product Changelog',
+    home_page_url: 'https://yourdomain.com/changelog',
+    feed_url: 'https://yourdomain.com/api/changelog.json',
+    items: threads.map((entry) => ({
+      id: entry.id,
+      url: `https://yourdomain.com/changelog/${entry.slug}`,
+      title: `v${entry.version} - ${entry.description}`,
+      content_text: entry.preview,
+      date_published: entry.createdAt,
+      tags: entry.changeTypes,
+    })),
+  };
+
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
+  res.json(feed);
+}
+```
+
+## Styling
+
+```css
+/* Changelog Timeline */
+.changelog-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.changelog-timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.changelog-timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e0e0e0;
+}
+
+.changelog-entry {
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -2rem;
+}
+
+.timeline-marker .dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  display: block;
+  border: 3px solid white;
+}
+
+.timeline-marker .dot.major { background: #ef4444; }
+.timeline-marker .dot.minor { background: #3b82f6; }
+.timeline-marker .dot.patch { background: #22c55e; }
+
+.changelog-entry.latest .timeline-marker .dot {
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+/* Version Badge */
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.version {
+  font-family: monospace;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.version.major { background: #fee2e2; color: #991b1b; }
+.version.minor { background: #dbeafe; color: #1e40af; }
+.version.patch { background: #dcfce7; color: #166534; }
+
+.latest-tag {
+  background: #5865f2;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Change Types */
+.change-types {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.change-type {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.type-feature { background: #dbeafe; color: #1e40af; }
+.type-fix { background: #dcfce7; color: #166534; }
+.type-improvement { background: #fef3c7; color: #92400e; }
+.type-security { background: #fee2e2; color: #991b1b; }
+.type-deprecated { background: #f3f4f6; color: #4b5563; }
+
+/* Content */
+.changelog-detail .content {
+  line-height: 1.8;
+}
+
+.changelog-detail .content h2 {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.changelog-detail .content ul {
+  padding-left: 1.5rem;
+}
+
+.changelog-detail .content li {
+  margin-bottom: 0.5rem;
+}
+
+.changelog-detail .content code {
+  background: #f4f4f4;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+/* RSS Link */
+.rss-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f97316;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+}
+```
+
+## Writing Guidelines
+
+### Good Changelog Format
+
+```markdown
+# v1.2.0 - User Dashboard Redesign
+
+We've completely redesigned the user dashboard for better usability.
+
+## What's New
+
+### Features
+- New analytics dashboard with real-time metrics
+- Customizable widget layout
+- Dark mode support
+
+### Improvements
+- 50% faster page load times
+- Better mobile responsiveness
+- Cleaner navigation
+
+### Bug Fixes
+- Fixed login timeout issue (#123)
+- Resolved avatar upload errors
+
+## Breaking Changes
+
+- Removed deprecated `/api/v1/users` endpoint
+- Changed authentication header format
+
+## Migration Guide
+
+If you're using the old API, update your code:
+
+\`\`\`javascript
+// Before
+headers: { 'X-Auth-Token': token }
+
+// After
+headers: { 'Authorization': `Bearer ${token}` }
+\`\`\`
+
+---
+
+Questions? Ask in #support on Discord!
+```
+
+### Version Tagging
+
+Follow semantic versioning:
+
+- **Major (1.0.0)**: Breaking changes
+- **Minor (0.1.0)**: New features, backwards compatible
+- **Patch (0.0.1)**: Bug fixes, backwards compatible
+
+## Integration Ideas
+
+### Email Notifications
+
+```javascript
+// Webhook on new changelog
+async function sendChangelogEmail(entry) {
+  await sendEmail({
+    to: subscribers,
+    subject: `New Release: v${entry.version}`,
+    html: renderEmailTemplate(entry),
+  });
+}
+```
+
+### Slack/Discord Notifications
+
+```javascript
+// Post to a webhook
+async function notifySlack(entry) {
+  await fetch(SLACK_WEBHOOK, {
+    method: 'POST',
+    body: JSON.stringify({
+      text: `🚀 New Release: v${entry.version} - ${entry.description}`,
+      attachments: [{
+        color: entry.releaseType === 'major' ? 'danger' : 'good',
+        fields: entry.changeTypes.map(t => ({ title: t, short: true })),
+      }],
+    }),
+  });
+}
+```
