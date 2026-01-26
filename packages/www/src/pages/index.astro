@@ -46,7 +46,15 @@ const features = [
     <section class="hero">
       <div class="container">
         <div class="hero-content">
-          <span class="badge">Entirely Free & Open Source</span>
+          <div class="badge-row">
+            <span class="badge">Entirely Free & Open Source</span>
+            <a href="https://github.com/KevinTrinh1227/discordlink" target="_blank" rel="noopener" class="star-badge">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/>
+              </svg>
+              <span id="hero-star-count">--</span> on GitHub
+            </a>
+          </div>
           <h1>Your Discord Content,<br><span class="gradient">Anywhere You Need It</span></h1>
           <p class="subtitle">
             DiscordLink syncs your Discord forums and channels to a database you control.
@@ -155,6 +163,14 @@ const features = [
     max-width: 800px;
     margin: 0 auto;
   }
+  .badge-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
   .badge {
     display: inline-block;
     background: var(--bg-card);
@@ -162,7 +178,25 @@ const features = [
     padding: 0.4rem 1rem;
     border-radius: 20px;
     font-size: 0.85rem;
-    margin-bottom: 1.5rem;
+  }
+  .star-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--text);
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .star-badge:hover {
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+  .star-badge svg {
+    color: #f59e0b;
   }
   h1 {
     font-size: 4rem;
@@ -337,3 +371,18 @@ const features = [
     .use-cases-grid { grid-template-columns: 1fr; }
   }
 </style>
+
+<script>
+  // Fetch GitHub star count for hero badge
+  fetch('https://api.github.com/repos/KevinTrinh1227/discordlink')
+    .then(res => res.json())
+    .then(data => {
+      const heroStarEl = document.getElementById('hero-star-count');
+      if (heroStarEl && data.stargazers_count !== undefined) {
+        heroStarEl.textContent = data.stargazers_count.toLocaleString();
+      }
+    })
+    .catch(() => {
+      // Keep showing -- if fetch fails
+    });
+</script>

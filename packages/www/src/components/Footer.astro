@@ -25,6 +25,20 @@ const links = {
       <div class="footer-brand">
         <span class="logo">DiscordLink</span>
         <p>Open-source platform for syncing Discord content. Build knowledge bases, integrate with your apps via REST API, or export static sites. Use it however you want.</p>
+        <div class="github-stats">
+          <a href="https://github.com/KevinTrinh1227/discordlink/stargazers" target="_blank" rel="noopener" class="stat">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/>
+            </svg>
+            <span id="star-count">--</span> stars
+          </a>
+          <a href="https://github.com/KevinTrinh1227/discordlink/network/members" target="_blank" rel="noopener" class="stat">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/>
+            </svg>
+            <span id="fork-count">--</span> forks
+          </a>
+        </div>
       </div>
 
       <div class="footer-links">
@@ -56,6 +70,25 @@ const links = {
   </div>
 </footer>
 
+<script>
+  // Fetch GitHub stats client-side (no API key needed for public repos)
+  fetch('https://api.github.com/repos/KevinTrinh1227/discordlink')
+    .then(res => res.json())
+    .then(data => {
+      const starEl = document.getElementById('star-count');
+      const forkEl = document.getElementById('fork-count');
+      if (starEl && data.stargazers_count !== undefined) {
+        starEl.textContent = data.stargazers_count.toLocaleString();
+      }
+      if (forkEl && data.forks_count !== undefined) {
+        forkEl.textContent = data.forks_count.toLocaleString();
+      }
+    })
+    .catch(() => {
+      // Keep showing -- if fetch fails
+    });
+</script>
+
 <style>
   .footer {
     background: var(--bg-secondary);
@@ -74,7 +107,7 @@ const links = {
     gap: 4rem;
   }
   .footer-brand {
-    max-width: 300px;
+    max-width: 320px;
   }
   .logo {
     font-weight: 700;
@@ -82,9 +115,30 @@ const links = {
     display: block;
     margin-bottom: 1rem;
   }
-  .footer-brand p {
+  .footer-brand > p {
     color: var(--text-secondary);
     font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+  .github-stats {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .github-stats .stat {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+  .github-stats .stat:hover {
+    color: var(--text);
+    text-decoration: none;
+  }
+  .github-stats svg {
+    opacity: 0.7;
   }
   .footer-links {
     display: grid;
