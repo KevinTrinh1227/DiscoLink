@@ -7,17 +7,10 @@
 </p>
 
 <p align="center">
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-20+-339933?logo=node.js&logoColor=white" alt="Node.js"></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript&logoColor=white" alt="TypeScript"></a>
-  <a href="https://discord.js.org/"><img src="https://img.shields.io/badge/discord.js-v14-5865F2?logo=discord&logoColor=white" alt="discord.js"></a>
-</p>
-
-<p align="center">
-  <a href="https://discolink.pages.dev">Website</a> •
-  <a href="https://discolink.pages.dev/docs">Documentation</a> •
-  <a href="https://discolink.pages.dev/quickstart">Quick Start</a> •
-  <a href="https://discolink.pages.dev/templates">Templates</a>
+  <a href="https://github.com/KevinTrinh1227/discolink/stargazers"><img src="https://img.shields.io/github/stars/KevinTrinh1227/discolink?style=for-the-badge&logo=github&color=yellow" alt="Stars"></a>
+  <a href="https://github.com/KevinTrinh1227/discolink/releases"><img src="https://img.shields.io/github/v/release/KevinTrinh1227/discolink?style=for-the-badge&logo=github&color=blue" alt="Release"></a>
+  <a href="https://discolink.pages.dev/docs"><img src="https://img.shields.io/badge/Docs-Visit-8A2BE2?style=for-the-badge&logo=gitbook&logoColor=white" alt="Documentation"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License"></a>
 </p>
 
 ---
@@ -40,24 +33,92 @@ Discord → Bot syncs content → Database → REST API / Static Export → Your
 
 ## ✨ Features
 
-| Feature | Status |
-|---------|:------:|
-| Forum channel sync | ✅ |
-| Text channel sync | ✅ |
-| Announcement channel sync | ✅ |
-| Real-time sync via bot | ✅ |
-| REST API | ✅ |
-| Webhooks | ✅ |
-| RSS / Atom feeds | ✅ |
-| Full-text search (FTS5) | ✅ |
-| Static site export CLI | ✅ |
-| Official templates | ✅ |
-| Self-hosted | ✅ |
-| Edge deployment (Cloudflare) | ✅ |
-| Privacy controls | ✅ |
-| Consent-based syncing | ✅ |
-| MIT License | ✅ |
-| **100% Free** | ✅ |
+<details>
+<summary>🔄 <b>Real-Time Sync</b></summary>
+<br>
+Discord bot syncs forum posts, text channels, and announcements in real-time. Never miss an update—content is captured the moment it's posted.
+</details>
+
+<details>
+<summary>🔍 <b>Full-Text Search</b></summary>
+<br>
+FTS5-powered search indexes all your Discord content. Find threads, messages, and answers instantly with typo-tolerant queries.
+</details>
+
+<details>
+<summary>🌐 <b>REST API</b></summary>
+<br>
+Full REST API with endpoints for servers, channels, threads, messages, users, and search. Paginated responses, filtering, and webhooks included.
+</details>
+
+<details>
+<summary>📦 <b>Static Export</b></summary>
+<br>
+Export your content to static HTML with the CLI. Deploy anywhere—no server required. Perfect for documentation sites and blogs.
+</details>
+
+<details>
+<summary>🎨 <b>Official Templates</b></summary>
+<br>
+Ready-to-use Astro templates for FAQ, Knowledge Base, Changelog, and Blog. Just configure and deploy.
+</details>
+
+<details>
+<summary>☁️ <b>Edge Deployment</b></summary>
+<br>
+Deploy to Cloudflare Workers with Turso database for global low-latency access. Or self-host with SQLite locally.
+</details>
+
+<details>
+<summary>🔒 <b>Privacy Controls</b></summary>
+<br>
+Consent-based syncing lets users opt out. Self-hosted means your data stays on your infrastructure. No tracking, no data collection.
+</details>
+
+---
+
+## 🛠️ Three Ways to Use — All Free
+
+<details>
+<summary>🔗 <b>REST API</b> — For custom apps & integrations</summary>
+<br>
+
+Build custom applications with full API access. Perfect for dashboards, integrations, and dynamic websites.
+
+- Full CRUD operations
+- Webhook notifications
+- RSS/Atom feeds
+- Rate limiting included
+
+</details>
+
+<details>
+<summary>📦 <b>Static Export</b> — No server needed</summary>
+<br>
+
+Export to static HTML and host anywhere. Great for simple sites, GitHub Pages, or CDN hosting.
+
+- Zero runtime dependencies
+- Fast page loads
+- SEO optimized
+- Works offline
+
+</details>
+
+<details>
+<summary>🎨 <b>Templates</b> — Quick start with pre-built designs</summary>
+<br>
+
+Get started in minutes with official templates:
+
+| Template | Description |
+|----------|-------------|
+| [FAQ](packages/templates/faq) | Searchable FAQ from resolved threads |
+| [Knowledge Base](packages/templates/knowledge-base) | Organized documentation |
+| [Changelog](packages/templates/changelog) | Release notes timeline |
+| [Blog](packages/templates/blog) | Blog posts from discussions |
+
+</details>
 
 ---
 
@@ -80,37 +141,6 @@ pnpm db:push && pnpm dev
 
 ---
 
-## 🛠️ Three Ways to Use
-
-| Approach | Best For |
-|----------|----------|
-| **🔗 REST API** | Custom apps, dashboards, integrations |
-| **📦 Static Export** | Simple sites, no server needed |
-| **🎨 Templates** | Quick start with pre-built designs |
-
----
-
-## 📦 Templates
-
-Ready-to-use templates for common use cases:
-
-| Template | Description |
-|----------|-------------|
-| [FAQ](packages/templates/faq) | Searchable FAQ from resolved threads |
-| [Knowledge Base](packages/templates/knowledge-base) | Organized documentation |
-| [Changelog](packages/templates/changelog) | Release notes timeline |
-| [Blog](packages/templates/blog) | Blog posts from discussions |
-
----
-
-## 🔒 Privacy First
-
-- **Consent-based** — Users can opt out of syncing
-- **Self-hosted** — Your data stays on your infrastructure
-- **No tracking** — We don't collect any data
-
----
-
 ## 📚 Documentation
 
 | Resource | Link |
@@ -122,18 +152,20 @@ Ready-to-use templates for common use cases:
 
 ---
 
-## 🤝 Contributing
+## ⭐ Star History
 
-Contributions welcome! See the [Contributing Guide](https://discolink.pages.dev/docs/guides).
+<a href="https://star-history.com/#KevinTrinh1227/discolink&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=KevinTrinh1227/discolink&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=KevinTrinh1227/discolink&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=KevinTrinh1227/discolink&type=Date" />
+ </picture>
+</a>
 
 ---
 
-## 📄 License
+## 📄 License & Contributing
 
-MIT — Use it however you want.
+**MIT License** — Use it however you want. See [LICENSE](LICENSE) for details.
 
----
-
-<p align="center">
-  <sub>Built by <a href="https://github.com/KevinTrinh1227">Kevin Trinh</a> • Not affiliated with Discord Inc.</sub>
-</p>
+Contributions welcome! Check out the [Contributing Guide](https://discolink.pages.dev/docs/guides) to get started.
