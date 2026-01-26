@@ -1,0 +1,226 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { faqThreads, blogPosts, changelogEntries, kbArticles } from '../data/mock';
+---
+
+<BaseLayout title="Template Demos" description="Explore live demos of DiscoLink templates - FAQ, Blog, Changelog, and Knowledge Base">
+  <div class="hero">
+    <h1>DiscoLink Template Demos</h1>
+    <p class="subtitle">See how DiscoLink transforms Discord content into beautiful websites</p>
+  </div>
+
+  <div class="templates-grid">
+    <a href="/faq" class="template-card">
+      <div class="template-icon">?</div>
+      <h2>FAQ</h2>
+      <p>Searchable FAQ page built from resolved help threads</p>
+      <span class="stat">{faqThreads.length} questions</span>
+    </a>
+
+    <a href="/blog" class="template-card">
+      <div class="template-icon">B</div>
+      <h2>Blog</h2>
+      <p>Community blog with posts from Discord announcements</p>
+      <span class="stat">{blogPosts.length} posts</span>
+    </a>
+
+    <a href="/changelog" class="template-card">
+      <div class="template-icon">C</div>
+      <h2>Changelog</h2>
+      <p>Release timeline from announcement channels</p>
+      <span class="stat">{changelogEntries.length} releases</span>
+    </a>
+
+    <a href="/kb" class="template-card">
+      <div class="template-icon">K</div>
+      <h2>Knowledge Base</h2>
+      <p>Organized documentation from forum categories</p>
+      <span class="stat">{kbArticles.length} articles</span>
+    </a>
+  </div>
+
+  <section class="info-section">
+    <h2>How It Works</h2>
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>1. Sync</h3>
+        <p>DiscoLink bot syncs your Discord forums and channels to a database in real-time.</p>
+      </div>
+      <div class="info-card">
+        <h3>2. Query</h3>
+        <p>Use the REST API to fetch content, or export to static HTML.</p>
+      </div>
+      <div class="info-card">
+        <h3>3. Display</h3>
+        <p>Use our templates or build your own frontend. Your data, your way.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <h2>Ready to Get Started?</h2>
+    <p>Check out the documentation to set up DiscoLink for your Discord server.</p>
+    <div class="cta-buttons">
+      <a href="https://docs.discolink.site/getting-started/quick-start" class="cta-primary">Quick Start Guide</a>
+      <a href="https://github.com/KevinTrinh1227/discolink" class="cta-secondary">View on GitHub</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: 3rem 0 4rem;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+  }
+
+  .templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+  }
+
+  .template-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: transform 0.2s, border-color 0.2s;
+    display: block;
+    color: var(--text);
+  }
+
+  .template-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+
+  .template-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .template-card h2 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .template-card p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat {
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .info-section {
+    margin-bottom: 4rem;
+  }
+
+  .info-section h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .info-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .info-card h3 {
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .info-card p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+
+  .cta-section {
+    text-align: center;
+    padding: 3rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .cta-section h2 {
+    margin-bottom: 0.5rem;
+  }
+
+  .cta-section p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .cta-primary {
+    background: var(--accent);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+
+  .cta-primary:hover {
+    opacity: 0.9;
+    text-decoration: none;
+  }
+
+  .cta-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    color: var(--text);
+    transition: border-color 0.2s;
+  }
+
+  .cta-secondary:hover {
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+</style>

@@ -1,0 +1,193 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { faqThreads, demoServer } from '../../data/mock';
+---
+
+<BaseLayout title="FAQ" description="Frequently asked questions from the DiscoLink Demo community">
+  <div class="header">
+    <h1>{demoServer.name} FAQ</h1>
+    <p class="subtitle">{faqThreads.length} answered questions from the community</p>
+  </div>
+
+  <div class="search-box">
+    <input type="text" placeholder="Search questions..." id="search-input" />
+  </div>
+
+  <div class="faq-list" id="faq-list">
+    {faqThreads.map((thread) => (
+      <article class="faq-item" data-tags={thread.tags.join(' ')}>
+        <a href={`/faq/${thread.slug}`} class="faq-link">
+          <h2>{thread.title}</h2>
+          <div class="faq-meta">
+            <span class="author-info">
+              {thread.author.avatar && (
+                <img src={thread.author.avatar} alt={thread.author.username} class="avatar" />
+              )}
+              <span style={thread.author.roleColor ? `color: ${thread.author.roleColor}` : ''}>
+                {thread.author.username}
+              </span>
+              {thread.author.role && thread.author.role !== 'member' && (
+                <span class="role-badge" style={`background: ${thread.author.roleColor}20; color: ${thread.author.roleColor}`}>
+                  {thread.author.role}
+                </span>
+              )}
+            </span>
+            <span class="separator">·</span>
+            <span class="messages">{thread.messageCount} messages</span>
+            <span class="separator">·</span>
+            <span class="status resolved">Resolved</span>
+          </div>
+          <div class="tags">
+            {thread.tags.map((tag) => (
+              <span class="tag">{tag}</span>
+            ))}
+          </div>
+        </a>
+      </article>
+    ))}
+  </div>
+
+</BaseLayout>
+
+<script>
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const faqItems = document.querySelectorAll('.faq-item');
+
+  searchInput?.addEventListener('input', (e) => {
+    const query = (e.target as HTMLInputElement).value.toLowerCase();
+
+    faqItems.forEach((item) => {
+      const title = item.querySelector('h2')?.textContent?.toLowerCase() || '';
+      const tags = item.getAttribute('data-tags')?.toLowerCase() || '';
+
+      if (title.includes(query) || tags.includes(query)) {
+        (item as HTMLElement).style.display = 'block';
+      } else {
+        (item as HTMLElement).style.display = 'none';
+      }
+    });
+  });
+</script>
+
+<style>
+  .header {
+    margin-bottom: 2rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+  }
+
+  .search-box {
+    margin-bottom: 2rem;
+  }
+
+  .search-box input {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text);
+    font-size: 1rem;
+  }
+
+  .search-box input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .faq-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: border-color 0.2s;
+  }
+
+  .faq-item:hover {
+    border-color: var(--accent);
+  }
+
+  .faq-link {
+    display: block;
+    padding: 1.25rem;
+    color: var(--text);
+  }
+
+  .faq-link:hover {
+    text-decoration: none;
+  }
+
+  .faq-link h2 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  .faq-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .separator {
+    opacity: 0.5;
+  }
+
+  .status.resolved {
+    color: var(--success);
+    font-weight: 500;
+  }
+
+  .author-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .role-badge {
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+
+  .tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    background: var(--bg-secondary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+</style>

@@ -89,3 +89,79 @@ table {
     white-space: normal;
   }
 }
+
+/* Less rounded buttons */
+.sl-link-button,
+button,
+[data-sl-button] {
+  border-radius: 4px !important;
+}
+
+/* Narrower "On this page" sidebar */
+.right-sidebar {
+  max-width: 220px;
+}
+
+/* Less compact content - more readable */
+.content-panel {
+  padding: 2rem 2.5rem;
+  line-height: 1.7;
+}
+
+main .sl-markdown-content {
+  line-height: 1.7;
+}
+
+/* Centered search bar in navbar */
+header.header {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* GitHub star button styles */
+.github-star-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  background: var(--sl-color-bg-nav);
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 4px;
+  color: var(--sl-color-white);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.github-star-btn:hover {
+  border-color: var(--sl-color-accent);
+  background: var(--sl-color-gray-6);
+  text-decoration: none;
+}
+
+.github-star-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.github-star-btn .star-count {
+  background: var(--sl-color-gray-5);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.8rem;
+}
+
+/* Footer attribution */
+.docs-footer-attribution {
+  text-align: center;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--sl-color-gray-5);
+  margin-top: 2rem;
+  color: var(--sl-color-gray-3);
+  font-size: 0.9rem;
+}
+
+.docs-footer-attribution a {
+  color: var(--sl-color-accent);
+}

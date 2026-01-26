@@ -1,0 +1,154 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { faqThreads } from '../../data/mock';
+
+export function getStaticPaths() {
+  return faqThreads.map((thread) => ({
+    params: { slug: thread.slug },
+    props: { thread },
+  }));
+}
+
+const { thread } = Astro.props;
+---
+
+<BaseLayout title={thread.title} description={`FAQ: ${thread.title}`}>
+  <article class="faq-detail">
+    <a href="/faq" class="back-link">Back to FAQ</a>
+
+    <header>
+      <h1>{thread.title}</h1>
+      <div class="meta">
+        <span>Asked by <strong>{thread.author.username}</strong></span>
+        <span class="separator">-</span>
+        <span>{new Date(thread.createdAt).toLocaleDateString()}</span>
+        <span class="separator">-</span>
+        <span class="status">Resolved</span>
+      </div>
+      <div class="tags">
+        {thread.tags.map((tag) => (
+          <span class="tag">{tag}</span>
+        ))}
+      </div>
+    </header>
+
+    <div class="messages">
+      {thread.messages.map((message, index) => (
+        <div class={`message ${index === thread.messages.length - 1 ? 'answer' : ''}`}>
+          <div class="message-header">
+            <strong>{message.author.username}</strong>
+            <span class="time">{new Date(message.createdAt).toLocaleString()}</span>
+            {index === thread.messages.length - 1 && <span class="answer-badge">Answer</span>}
+          </div>
+          <div class="message-content">
+            {message.content}
+          </div>
+        </div>
+      ))}
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .faq-detail {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 2rem;
+    color: var(--text-secondary);
+  }
+
+  .back-link:hover {
+    color: var(--accent);
+  }
+
+  header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .separator {
+    opacity: 0.5;
+  }
+
+  .status {
+    color: var(--success);
+    font-weight: 500;
+  }
+
+  .tags {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    background: var(--bg-secondary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .messages {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .message {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+  }
+
+  .message.answer {
+    border-color: var(--success);
+    background: rgba(16, 185, 129, 0.05);
+  }
+
+  .message-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .time {
+    color: var(--text-secondary);
+  }
+
+  .answer-badge {
+    background: var(--success);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .message-content {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+</style>

@@ -1,0 +1,187 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { blogPosts } from '../../data/mock';
+
+const sortedPosts = [...blogPosts].sort((a, b) =>
+  new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+);
+---
+
+<BaseLayout title="Blog" description="Community blog posts and announcements from DiscoLink Demo" ogImage="/og-blog.png">
+  <div class="header">
+    <h1>Community Blog</h1>
+    <p class="subtitle">Announcements, tutorials, and updates from the community</p>
+  </div>
+
+  <div class="posts-grid">
+    {sortedPosts.map((post) => (
+      <article class="post-card">
+        <a href={`/blog/${post.slug}`}>
+          {post.coverImage && (
+            <div class="cover-image">
+              <img src={post.coverImage} alt={post.title} loading="lazy" />
+            </div>
+          )}
+          <div class="post-content">
+            <div class="post-meta">
+              <span class="author-info">
+                {post.author.avatar && (
+                  <img src={post.author.avatar} alt={post.author.username} class="avatar" />
+                )}
+                <span style={post.author.roleColor ? `color: ${post.author.roleColor}` : ''}>
+                  {post.author.username}
+                </span>
+                {post.author.role && post.author.role !== 'member' && (
+                  <span class="role-badge" style={`background: ${post.author.roleColor}20; color: ${post.author.roleColor}`}>
+                    {post.author.role}
+                  </span>
+                )}
+              </span>
+              <span class="separator">·</span>
+              <span class="date">{new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+            </div>
+            <h2>{post.title}</h2>
+            <p class="excerpt">{post.excerpt}</p>
+            <div class="tags">
+              {post.tags.map((tag) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+        </a>
+      </article>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .header {
+    margin-bottom: 2rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .post-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .post-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .post-card a {
+    display: block;
+    color: var(--text);
+  }
+
+  .post-card a:hover {
+    text-decoration: none;
+  }
+
+  .cover-image {
+    aspect-ratio: 2/1;
+    overflow: hidden;
+    background: var(--bg-secondary);
+  }
+
+  .cover-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+
+  .post-card:hover .cover-image img {
+    transform: scale(1.05);
+  }
+
+  .post-content {
+    padding: 1.25rem;
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+  }
+
+  .author-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .role-badge {
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+
+  .separator {
+    opacity: 0.5;
+  }
+
+  .post-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+
+  .excerpt {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    background: var(--bg-secondary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 768px) {
+    .posts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

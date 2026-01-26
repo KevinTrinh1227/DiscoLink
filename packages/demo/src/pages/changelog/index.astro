@@ -1,0 +1,154 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { changelogEntries } from '../../data/mock';
+
+const sortedEntries = [...changelogEntries].sort((a, b) =>
+  new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+);
+
+const typeColors = {
+  feature: '#8B5CF6',
+  fix: '#10B981',
+  improvement: '#3B82F6',
+  breaking: '#EF4444',
+};
+---
+
+<BaseLayout title="Changelog" description="Release history and updates for DiscoLink">
+  <div class="header">
+    <h1>Changelog</h1>
+    <p class="subtitle">All notable changes and releases</p>
+  </div>
+
+  <div class="timeline">
+    {sortedEntries.map((entry) => (
+      <article class="entry">
+        <div class="entry-marker" style={`background: ${typeColors[entry.type]}`}></div>
+        <div class="entry-content">
+          <div class="entry-header">
+            <span class="version">{entry.version}</span>
+            <span class={`type type-${entry.type}`}>{entry.type}</span>
+            <span class="date">{new Date(entry.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          </div>
+          <h2>{entry.title}</h2>
+          <div class="entry-body" set:html={entry.content.replace(/\n/g, '<br/>').replace(/## (.*)/g, '<h3>$1</h3>').replace(/- (.*)/g, '<li>$1</li>').replace(/`([^`]+)`/g, '<code>$1</code>')} />
+        </div>
+      </article>
+    ))}
+  </div>
+
+</BaseLayout>
+
+<style>
+  .header {
+    margin-bottom: 2rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .entry {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+
+  .entry-marker {
+    position: absolute;
+    left: -2rem;
+    top: 0.5rem;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+  }
+
+  .entry-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .entry-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .version {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--accent);
+  }
+
+  .type {
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  .type-feature { background: rgba(139, 92, 246, 0.2); color: #8B5CF6; }
+  .type-fix { background: rgba(16, 185, 129, 0.2); color: #10B981; }
+  .type-improvement { background: rgba(59, 130, 246, 0.2); color: #3B82F6; }
+  .type-breaking { background: rgba(239, 68, 68, 0.2); color: #EF4444; }
+
+  .date {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  .entry-content h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .entry-body {
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .entry-body :global(h3) {
+    color: var(--text);
+    font-size: 1rem;
+    margin: 1rem 0 0.5rem;
+  }
+
+  .entry-body :global(li) {
+    margin-left: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .entry-body :global(code) {
+    background: var(--bg-secondary);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+
+</style>

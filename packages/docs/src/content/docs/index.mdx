@@ -1,9 +1,9 @@
 ---
-title: DiscoLink
-description: Sync your Discord content to a database you control. Build websites, integrate via REST API, or export static files. Your data, your way.
+title: DiscoLink Docs
+description: Documentation for DiscoLink - sync your Discord content to a database you control.
 template: splash
 hero:
-  tagline: Your Discord content, anywhere you need it. Sync forums and channels to build FAQs, knowledge bases, and more.
+  tagline: Sync Discord forums and channels to build FAQs, knowledge bases, blogs, and more.
   image:
     file: ../../assets/logo.svg
   actions:
@@ -11,31 +11,31 @@ hero:
       link: /getting-started/introduction
       icon: right-arrow
       variant: primary
-    - text: View on GitHub
-      link: https://github.com/KevinTrinh1227/discolink
-      icon: external
+    - text: API Reference
+      link: /api/overview
+      icon: document
 ---
 
 import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
 
-## Why DiscoLink?
+## Quick Navigation
 
-<CardGrid stagger>
-  <Card title="Zero Friction Content" icon="pencil">
-    Your community creates content naturally in Discord. No extra tools, no learning curve—just conversations that become documentation.
+<CardGrid>
+  <Card title="Introduction" icon="rocket">
+    New to DiscoLink? Start with our [Introduction](/getting-started/introduction) to understand the basics.
   </Card>
-  <Card title="Real-time Sync" icon="rocket">
-    Messages sync automatically. New threads, edits, reactions—everything appears in your database instantly.
+  <Card title="Quick Start" icon="laptop">
+    Get up and running in 5 minutes with the [Quick Start guide](/getting-started/quick-start).
   </Card>
-  <Card title="Privacy First" icon="approve-check">
-    Built-in consent system respects user privacy. Only sync content from users who opt in.
+  <Card title="API Reference" icon="document">
+    Explore all endpoints in the [API documentation](/api/overview).
   </Card>
-  <Card title="Fully Customizable" icon="setting">
-    REST API gives you full control. Build any frontend: FAQ pages, blogs, support portals, or custom dashboards.
+  <Card title="Live Demos" icon="star">
+    See templates in action at [demo.discolink.site](https://demo.discolink.site).
   </Card>
 </CardGrid>
 
-## Quick Example
+## API Example
 
 ```bash
 # Fetch resolved threads
@@ -49,67 +49,26 @@ curl http://localhost:3000/api/threads?serverId=123456789&status=resolved
       "id": "111222333",
       "title": "How do I implement OAuth?",
       "status": "resolved",
-      "messageCount": 8,
-      "author": { "username": "curious_dev" }
+      "messageCount": 8
     }
   ]
 }
 ```
 
-## Use Cases
+## Documentation Sections
 
-<CardGrid>
-  <Card title="Community FAQ" icon="document">
-    Turn resolved help threads into searchable FAQ pages.
-  </Card>
-  <Card title="Developer Blog" icon="star">
-    Publish announcements from Discord to your website.
-  </Card>
-  <Card title="Knowledge Base" icon="open-book">
-    Organize forum content into structured documentation.
-  </Card>
-  <Card title="Support Portal" icon="heart">
-    Showcase support history with contributor leaderboards.
-  </Card>
-</CardGrid>
-
-## Get Started
-
-<CardGrid>
-  <Card title="Quick Start" icon="rocket">
-    Get up and running in 5 minutes with our [Quick Start guide](/getting-started/quick-start).
-  </Card>
-  <Card title="API Reference" icon="document">
-    Explore all endpoints in the [API documentation](/api/overview).
-  </Card>
-  <Card title="Deploy" icon="laptop">
-    Deploy to [Vercel](/deployment/vercel), [Railway](/deployment/railway), or your own [VPS](/deployment/vps).
-  </Card>
-  <Card title="Contribute" icon="github">
-    Help improve the project. Check our [contribution guide](/contributing/development-setup).
-  </Card>
-</CardGrid>
-
-## Tech Stack
-
-| Component | Technology |
-|-----------|------------|
-| **Bot** | discord.js v14 |
-| **API** | Hono (lightweight, fast) |
-| **Database** | Drizzle ORM (SQLite/Turso) |
-| **Build** | Turborepo monorepo |
-| **Docs** | Starlight (Astro) |
-
-## Community
-
-- [GitHub Repository](https://github.com/KevinTrinh1227/discolink)
-- [Report Issues](https://github.com/KevinTrinh1227/discolink/issues)
-- [Discussions](https://github.com/KevinTrinh1227/discolink/discussions)
+| Section | Description |
+|---------|-------------|
+| [Getting Started](/getting-started/introduction) | Installation, setup, and your first API call |
+| [Guides](/guides/consent) | Detailed guides for consent, webhooks, templates |
+| [API Reference](/api/overview) | Full REST API documentation |
+| [Deployment](/deployment/vercel) | Deploy to Vercel, Railway, or VPS |
+| [Contributing](/contributing/development-setup) | Help improve DiscoLink |
 
 ---
 
 <Aside type="caution" title="Disclaimer">
-  This project is **not affiliated with, endorsed by, or connected to Discord Inc.** "Discord" is a trademark of Discord Inc. DiscoLink is an independent, open-source project.
+  This project is **not affiliated with, endorsed by, or connected to Discord Inc.** "Discord" is a trademark of Discord Inc.
 </Aside>
 
-Built with love by [Kevin Trinh](https://github.com/KevinTrinh1227) and contributors.
+Built by [Kevin Trinh](https://kevintrinh.dev) and contributors.

@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 export default defineConfig({
+  site: 'https://docs.discolink.site',
   integrations: [
     starlight({
       title: 'DiscoLink',
@@ -31,6 +32,10 @@ export default defineConfig({
           autogenerate: { directory: 'api' },
         },
         {
+          label: 'Live Demos',
+          autogenerate: { directory: 'demos' },
+        },
+        {
           label: 'Use Cases',
           autogenerate: { directory: 'use-cases' },
         },
@@ -41,6 +46,14 @@ export default defineConfig({
         {
           label: 'Contributing',
           autogenerate: { directory: 'contributing' },
+        },
+        {
+          label: 'Links',
+          items: [
+            { label: 'Main Site', link: 'https://discolink.site', attrs: { target: '_blank', rel: 'noopener' } },
+            { label: 'Live Demos', link: 'https://demo.discolink.site', attrs: { target: '_blank', rel: 'noopener' } },
+            { label: 'GitHub', link: 'https://github.com/KevinTrinh1227/discolink', attrs: { target: '_blank', rel: 'noopener' } },
+          ],
         },
       ],
     }),

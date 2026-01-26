@@ -52,7 +52,7 @@ const features = [
             </svg>
             <span id="hero-star-count">--</span>
             <span class="divider">·</span>
-            <span>Free & Open Source</span>
+            <span>Star on GitHub</span>
           </a>
           <h1>Your Discord Content,<br><span class="gradient">Anywhere You Need It</span></h1>
           <p class="subtitle">
@@ -61,7 +61,7 @@ const features = [
           </p>
           <div class="cta-buttons">
             <a href="/quickstart" class="btn btn-primary">Get Started</a>
-            <a href="/docs/api" class="btn btn-secondary">API Reference</a>
+            <a href="https://docs.discolink.site/api/overview" target="_blank" rel="noopener" class="btn btn-secondary">API Reference</a>
           </div>
         </div>
       </div>
@@ -104,32 +104,127 @@ const features = [
       </div>
     </section>
 
-    <!-- Use Cases Preview -->
-    <section class="use-cases-preview">
+    <!-- FAQ Section -->
+    <section class="faq-section">
       <div class="container">
-        <h2>Built for Many Use Cases</h2>
-        <p class="section-subtitle">Whether you're building a website, integrating with your app, or just need access to your Discord data.</p>
-        <div class="use-cases-grid">
-          <a href="/use-cases/faq" class="use-case-card">
-            <span class="use-case-icon">❓</span>
-            <h3>FAQ & Support</h3>
-            <p>Turn resolved threads into searchable FAQ pages.</p>
+        <h2>Frequently Asked Questions</h2>
+        <p class="section-subtitle">Common questions about DiscoLink</p>
+        <div class="faq-accordion">
+          <details class="faq-item">
+            <summary>What data does DiscoLink store?</summary>
+            <div class="faq-answer">
+              DiscoLink stores message content, author usernames, timestamps, and thread metadata from channels you explicitly enable. All data is stored in your self-hosted SQLite database - we never store your data on our servers.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary>Is my Discord data sent to third parties?</summary>
+            <div class="faq-answer">
+              No. DiscoLink is fully self-hosted. Your data stays on your server and is never transmitted to any third-party services. The bot only communicates between Discord and your own infrastructure.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary>Can users opt out of being synced?</summary>
+            <div class="faq-answer">
+              Yes. DiscoLink supports a consent-based system where users can opt-in or opt-out of having their messages synced. You can also configure server-wide policies for consent.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary>What frameworks work with the API?</summary>
+            <div class="faq-answer">
+              The DiscoLink REST API works with any framework or language that can make HTTP requests. We provide official templates for Astro, and the API is compatible with Next.js, React, Vue, Svelte, or any backend language.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary>Is DiscoLink free?</summary>
+            <div class="faq-answer">
+              Yes, DiscoLink is completely free and open source under the MIT license. You can self-host it, modify it, and use it for any purpose - commercial or personal.
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- Latest Releases -->
+    <section class="releases-section">
+      <div class="container">
+        <h2>Latest Releases</h2>
+        <p class="section-subtitle">Stay up to date with the latest updates</p>
+        <div id="releases-grid" class="releases-grid">
+          <div class="release-loading">Loading releases...</div>
+        </div>
+        <a href="https://github.com/KevinTrinh1227/discolink/releases" target="_blank" rel="noopener" class="view-all-link">
+          View all releases on GitHub →
+        </a>
+      </div>
+    </section>
+
+    <!-- Template Showcase -->
+    <section class="templates-section">
+      <div class="container">
+        <h2>Ready-to-Use Templates</h2>
+        <p class="section-subtitle">Beautiful templates to get started instantly. Click to see live demos.</p>
+        <div class="templates-grid">
+          <a href="https://demo.discolink.site/faq" target="_blank" rel="noopener" class="template-card">
+            <div class="template-preview">
+              <img src="https://placehold.co/400x240/1a1a1a/8B5CF6?text=FAQ+Template" alt="FAQ Template Preview" loading="lazy" />
+            </div>
+            <div class="template-info">
+              <h3>FAQ & Support</h3>
+              <p>Searchable FAQ pages from Discord threads</p>
+            </div>
           </a>
-          <a href="/use-cases/knowledge-base" class="use-case-card">
-            <span class="use-case-icon">📚</span>
-            <h3>Knowledge Base</h3>
-            <p>Build documentation from Discord content.</p>
+          <a href="https://demo.discolink.site/blog" target="_blank" rel="noopener" class="template-card">
+            <div class="template-preview">
+              <img src="https://placehold.co/400x240/1a1a1a/8B5CF6?text=Blog+Template" alt="Blog Template Preview" loading="lazy" />
+            </div>
+            <div class="template-info">
+              <h3>Community Blog</h3>
+              <p>Turn discussions into blog posts</p>
+            </div>
           </a>
-          <a href="/use-cases/api-integration" class="use-case-card">
-            <span class="use-case-icon">⚙️</span>
-            <h3>API Integration</h3>
-            <p>Build custom apps with our REST API.</p>
+          <a href="https://demo.discolink.site/changelog" target="_blank" rel="noopener" class="template-card">
+            <div class="template-preview">
+              <img src="https://placehold.co/400x240/1a1a1a/8B5CF6?text=Changelog+Template" alt="Changelog Template Preview" loading="lazy" />
+            </div>
+            <div class="template-info">
+              <h3>Changelog</h3>
+              <p>Product updates and announcements</p>
+            </div>
           </a>
-          <a href="/use-cases" class="use-case-card view-all">
-            <span class="use-case-icon">→</span>
-            <h3>View All Use Cases</h3>
-            <p>See all the ways you can use DiscoLink.</p>
+          <a href="https://demo.discolink.site/kb" target="_blank" rel="noopener" class="template-card">
+            <div class="template-preview">
+              <img src="https://placehold.co/400x240/1a1a1a/8B5CF6?text=Knowledge+Base" alt="Knowledge Base Template Preview" loading="lazy" />
+            </div>
+            <div class="template-info">
+              <h3>Knowledge Base</h3>
+              <p>Structured documentation from Discord</p>
+            </div>
           </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contributors Section -->
+    <section class="contributors-section">
+      <div class="container">
+        <h2>Open Source, Built by the Community</h2>
+        <p class="section-subtitle">DiscoLink is made possible by amazing contributors</p>
+        <div id="contributors-grid" class="contributors-grid">
+          <div class="contributors-loading">Loading contributors...</div>
+        </div>
+        <div class="contributors-cta">
+          <p>Want to contribute? We'd love your help!</p>
+          <div class="contributors-buttons">
+            <a href="https://github.com/KevinTrinh1227/discolink" target="_blank" rel="noopener" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/>
+              </svg>
+              Star on GitHub
+            </a>
+            <a href="https://github.com/KevinTrinh1227/discolink/fork" target="_blank" rel="noopener" class="btn btn-secondary">
+              Fork & Contribute
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -307,57 +402,234 @@ const features = [
     font-size: 1.1rem;
   }
 
-  /* Use Cases Preview */
-  .use-cases-preview {
+  /* FAQ Section */
+  .faq-section {
     padding: 6rem 0;
   }
-  .use-cases-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    margin-top: 3rem;
+  .faq-accordion {
+    max-width: 800px;
+    margin: 0 auto;
+    margin-top: 2rem;
   }
-  .use-case-card {
+  .faq-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  .faq-item summary {
+    padding: 1.25rem 1.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1.05rem;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+  }
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-item summary::after {
+    content: '+';
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    transition: transform 0.2s;
+  }
+  .faq-item[open] summary::after {
+    transform: rotate(45deg);
+  }
+  .faq-item summary:hover {
+    background: var(--bg-tertiary);
+  }
+  .faq-answer {
+    padding: 0 1.5rem 1.25rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  /* Releases Section */
+  .releases-section {
+    padding: 6rem 0;
+    background: var(--bg-secondary);
+  }
+  .releases-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  .release-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.5rem;
-    text-align: center;
     transition: all 0.2s;
     text-decoration: none;
     color: var(--text);
   }
-  .use-case-card:hover {
+  .release-card:hover {
     border-color: var(--accent);
     transform: translateY(-2px);
     text-decoration: none;
   }
-  .use-case-icon {
-    font-size: 2rem;
-    display: block;
-    margin-bottom: 1rem;
+  .release-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
   }
-  .use-case-card h3 {
-    font-size: 1.1rem;
+  .release-version {
+    background: var(--accent);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .release-date {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+  }
+  .release-card h3 {
+    font-size: 1rem;
     margin-bottom: 0.5rem;
+    line-height: 1.4;
   }
-  .use-case-card p {
+  .release-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  .release-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem;
+  }
+  .view-all-link {
+    display: block;
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .view-all-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Templates Section */
+  .templates-section {
+    padding: 6rem 0;
+  }
+  .templates-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  .template-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .template-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    text-decoration: none;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.15);
+  }
+  .template-preview {
+    aspect-ratio: 5/3;
+    overflow: hidden;
+    background: var(--bg-tertiary);
+  }
+  .template-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+  .template-card:hover .template-preview img {
+    transform: scale(1.05);
+  }
+  .template-info {
+    padding: 1.25rem;
+  }
+  .template-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  .template-info p {
     color: var(--text-secondary);
     font-size: 0.9rem;
   }
-  .use-case-card.view-all {
+
+  /* Contributors Section */
+  .contributors-section {
+    padding: 6rem 0;
     background: var(--bg-secondary);
-    border-style: dashed;
+  }
+  .contributors-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  .contributor-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    transition: all 0.2s;
+    background: var(--bg-card);
+  }
+  .contributor-avatar:hover {
+    border-color: var(--accent);
+    transform: scale(1.1);
+  }
+  .contributors-loading {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem;
+    width: 100%;
+  }
+  .contributors-cta {
+    text-align: center;
+    margin-top: 2.5rem;
+  }
+  .contributors-cta p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+  }
+  .contributors-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+  .contributors-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   @media (max-width: 900px) {
-    .use-cases-grid { grid-template-columns: repeat(2, 1fr); }
+    .templates-grid { grid-template-columns: repeat(2, 1fr); }
+    .releases-grid { grid-template-columns: 1fr; }
   }
 
   @media (max-width: 768px) {
     h1 { font-size: 2.5rem; }
     .features-grid, .steps { grid-template-columns: 1fr; }
-    .use-cases-grid { grid-template-columns: 1fr; }
+    .templates-grid { grid-template-columns: 1fr; }
+    .contributors-buttons { flex-direction: column; align-items: center; }
   }
 </style>
 
@@ -373,5 +645,70 @@ const features = [
     })
     .catch(() => {
       // Keep showing -- if fetch fails
+    });
+
+  // Fetch latest releases
+  fetch('https://api.github.com/repos/KevinTrinh1227/discolink/releases?per_page=3')
+    .then(res => res.json())
+    .then(releases => {
+      const releasesGrid = document.getElementById('releases-grid');
+      if (!releasesGrid || !Array.isArray(releases) || releases.length === 0) {
+        if (releasesGrid) {
+          releasesGrid.innerHTML = '<div class="release-loading">No releases yet. Check back soon!</div>';
+        }
+        return;
+      }
+
+      releasesGrid.innerHTML = releases.map(release => {
+        const date = new Date(release.published_at).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+        const body = release.body
+          ? release.body.slice(0, 150).replace(/[#*`]/g, '') + (release.body.length > 150 ? '...' : '')
+          : 'View release notes for details.';
+        return `
+          <a href="${release.html_url}" target="_blank" rel="noopener" class="release-card">
+            <div class="release-header">
+              <span class="release-version">${release.tag_name}</span>
+              <span class="release-date">${date}</span>
+            </div>
+            <h3>${release.name || release.tag_name}</h3>
+            <p>${body}</p>
+          </a>
+        `;
+      }).join('');
+    })
+    .catch(() => {
+      const releasesGrid = document.getElementById('releases-grid');
+      if (releasesGrid) {
+        releasesGrid.innerHTML = '<div class="release-loading">Unable to load releases. <a href="https://github.com/KevinTrinh1227/discolink/releases" target="_blank" rel="noopener">View on GitHub</a></div>';
+      }
+    });
+
+  // Fetch contributors
+  fetch('https://api.github.com/repos/KevinTrinh1227/discolink/contributors?per_page=12')
+    .then(res => res.json())
+    .then(contributors => {
+      const contributorsGrid = document.getElementById('contributors-grid');
+      if (!contributorsGrid || !Array.isArray(contributors) || contributors.length === 0) {
+        if (contributorsGrid) {
+          contributorsGrid.innerHTML = '<div class="contributors-loading">Be the first contributor!</div>';
+        }
+        return;
+      }
+
+      contributorsGrid.innerHTML = contributors.map(contributor => `
+        <a href="${contributor.html_url}" target="_blank" rel="noopener" title="${contributor.login}">
+          <img src="${contributor.avatar_url}" alt="${contributor.login}" class="contributor-avatar" loading="lazy" />
+        </a>
+      `).join('');
+    })
+    .catch(() => {
+      const contributorsGrid = document.getElementById('contributors-grid');
+      if (contributorsGrid) {
+        contributorsGrid.innerHTML = '<div class="contributors-loading">Unable to load contributors.</div>';
+      }
     });
 </script>

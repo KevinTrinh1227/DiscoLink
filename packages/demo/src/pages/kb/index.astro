@@ -1,0 +1,157 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { kbArticles } from '../../data/mock';
+
+// Group articles by category
+const categories = kbArticles.reduce((acc, article) => {
+  if (!acc[article.category]) {
+    acc[article.category] = [];
+  }
+  acc[article.category].push(article);
+  return acc;
+}, {} as Record<string, typeof kbArticles>);
+
+const categoryOrder = ['📚 Basics', '📡 API', '🚀 Deployment', '🔒 Privacy'];
+const sortedCategories = categoryOrder.filter(cat => categories[cat]);
+---
+
+<BaseLayout title="Knowledge Base" description="Documentation and guides for DiscoLink">
+  <div class="header">
+    <h1>Knowledge Base</h1>
+    <p class="subtitle">Documentation organized by category</p>
+  </div>
+
+  <div class="search-box">
+    <input type="text" placeholder="Search articles..." id="search-input" />
+  </div>
+
+  <div class="categories" id="categories">
+    {sortedCategories.map((category) => (
+      <section class="category" data-category={category}>
+        <h2>{category}</h2>
+        <div class="articles">
+          {categories[category].map((article) => (
+            <a href={`/kb/${article.slug}`} class="article-card" data-title={article.title.toLowerCase()}>
+              <h3>{article.title}</h3>
+              <div class="article-meta">
+                <span>by {article.author.username}</span>
+                <span class="separator">-</span>
+                <span>Updated {new Date(article.lastUpdated).toLocaleDateString()}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+
+</BaseLayout>
+
+<script>
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const articles = document.querySelectorAll('.article-card');
+  const categories = document.querySelectorAll('.category');
+
+  searchInput?.addEventListener('input', (e) => {
+    const query = (e.target as HTMLInputElement).value.toLowerCase();
+
+    articles.forEach((article) => {
+      const title = article.getAttribute('data-title') || '';
+      (article as HTMLElement).style.display = title.includes(query) ? 'block' : 'none';
+    });
+
+    // Hide empty categories
+    categories.forEach((category) => {
+      const visibleArticles = category.querySelectorAll('.article-card[style="display: block"], .article-card:not([style])');
+      let hasVisible = false;
+      visibleArticles.forEach((a) => {
+        if ((a as HTMLElement).style.display !== 'none') hasVisible = true;
+      });
+      (category as HTMLElement).style.display = query && !hasVisible ? 'none' : 'block';
+    });
+  });
+</script>
+
+<style>
+  .header {
+    margin-bottom: 2rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+  }
+
+  .search-box {
+    margin-bottom: 2rem;
+  }
+
+  .search-box input {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text);
+    font-size: 1rem;
+  }
+
+  .search-box input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .categories {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .category h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--accent);
+  }
+
+  .articles {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .article-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    color: var(--text);
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .article-card:hover {
+    border-color: var(--accent);
+    transform: translateX(4px);
+    text-decoration: none;
+  }
+
+  .article-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .article-meta {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .separator {
+    opacity: 0.5;
+  }
+
+</style>

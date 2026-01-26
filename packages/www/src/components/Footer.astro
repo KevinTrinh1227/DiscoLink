@@ -7,14 +7,12 @@ const links = {
     { href: '/templates', label: 'Templates' },
   ],
   resources: [
-    { href: '/docs', label: 'Documentation' },
-    { href: '/docs/api', label: 'API Reference' },
-    { href: '/docs/guides', label: 'Guides' },
-    { href: '/docs/cli', label: 'CLI Reference' },
+    { href: 'https://docs.discolink.site', label: 'Documentation', external: true },
+    { href: 'https://demo.discolink.site', label: 'Live Demos', external: true },
   ],
   links: [
-    { href: 'https://github.com/KevinTrinh1227/discolink', label: 'GitHub' },
-    { href: 'https://github.com/KevinTrinh1227/discolink/issues', label: 'Report Issue' },
+    { href: 'https://github.com/KevinTrinh1227/discolink', label: 'GitHub', external: true },
+    { href: 'https://github.com/KevinTrinh1227/discolink/issues', label: 'Report Issue', external: true },
   ],
 };
 ---
@@ -51,7 +49,11 @@ const links = {
         <div class="link-group">
           <h4>Resources</h4>
           {links.resources.map((link) => (
-            <a href={link.href}>{link.label}</a>
+            link.external ? (
+              <a href={link.href} target="_blank" rel="noopener">{link.label}</a>
+            ) : (
+              <a href={link.href}>{link.label}</a>
+            )
           ))}
         </div>
         <div class="link-group">
@@ -64,6 +66,11 @@ const links = {
     </div>
 
     <div class="footer-bottom">
+      <div class="footer-meta">
+        <span class="version-badge" id="footer-version">v--</span>
+        <span class="separator">·</span>
+        <span>Built by <a href="https://kevintrinh.dev" target="_blank" rel="noopener">Kevin Trinh</a></span>
+      </div>
       <p>&copy; {new Date().getFullYear()} DiscoLink. MIT License.</p>
       <p class="disclaimer">DiscoLink is not affiliated with, endorsed by, or connected to Discord Inc.</p>
     </div>
@@ -86,6 +93,19 @@ const links = {
     })
     .catch(() => {
       // Keep showing -- if fetch fails
+    });
+
+  // Fetch latest release version
+  fetch('https://api.github.com/repos/KevinTrinh1227/discolink/releases/latest')
+    .then(res => res.json())
+    .then(data => {
+      const versionEl = document.getElementById('footer-version');
+      if (versionEl && data.tag_name) {
+        versionEl.textContent = data.tag_name;
+      }
+    })
+    .catch(() => {
+      // Keep showing v-- if fetch fails
     });
 </script>
 
@@ -168,6 +188,32 @@ const links = {
     text-align: center;
     color: var(--text-secondary);
     font-size: 0.9rem;
+  }
+  .footer-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+  }
+  .footer-meta a {
+    color: var(--accent);
+    transition: opacity 0.2s;
+  }
+  .footer-meta a:hover {
+    opacity: 0.8;
+  }
+  .version-badge {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.8rem;
+  }
+  .separator {
+    opacity: 0.4;
   }
   .disclaimer {
     margin-top: 0.5rem;

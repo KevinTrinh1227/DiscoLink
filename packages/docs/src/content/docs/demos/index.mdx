@@ -1,0 +1,73 @@
+---
+title: Live Demos
+description: Explore live examples of DiscoLink templates in action
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+See DiscoLink templates in action with these live demos. Each demo showcases a different use case for your Discord content.
+
+## Template Demos
+
+<CardGrid>
+  <Card title="FAQ Demo" icon="document">
+    Searchable FAQ page built from resolved help threads.
+
+    <a href="https://demo.discolink.site/faq" target="_blank" rel="noopener">View Demo →</a>
+  </Card>
+  <Card title="Blog Demo" icon="pencil">
+    Community blog with posts from Discord announcements.
+
+    <a href="https://demo.discolink.site/blog" target="_blank" rel="noopener">View Demo →</a>
+  </Card>
+  <Card title="Changelog Demo" icon="list-format">
+    Release timeline from Discord announcement channels.
+
+    <a href="https://demo.discolink.site/changelog" target="_blank" rel="noopener">View Demo →</a>
+  </Card>
+  <Card title="Knowledge Base Demo" icon="open-book">
+    Organized documentation from forum categories.
+
+    <a href="https://demo.discolink.site/kb" target="_blank" rel="noopener">View Demo →</a>
+  </Card>
+</CardGrid>
+
+## What's Included
+
+Each demo includes:
+
+- **Real-time data** - Content synced from sample Discord servers
+- **Full-text search** - Try searching across all content
+- **Responsive design** - Works on desktop and mobile
+- **SEO optimized** - Proper meta tags and structured data
+
+## Use These Templates
+
+Ready to build your own? Check out the [Templates guide](/use-cases/faq) to get started with any of these templates.
+
+### Quick Start
+
+```bash
+# Clone the template you want
+npx degit KevinTrinh1227/discolink/packages/templates/faq my-faq
+
+# Install and configure
+cd my-faq
+pnpm install
+cp .env.example .env
+# Add your DISCOLINK_SERVER_ID and DISCOLINK_API_URL
+
+# Run locally
+pnpm dev
+```
+
+## Source Code
+
+All templates are open source and available in the <a href="https://github.com/KevinTrinh1227/discolink/tree/main/packages/templates" target="_blank" rel="noopener">DiscoLink repository</a>:
+
+| Template | Source | Demo |
+|----------|--------|------|
+| FAQ | <a href="https://github.com/KevinTrinh1227/discolink/tree/main/packages/templates/faq" target="_blank" rel="noopener">View Source</a> | <a href="https://demo.discolink.site/faq" target="_blank" rel="noopener">Live Demo</a> |
+| Blog | <a href="https://github.com/KevinTrinh1227/discolink/tree/main/packages/templates/blog" target="_blank" rel="noopener">View Source</a> | <a href="https://demo.discolink.site/blog" target="_blank" rel="noopener">Live Demo</a> |
+| Changelog | <a href="https://github.com/KevinTrinh1227/discolink/tree/main/packages/templates/changelog" target="_blank" rel="noopener">View Source</a> | <a href="https://demo.discolink.site/changelog" target="_blank" rel="noopener">Live Demo</a> |
+| Knowledge Base | <a href="https://github.com/KevinTrinh1227/discolink/tree/main/packages/templates/knowledge-base" target="_blank" rel="noopener">View Source</a> | <a href="https://demo.discolink.site/kb" target="_blank" rel="noopener">Live Demo</a> |

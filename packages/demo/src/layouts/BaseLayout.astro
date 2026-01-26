@@ -1,0 +1,262 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const { title, description = 'DiscoLink Demo - See templates in action', ogImage } = Astro.props;
+const canonicalUrl = Astro.url.href;
+const ogImageUrl = ogImage || '/og-default.png';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title} | DiscoLink Demo</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={`${title} | DiscoLink Demo`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content="DiscoLink Demo" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={`${title} | DiscoLink Demo`} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- Canonical -->
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <a href="/" class="logo">DiscoLink Demo</a>
+        <div class="nav-links">
+          <a href="/faq">FAQ</a>
+          <a href="/blog">Blog</a>
+          <a href="/changelog">Changelog</a>
+          <a href="/kb">Knowledge Base</a>
+          <a href="https://github.com/KevinTrinh1227/discolink" target="_blank" rel="noopener" class="github-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/>
+            </svg>
+            <span id="star-count">--</span>
+          </a>
+          <a href="https://docs.discolink.site" target="_blank" rel="noopener" class="docs-link">Docs</a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="footer">
+      <div class="footer-container">
+        <p>Demo for <a href="https://discolink.site" target="_blank" rel="noopener">DiscoLink</a> · Built by <a href="https://kevintrinh.dev" target="_blank" rel="noopener">Kevin Trinh</a> · Sample data</p>
+        <p class="disclaimer">Not affiliated with Discord Inc.</p>
+      </div>
+    </footer>
+
+    <script>
+      // Fetch GitHub star count
+      fetch('https://api.github.com/repos/KevinTrinh1227/discolink')
+        .then(res => res.json())
+        .then(data => {
+          const starEl = document.getElementById('star-count');
+          if (starEl && data.stargazers_count !== undefined) {
+            starEl.textContent = data.stargazers_count.toLocaleString();
+          }
+        })
+        .catch(() => {});
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #0a0a0a;
+    --bg-secondary: #111111;
+    --bg-card: #1a1a1a;
+    --text: #fafafa;
+    --text-secondary: #888888;
+    --border: #2a2a2a;
+    --accent: #8B5CF6;
+    --accent-glow: rgba(139, 92, 246, 0.3);
+    --success: #10B981;
+    --warning: #F59E0B;
+    --role-admin: #e91e63;
+    --role-moderator: #3b82f6;
+    --role-contributor: #10b981;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    flex: 1;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<style>
+  .navbar {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--text);
+  }
+
+  .logo:hover {
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .nav-links a {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .github-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    color: var(--text) !important;
+    font-weight: 500;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+
+  .github-btn:hover {
+    border-color: var(--accent);
+    background: var(--bg-secondary);
+  }
+
+  .github-btn svg {
+    color: #f59e0b;
+  }
+
+  .docs-link {
+    background: var(--accent);
+    color: white !important;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+
+  .docs-link:hover {
+    opacity: 0.9;
+  }
+
+  .footer {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    margin-top: 4rem;
+  }
+
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .footer p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  .footer a {
+    color: var(--accent);
+  }
+
+  .disclaimer {
+    font-size: 0.8rem !important;
+    opacity: 0.7;
+    margin-top: 0.25rem;
+  }
+
+  @media (max-width: 768px) {
+    .nav-links {
+      gap: 0.75rem;
+    }
+
+    .nav-links a:not(.docs-link):not(.github-btn) {
+      display: none;
+    }
+  }
+</style>
