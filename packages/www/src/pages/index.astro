@@ -156,7 +156,6 @@ const features = [
   .hero {
     padding: 5rem 0 6rem;
     text-align: center;
-    background: radial-gradient(ellipse at center top, var(--accent-glow), transparent 50%);
   }
   .hero-content {
     max-width: 800px;
@@ -166,20 +165,27 @@ const features = [
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin-bottom: 1.5rem;
-    transition: color 0.2s;
+    transition: all 0.2s;
   }
   .hero-badge:hover {
     color: var(--text);
     text-decoration: none;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
   }
   .hero-badge .star-icon {
     color: #f59e0b;
   }
   .hero-badge .divider {
-    opacity: 0.5;
+    opacity: 0.4;
   }
   h1 {
     font-size: 4rem;

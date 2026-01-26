@@ -6,6 +6,7 @@ import Footer from '../../components/Footer.astro';
 const sections = [
   {
     title: 'Getting Started',
+    icon: '🚀',
     links: [
       { href: '/quickstart', label: 'Quickstart', description: 'Set up DiscoLink in 5 minutes' },
       { href: '/docs/guides', label: 'Guides', description: 'Step-by-step tutorials' },
@@ -13,6 +14,7 @@ const sections = [
   },
   {
     title: 'Reference',
+    icon: '📖',
     links: [
       { href: '/docs/api', label: 'API Reference', description: 'REST API endpoints and schemas' },
       { href: '/docs/cli', label: 'CLI Reference', description: 'Command-line tool documentation' },
@@ -20,6 +22,7 @@ const sections = [
   },
   {
     title: 'Templates',
+    icon: '🎨',
     links: [
       { href: '/templates', label: 'Template Gallery', description: 'Pre-built templates for common use cases' },
       { href: '/use-cases', label: 'Use Cases', description: 'Examples of what you can build' },
@@ -38,15 +41,10 @@ const sections = [
         <p>Everything you need to build with DiscoLink.</p>
       </header>
 
-      <div class="search-box">
-        <input type="text" placeholder="Search documentation..." disabled />
-        <span class="search-hint">Coming soon</span>
-      </div>
-
       <div class="sections-grid">
         {sections.map((section) => (
           <div class="section">
-            <h2>{section.title}</h2>
+            <h2><span class="section-icon">{section.icon}</span> {section.title}</h2>
             <div class="links">
               {section.links.map((link) => (
                 <a href={link.href} class="doc-link">
@@ -118,35 +116,6 @@ const sections = [
     font-size: 1.1rem;
   }
 
-  .search-box {
-    max-width: 500px;
-    margin: 0 auto 4rem;
-    position: relative;
-  }
-  .search-box input {
-    width: 100%;
-    padding: 1rem 1.5rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    font-size: 1rem;
-    color: var(--text);
-  }
-  .search-box input::placeholder {
-    color: var(--text-secondary);
-  }
-  .search-hint {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    background: var(--bg-tertiary);
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-  }
-
   .sections-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -154,11 +123,17 @@ const sections = [
     margin-bottom: 4rem;
   }
   .section h2 {
-    font-size: 1.1rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-secondary);
     margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-icon {
+    font-size: 1.1rem;
   }
   .links {
     display: flex;
