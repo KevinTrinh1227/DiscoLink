@@ -715,3 +715,60 @@ export async function getPendingWebhookDeliveries(db: AnyDb) {
     .where(eq(webhookDeliveries.status, "pending"))
     .orderBy(asc(webhookDeliveries.createdAt));
 }
+
+// ============================================================================
+// WEBHOOK DEAD LETTER HELPERS
+// ============================================================================
+
+import { webhookDeadLetters, type NewWebhookDeadLetter } from "./schema.js";
+
+export async function createWebhookDeadLetter(db: AnyDb, data: NewWebhookDeadLetter) {
+  const [inserted] = await db.insert(webhookDeadLetters).values(data).returning();
+  return inserted;
+}
+
+export async function getWebhookDeadLettersByWebhookId(db: AnyDb, webhookId: string, limit = 50) {
+  return db
+    .select()
+    .from(webhookDeadLetters)
+    .where(eq(webhookDeadLetters.webhookId, webhookId))
+    .orderBy(desc(webhookDeadLetters.failedAt))
+    .limit(limit);
+}
+
+export async function getUnreplayedDeadLetters(db: AnyDb, limit = 100) {
+  return db
+    .select()
+    .from(webhookDeadLetters)
+    .where(isNull(webhookDeadLetters.replayedAt))
+    .orderBy(asc(webhookDeadLetters.failedAt))
+    .limit(limit);
+}
+
+export async function markDeadLetterReplayed(
+  db: AnyDb,
+  id: number,
+  replayedBy?: string
+) {
+  await db
+    .update(webhookDeadLetters)
+    .set({
+      replayedAt: new Date(),
+      replayedBy: replayedBy ?? null,
+    })
+    .where(eq(webhookDeadLetters.id, id));
+}
+
+export async function deleteOldDeadLetters(db: AnyDb, olderThanDays = 30) {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - olderThanDays);
+
+  await db
+    .delete(webhookDeadLetters)
+    .where(
+      and(
+        sql`${webhookDeadLetters.failedAt} < ${cutoff.getTime()}`,
+        sql`${webhookDeadLetters.replayedAt} IS NOT NULL`
+      )
+    );
+}

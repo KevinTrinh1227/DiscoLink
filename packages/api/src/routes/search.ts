@@ -85,13 +85,40 @@ app.get("/", async (c) => {
     messages: [],
   };
 
-  // Escape special characters for FTS5 query
+  /**
+   * Sanitize user input for FTS5 queries.
+   *
+   * FTS5 uses a custom query syntax with special operators. Without sanitization,
+   * attackers could:
+   * 1. Use boolean operators (AND, OR, NOT) to craft malicious queries
+   * 2. Use phrase matching with quotes to probe for specific content
+   * 3. Use prefix/suffix matching (* ^) to enumerate data
+   * 4. Use column filters to access unintended columns
+   * 5. Cause DoS with complex nested expressions
+   *
+   * This function removes all FTS5 operators and limits query length.
+   */
   const sanitizeFtsQuery = (query: string): string => {
-    // Remove special FTS5 operators and escape quotes
-    return query
-      .replace(/['"]/g, "")
-      .replace(/[+\-*^~()]/g, " ")
-      .trim();
+    return (
+      query
+        // Remove quotes (phrase matching)
+        .replace(/['"]/g, "")
+        // Remove FTS5 operators: + - * ^ ~ ( ) { } [ ]
+        .replace(/[+\-*^~(){}[\]]/g, " ")
+        // Remove boolean operators (case-insensitive)
+        .replace(/\bAND\b/gi, " ")
+        .replace(/\bOR\b/gi, " ")
+        .replace(/\bNOT\b/gi, " ")
+        .replace(/\bNEAR\b/gi, " ")
+        // Remove column filter syntax (column:)
+        .replace(/\w+:/g, " ")
+        // Collapse multiple whitespace
+        .replace(/\s+/g, " ")
+        // Trim
+        .trim()
+        // Limit length to prevent DoS with very long queries
+        .slice(0, 100)
+    );
   };
 
   // Search threads (always uses LIKE since titles are short)

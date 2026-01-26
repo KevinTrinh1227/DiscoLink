@@ -25,6 +25,10 @@ const configSchema = z.object({
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60000),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().default(100),
 
+  // Proxy Settings (for rate limiting IP detection)
+  // Set to true only if running behind a trusted reverse proxy (nginx, Cloudflare, etc.)
+  TRUSTED_PROXY: z.coerce.boolean().default(false),
+
   // CORS
   CORS_ORIGINS: z.string().default("*"),
 

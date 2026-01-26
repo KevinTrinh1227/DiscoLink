@@ -19,6 +19,51 @@ setInterval(() => {
   }
 }, 60000);
 
+/**
+ * Get client IP address securely.
+ *
+ * SECURITY: Only trust proxy headers when TRUSTED_PROXY is explicitly enabled.
+ * Without this check, attackers can spoof IP addresses by setting headers like
+ * X-Forwarded-For, X-Real-IP, or CF-Connecting-IP to bypass rate limiting.
+ */
+function getClientIp(c: Context): string {
+  const config = getConfig();
+
+  // Only trust proxy headers if explicitly configured to trust proxies
+  if (config.TRUSTED_PROXY) {
+    // Cloudflare's header takes priority (cannot be spoofed behind Cloudflare)
+    const cfIp = c.req.header("cf-connecting-ip");
+    if (cfIp) return cfIp;
+
+    // X-Forwarded-For: may contain chain of IPs, take the first (client) IP
+    // Note: Only the leftmost IP is the client; others are proxies
+    const forwarded = c.req.header("x-forwarded-for");
+    if (forwarded) {
+      const firstIp = forwarded.split(",")[0]?.trim();
+      if (firstIp) return firstIp;
+    }
+
+    // X-Real-IP: typically set by nginx
+    const realIp = c.req.header("x-real-ip");
+    if (realIp) return realIp;
+  }
+
+  // Fallback: Use the direct connection IP (not spoofable)
+  // In Hono/Node.js, this comes from the socket
+  // Note: c.req.raw may vary by runtime - handle gracefully
+  try {
+    // @ts-expect-error - Runtime-specific socket access
+    const socketIp = c.req.raw.socket?.remoteAddress;
+    if (socketIp) return socketIp;
+  } catch {
+    // Ignore if socket access fails
+  }
+
+  // Last resort: return "unknown" which will share rate limit bucket
+  // This is safer than trusting potentially spoofed headers
+  return "unknown";
+}
+
 function getClientIdentifier(c: Context): string {
   // Use user ID if authenticated, otherwise use IP
   const user = c.get("user");
@@ -26,12 +71,7 @@ function getClientIdentifier(c: Context): string {
     return `user:${user.sub}`;
   }
 
-  // Get IP from various headers
-  const forwarded = c.req.header("x-forwarded-for");
-  const realIp = c.req.header("x-real-ip");
-  const cfIp = c.req.header("cf-connecting-ip");
-
-  const ip = cfIp ?? realIp ?? forwarded?.split(",")[0]?.trim() ?? "unknown";
+  const ip = getClientIp(c);
   return `ip:${ip}`;
 }
 

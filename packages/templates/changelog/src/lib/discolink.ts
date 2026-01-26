@@ -1,3 +1,63 @@
+// Default timeout for API requests (30 seconds)
+const DEFAULT_TIMEOUT_MS = 30000;
+
+// ============================================================================
+// ENVIRONMENT CONFIGURATION
+// ============================================================================
+
+// Read environment variables (validated lazily when API is called)
+const API_URL = import.meta.env.DISCOLINK_API_URL || 'http://localhost:3000';
+const SERVER_ID = import.meta.env.DISCOLINK_SERVER_ID;
+
+/**
+ * Validate that required environment variables are set.
+ * Called lazily when API functions are invoked, not at module load.
+ * This allows templates to build even without env vars configured.
+ */
+function validateConfig(): string {
+  if (!SERVER_ID) {
+    throw new Error(
+      `DISCOLINK_SERVER_ID environment variable is required.\n\n` +
+      `Add it to your .env file:\n` +
+      `  DISCOLINK_SERVER_ID=your_discord_server_id\n\n` +
+      `Or set it in your deployment config (Vercel, Netlify, etc.)`
+    );
+  }
+  return SERVER_ID;
+}
+
+// ============================================================================
+// FETCH WITH TIMEOUT
+// ============================================================================
+
+/**
+ * Fetch with timeout using AbortController.
+ * Prevents infinite hangs on network issues during static site generation.
+ */
+async function fetchWithTimeout(
+  url: string,
+  timeoutMs: number = DEFAULT_TIMEOUT_MS
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    return response;
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`Request timed out after ${timeoutMs}ms: ${url}`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// ============================================================================
+// TYPE DEFINITIONS
+// ============================================================================
+
 export interface Thread {
   id: string;
   title: string;
@@ -52,11 +112,13 @@ export interface Server {
   description: string | null;
 }
 
-const API_URL = import.meta.env.DISCOLINK_API_URL || 'http://localhost:3000';
-const SERVER_ID = import.meta.env.DISCOLINK_SERVER_ID;
+// ============================================================================
+// API FUNCTIONS
+// ============================================================================
 
 export async function getServer(): Promise<Server> {
-  const response = await fetch(`${API_URL}/servers/${SERVER_ID}`);
+  const serverId = validateConfig();
+  const response = await fetchWithTimeout(`${API_URL}/servers/${serverId}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch server: ${response.status}`);
   }
@@ -64,15 +126,16 @@ export async function getServer(): Promise<Server> {
 }
 
 export async function getThreads(): Promise<ThreadSummary[]> {
+  const serverId = validateConfig();
   const threads: ThreadSummary[] = [];
   let cursor: string | undefined;
   let hasMore = true;
 
   while (hasMore) {
-    const params = new URLSearchParams({ serverId: SERVER_ID, limit: '100' });
+    const params = new URLSearchParams({ serverId, limit: '100' });
     if (cursor) params.set('cursor', cursor);
 
-    const response = await fetch(`${API_URL}/threads?${params}`);
+    const response = await fetchWithTimeout(`${API_URL}/threads?${params}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch threads: ${response.status}`);
     }
@@ -90,12 +153,17 @@ export async function getThreads(): Promise<ThreadSummary[]> {
 }
 
 export async function getThread(threadId: string): Promise<Thread> {
-  const response = await fetch(`${API_URL}/threads/${threadId}`);
+  validateConfig(); // Ensure config is valid
+  const response = await fetchWithTimeout(`${API_URL}/threads/${threadId}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch thread: ${response.status}`);
   }
   return response.json();
 }
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
 
 export function groupByMonth(threads: ThreadSummary[]): Map<string, ThreadSummary[]> {
   const grouped = new Map<string, ThreadSummary[]>();

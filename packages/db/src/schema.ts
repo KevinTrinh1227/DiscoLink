@@ -474,6 +474,33 @@ export const webhookDeliveries = sqliteTable(
 );
 
 // ============================================================================
+// WEBHOOK DEAD LETTERS (Failed deliveries for manual replay)
+// ============================================================================
+export const webhookDeadLetters = sqliteTable(
+  "webhook_dead_letters",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    webhookId: text("webhook_id")
+      .notNull()
+      .references(() => webhooks.id, { onDelete: "cascade" }),
+    event: text("event").notNull(),
+    payload: text("payload").notNull(), // JSON payload that failed to deliver
+    lastError: text("last_error"), // Last error message
+    lastStatusCode: integer("last_status_code"), // Last HTTP status code
+    attemptCount: integer("attempt_count").notNull().default(0), // Total attempts made
+    failedAt: integer("failed_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    replayedAt: integer("replayed_at", { mode: "timestamp" }), // When manually replayed
+    replayedBy: text("replayed_by"), // User who replayed (if applicable)
+  },
+  (table) => [
+    index("webhook_dead_letters_webhook_id_idx").on(table.webhookId),
+    index("webhook_dead_letters_failed_at_idx").on(table.failedAt),
+  ]
+);
+
+// ============================================================================
 // RELATIONS
 // ============================================================================
 export const serversRelations = relations(servers, ({ many }) => ({
@@ -634,6 +661,14 @@ export const webhooksRelations = relations(webhooks, ({ one, many }) => ({
     references: [servers.id],
   }),
   deliveries: many(webhookDeliveries),
+  deadLetters: many(webhookDeadLetters),
+}));
+
+export const webhookDeadLettersRelations = relations(webhookDeadLetters, ({ one }) => ({
+  webhook: one(webhooks, {
+    fields: [webhookDeadLetters.webhookId],
+    references: [webhooks.id],
+  }),
 }));
 
 export const webhookDeliveriesRelations = relations(webhookDeliveries, ({ one }) => ({
@@ -678,3 +713,5 @@ export type Webhook = typeof webhooks.$inferSelect;
 export type NewWebhook = typeof webhooks.$inferInsert;
 export type WebhookDelivery = typeof webhookDeliveries.$inferSelect;
 export type NewWebhookDelivery = typeof webhookDeliveries.$inferInsert;
+export type WebhookDeadLetter = typeof webhookDeadLetters.$inferSelect;
+export type NewWebhookDeadLetter = typeof webhookDeadLetters.$inferInsert;

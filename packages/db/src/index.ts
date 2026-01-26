@@ -80,6 +80,12 @@ export {
   updateWebhookDelivery,
   getWebhookDeliveriesByWebhookId,
   getPendingWebhookDeliveries,
+  // Webhook dead letter helpers
+  createWebhookDeadLetter,
+  getWebhookDeadLettersByWebhookId,
+  getUnreplayedDeadLetters,
+  markDeadLetterReplayed,
+  deleteOldDeadLetters,
 } from "./helpers.js";
 
 // Re-export drizzle utilities for convenience

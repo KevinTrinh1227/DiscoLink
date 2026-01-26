@@ -1,4 +1,4 @@
-import { type Guild, ChannelType, type AnyThreadChannel, type Message, MessageType } from "discord.js";
+import { type Guild, ChannelType, type AnyThreadChannel, type Message, MessageType, PermissionFlagsBits } from "discord.js";
 import {
   getDb,
   upsertServer,
@@ -20,6 +20,113 @@ import {
 import { logger } from "../logger.js";
 import { getConfig } from "../config.js";
 import { parseDiscordMarkdown } from "../lib/markdown.js";
+
+// ============================================================================
+// PERMISSION CHECKS
+// ============================================================================
+
+/**
+ * Required permissions for full sync functionality.
+ * Without these permissions, certain features may fail silently.
+ */
+const REQUIRED_PERMISSIONS = {
+  ViewChannel: PermissionFlagsBits.ViewChannel,
+  ReadMessageHistory: PermissionFlagsBits.ReadMessageHistory,
+} as const;
+
+/**
+ * Optional permissions that enhance functionality but aren't required.
+ */
+const OPTIONAL_PERMISSIONS = {
+  SendMessages: PermissionFlagsBits.SendMessages,
+  EmbedLinks: PermissionFlagsBits.EmbedLinks,
+  AttachFiles: PermissionFlagsBits.AttachFiles,
+  UseExternalEmojis: PermissionFlagsBits.UseExternalEmojis,
+} as const;
+
+interface PermissionCheckResult {
+  canSync: boolean;
+  missingRequired: string[];
+  missingOptional: string[];
+}
+
+/**
+ * Check if the bot has required permissions in a guild.
+ * Logs warnings for missing optional permissions.
+ * Returns false if required permissions are missing.
+ */
+export function checkBotPermissions(guild: Guild): PermissionCheckResult {
+  const me = guild.members.me;
+
+  if (!me) {
+    logger.warn(`Cannot check permissions: bot member not found in guild cache`, {
+      guildId: guild.id,
+    });
+    return {
+      canSync: false,
+      missingRequired: ["Bot member not found"],
+      missingOptional: [],
+    };
+  }
+
+  const missingRequired: string[] = [];
+  const missingOptional: string[] = [];
+
+  // Check required permissions
+  for (const [name, permission] of Object.entries(REQUIRED_PERMISSIONS)) {
+    if (!me.permissions.has(permission)) {
+      missingRequired.push(name);
+    }
+  }
+
+  // Check optional permissions
+  for (const [name, permission] of Object.entries(OPTIONAL_PERMISSIONS)) {
+    if (!me.permissions.has(permission)) {
+      missingOptional.push(name);
+    }
+  }
+
+  if (missingRequired.length > 0) {
+    logger.error(`Missing required permissions for sync`, {
+      guildId: guild.id,
+      guildName: guild.name,
+      missingRequired,
+    });
+  }
+
+  if (missingOptional.length > 0) {
+    logger.warn(`Missing optional permissions (some features may be limited)`, {
+      guildId: guild.id,
+      guildName: guild.name,
+      missingOptional,
+    });
+  }
+
+  return {
+    canSync: missingRequired.length === 0,
+    missingRequired,
+    missingOptional,
+  };
+}
+
+/**
+ * Check if the bot can access a specific channel.
+ */
+function canAccessChannel(guild: Guild, channelId: string): boolean {
+  const channel = guild.channels.cache.get(channelId);
+  if (!channel) return false;
+
+  const me = guild.members.me;
+  if (!me) return false;
+
+  // Check if bot can view the channel
+  const permissions = channel.permissionsFor(me);
+  return permissions?.has(PermissionFlagsBits.ViewChannel) ?? false;
+}
+
+// ============================================================================
+// MESSAGE TYPE MAPPING
+// ============================================================================
 
 // Map Discord message types to string identifiers for system messages
 function getSystemMessageType(type: MessageType): string | null {
@@ -49,18 +156,47 @@ function getSystemMessageType(type: MessageType): string | null {
 export async function queueInitialSync(guild: Guild): Promise<void> {
   const db = getDb();
 
+  // Check permissions before starting sync
+  const permCheck = checkBotPermissions(guild);
+  if (!permCheck.canSync) {
+    logger.error(`Cannot start sync: missing required permissions`, {
+      guildId: guild.id,
+      guildName: guild.name,
+      missingRequired: permCheck.missingRequired,
+    });
+
+    // Create a failed sync log entry
+    await createSyncLog(db, {
+      serverId: guild.id,
+      type: "initial",
+      status: "failed",
+      itemsSynced: 0,
+      errorMessage: `Missing required permissions: ${permCheck.missingRequired.join(", ")}`,
+    });
+
+    throw new Error(
+      `Cannot sync guild "${guild.name}": missing required permissions: ${permCheck.missingRequired.join(", ")}`
+    );
+  }
+
   // Create sync log entry
   const syncLogEntry = await createSyncLog(db, {
     serverId: guild.id,
     type: "initial",
     status: "started",
     itemsSynced: 0,
+    metadata: {
+      missingOptionalPermissions: permCheck.missingOptional,
+    },
   });
 
   let itemsSynced = 0;
 
   try {
-    logger.info(`Starting initial sync for guild: ${guild.name}`, { guildId: guild.id });
+    logger.info(`Starting initial sync for guild: ${guild.name}`, {
+      guildId: guild.id,
+      missingOptionalPermissions: permCheck.missingOptional,
+    });
 
     // Update server record
     await upsertServer(db, {

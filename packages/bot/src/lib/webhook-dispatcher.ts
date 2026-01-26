@@ -8,6 +8,7 @@ import {
   incrementWebhookFailureCount,
   resetWebhookFailureCount,
   disableWebhook,
+  createWebhookDeadLetter,
 } from "@discolink/db";
 
 export type WebhookEvent =
@@ -31,6 +32,7 @@ export interface WebhookPayload {
 
 const MAX_RETRIES = 5;
 const RETRY_DELAYS = [1000, 2000, 4000, 8000, 16000]; // Exponential backoff
+const WEBHOOK_TIMEOUT_MS = 30000; // 30 second timeout for webhook requests
 
 function generateSignature(payload: string, secret: string): string {
   return createHmac("sha256", secret).update(payload).digest("hex");
@@ -41,9 +43,13 @@ async function sendWebhookRequest(
   payload: WebhookPayload,
   secret: string,
   attempt: number = 1
-): Promise<{ success: boolean; statusCode?: number }> {
+): Promise<{ success: boolean; statusCode?: number; error?: string }> {
   const payloadStr = JSON.stringify(payload);
   const signature = generateSignature(payloadStr, secret);
+
+  // Create AbortController for timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), WEBHOOK_TIMEOUT_MS);
 
   try {
     const response = await fetch(url, {
@@ -55,6 +61,7 @@ async function sendWebhookRequest(
         "X-DiscoLink-Delivery": `${Date.now()}-${attempt}`,
       },
       body: payloadStr,
+      signal: controller.signal,
     });
 
     return {
@@ -62,8 +69,18 @@ async function sendWebhookRequest(
       statusCode: response.status,
     };
   } catch (error) {
-    logger.error(`Webhook request failed: ${error}`);
-    return { success: false };
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    // Check if it was a timeout
+    if (error instanceof Error && error.name === "AbortError") {
+      logger.warn(`Webhook request timed out after ${WEBHOOK_TIMEOUT_MS}ms: ${url}`);
+      return { success: false, error: `Timeout after ${WEBHOOK_TIMEOUT_MS}ms` };
+    }
+
+    logger.error(`Webhook request failed: ${errorMessage}`);
+    return { success: false, error: errorMessage };
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
@@ -127,6 +144,23 @@ async function dispatchToWebhook(
     responseCode: lastStatusCode,
     attemptCount: MAX_RETRIES,
   });
+
+  // Add to dead letter queue for later manual replay
+  try {
+    await createWebhookDeadLetter(db, {
+      webhookId,
+      event: payload.event,
+      payload: JSON.stringify(payload),
+      lastError: `Failed after ${MAX_RETRIES} attempts`,
+      lastStatusCode,
+      attemptCount: MAX_RETRIES,
+    });
+    logger.info(
+      `Webhook delivery added to dead letter queue: ${webhookId} event=${payload.event}`
+    );
+  } catch (deadLetterError) {
+    logger.error(`Failed to create dead letter entry: ${deadLetterError}`);
+  }
 
   // Increment failure count
   const webhook = await incrementWebhookFailureCount(db, webhookId);

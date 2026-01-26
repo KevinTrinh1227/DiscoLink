@@ -2,12 +2,72 @@ import { Command } from "commander";
 import ora from "ora";
 import chalk from "chalk";
 import { resolve, join } from "path";
-import { mkdir, writeFile, rm } from "fs/promises";
+import { mkdir, writeFile, rm, readdir, access, constants } from "fs/promises";
 import { existsSync } from "fs";
+import { homedir } from "os";
 import { ApiClient } from "../lib/api-client.js";
 import { generateHtml } from "../lib/generators/html.js";
 import { generateSitemap } from "../lib/generators/sitemap.js";
 import { generateRss } from "../lib/generators/rss.js";
+
+/**
+ * Safely clean a directory with multiple safeguards to prevent accidental data loss.
+ *
+ * Safeguards:
+ * 1. Prevents cleaning directories outside the current working directory
+ * 2. Prevents cleaning root (/) or home directory
+ * 3. Requires directory to be under cwd
+ * 4. Logs what will be cleaned
+ */
+async function safeClean(dir: string): Promise<void> {
+  const resolved = resolve(dir);
+  const cwd = process.cwd();
+  const home = homedir();
+
+  // SECURITY: Prevent cleaning parent directories or directories outside project
+  if (!resolved.startsWith(cwd + "/") && resolved !== cwd) {
+    throw new Error(
+      `Security: Cannot clean directory outside current working directory.\n` +
+      `  Requested: ${resolved}\n` +
+      `  CWD: ${cwd}`
+    );
+  }
+
+  // SECURITY: Prevent cleaning root or home directory
+  if (resolved === "/" || resolved === home) {
+    throw new Error(
+      `Security: Cannot clean root or home directory.\n` +
+      `  Requested: ${resolved}`
+    );
+  }
+
+  // SECURITY: Prevent cleaning if path has suspicious patterns
+  const suspiciousPatterns = ["..", "~", "$", "`", ";", "|", "&"];
+  for (const pattern of suspiciousPatterns) {
+    if (dir.includes(pattern)) {
+      throw new Error(
+        `Security: Directory path contains suspicious pattern "${pattern}".\n` +
+        `  Requested: ${dir}`
+      );
+    }
+  }
+
+  // Check if directory exists and count files
+  try {
+    await access(resolved, constants.F_OK);
+    const files = await readdir(resolved);
+    if (files.length > 0) {
+      console.log(
+        chalk.yellow(`Cleaning ${files.length} items from ${resolved}`)
+      );
+    }
+  } catch {
+    // Directory doesn't exist, nothing to clean
+    return;
+  }
+
+  await rm(resolved, { recursive: true });
+}
 
 interface ExportOptions {
   server?: string;
@@ -18,6 +78,115 @@ interface ExportOptions {
   baseUrl?: string;
   apiUrl: string;
   clean: boolean;
+}
+
+/**
+ * Validate Discord snowflake ID format.
+ * Discord IDs are 17-20 digit numbers.
+ */
+function isValidSnowflake(id: string): boolean {
+  return /^\d{17,20}$/.test(id);
+}
+
+/**
+ * Run preflight checks before starting export.
+ * Validates connectivity, permissions, and resources to fail fast
+ * with clear error messages.
+ */
+async function runPreflightChecks(
+  client: ApiClient,
+  options: ExportOptions,
+  spinner: ReturnType<typeof ora>
+): Promise<void> {
+  // 1. Validate ID formats
+  if (options.server && !isValidSnowflake(options.server)) {
+    throw new Error(
+      `Invalid server ID format: "${options.server}"\n` +
+      `Discord server IDs are 17-20 digit numbers (e.g., 1234567890123456789)`
+    );
+  }
+
+  if (options.thread && !isValidSnowflake(options.thread)) {
+    throw new Error(
+      `Invalid thread ID format: "${options.thread}"\n` +
+      `Discord thread IDs are 17-20 digit numbers (e.g., 1234567890123456789)`
+    );
+  }
+
+  if (options.channel && !isValidSnowflake(options.channel)) {
+    throw new Error(
+      `Invalid channel ID format: "${options.channel}"\n` +
+      `Discord channel IDs are 17-20 digit numbers (e.g., 1234567890123456789)`
+    );
+  }
+
+  // 2. Check API connectivity
+  spinner.text = "Checking API connectivity...";
+  const isHealthy = await client.checkHealth();
+  if (!isHealthy) {
+    throw new Error(
+      `Cannot connect to DiscoLink API at ${options.apiUrl}\n\n` +
+      `Troubleshooting:\n` +
+      `  1. Verify the API is running: curl ${options.apiUrl}/health\n` +
+      `  2. Check the API URL is correct (use --api-url to override)\n` +
+      `  3. Ensure no firewall is blocking the connection`
+    );
+  }
+
+  // 3. Validate the server/thread exists (early failure)
+  if (options.server) {
+    spinner.text = "Validating server access...";
+    try {
+      await client.getServer(options.server);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes("404")) {
+        throw new Error(
+          `Server not found: ${options.server}\n\n` +
+          `The server may not be synced yet. Make sure:\n` +
+          `  1. The DiscoLink bot is in your Discord server\n` +
+          `  2. Initial sync has completed\n` +
+          `  3. The server ID is correct`
+        );
+      }
+      throw new Error(`Failed to access server: ${message}`);
+    }
+  }
+
+  if (options.thread) {
+    spinner.text = "Validating thread access...";
+    try {
+      await client.getThread(options.thread);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes("404")) {
+        throw new Error(
+          `Thread not found: ${options.thread}\n\n` +
+          `The thread may not be synced yet. Make sure:\n` +
+          `  1. The thread exists and is not deleted\n` +
+          `  2. The thread has been synced by DiscoLink bot\n` +
+          `  3. The thread ID is correct`
+        );
+      }
+      throw new Error(`Failed to access thread: ${message}`);
+    }
+  }
+
+  // 4. Check output directory writability
+  spinner.text = "Checking output directory...";
+  const outputDir = resolve(options.output);
+  const parentDir = resolve(outputDir, "..");
+
+  try {
+    // Check parent directory exists and is writable
+    await access(parentDir, constants.W_OK);
+  } catch {
+    throw new Error(
+      `Cannot write to output directory: ${outputDir}\n\n` +
+      `The parent directory "${parentDir}" is not writable.\n` +
+      `Check directory permissions or use a different --output path.`
+    );
+  }
 }
 
 export const exportCommand = new Command("export")
@@ -43,10 +212,13 @@ export const exportCommand = new Command("export")
       const outputDir = resolve(options.output);
       const client = new ApiClient(options.apiUrl);
 
+      // Run preflight checks
+      await runPreflightChecks(client, options, spinner);
+
       // Clean output directory if requested
       if (options.clean && existsSync(outputDir)) {
         spinner.text = "Cleaning output directory...";
-        await rm(outputDir, { recursive: true });
+        await safeClean(outputDir);
       }
 
       // Create output directory

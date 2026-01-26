@@ -70,9 +70,21 @@ discolink/
 
 ### Prerequisites
 
-- Node.js 20+
-- pnpm 9+
-- Discord Application ([setup guide](https://discolink.pages.dev/docs/guides))
+- **Node.js 20+** (check with `node -v`)
+- **pnpm 9+** (install with `npm install -g pnpm`)
+- **Discord Application** with Bot Token ([setup guide](https://discolink.pages.dev/docs/guides))
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DISCORD_TOKEN` | Yes | Discord bot token |
+| `DISCORD_CLIENT_ID` | Yes | Discord application client ID |
+| `DISCORD_CLIENT_SECRET` | Yes | Discord OAuth2 client secret |
+| `DATABASE_URL` | No | Database connection URL (default: SQLite) |
+| `JWT_SECRET` | Yes | Secret for JWT token signing |
+| `CORS_ORIGINS` | No | Allowed CORS origins (comma-separated) |
+| `TRUSTED_PROXY` | No | Set `true` if behind a reverse proxy |
 
 ### Installation
 
@@ -167,6 +179,37 @@ pnpm dev
 | `pnpm db:push` | Push schema changes |
 | `pnpm db:studio` | Open Drizzle Studio |
 | `pnpm docs:dev` | Run docs locally |
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| **Bot not responding** | Check `DISCORD_TOKEN` is correct and bot has proper intents enabled |
+| **API returning 401** | Verify `JWT_SECRET` matches between API and clients |
+| **Database errors** | Run `pnpm db:push` to sync schema changes |
+| **CORS errors** | Add your domain to `CORS_ORIGINS` environment variable |
+| **Rate limiting not working** | Set `TRUSTED_PROXY=true` if behind nginx/Cloudflare |
+| **Template build fails** | Ensure `DISCOLINK_SERVER_ID` is set in your `.env` file |
+| **Webhook delivery failing** | Check webhook URL is accessible and returns 2xx status |
+
+### Bot Permissions
+
+The DiscoLink bot requires these Discord permissions:
+
+- **View Channels** (required) - To see channel structure
+- **Read Message History** (required) - To sync existing messages
+- **Send Messages** (optional) - For bot responses
+
+If sync is failing silently, check that your bot has permissions in the channels you want to sync.
+
+### Getting Help
+
+- Check the [documentation](https://discolink.pages.dev/docs)
+- Open an issue on [GitHub](https://github.com/KevinTrinh1227/discolink/issues)
 
 ---
 

@@ -1,17 +1,33 @@
 import { Hono } from "hono";
+import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { getDb, upsertUser, getUserById, updateUserConsent } from "@discolink/db";
 import { getOAuthUrl, exchangeCode, getUser } from "../lib/discord.js";
 import { signJwt } from "../lib/jwt.js";
 import { requireAuth } from "../middleware/auth.js";
+import { getConfig } from "../config.js";
 
 const app = new Hono();
 
+// OAuth state cookie settings
+const STATE_COOKIE_NAME = "oauth_state";
+const STATE_COOKIE_MAX_AGE = 600; // 10 minutes
+
 // GET /auth/discord - Start OAuth flow
 app.get("/discord", (c) => {
-  // Generate state for CSRF protection
+  // Generate cryptographically secure state for CSRF protection
   const state = crypto.randomUUID();
+  const config = getConfig();
+  const isProduction = config.NODE_ENV === "production";
 
-  // In production, store state in session/cookie
+  // Store state in secure httpOnly cookie
+  setCookie(c, STATE_COOKIE_NAME, state, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "Lax",
+    maxAge: STATE_COOKIE_MAX_AGE,
+    path: "/",
+  });
+
   const url = getOAuthUrl(state);
 
   return c.redirect(url);
@@ -20,18 +36,35 @@ app.get("/discord", (c) => {
 // GET /auth/discord/callback - OAuth callback
 app.get("/discord/callback", async (c) => {
   const code = c.req.query("code");
-  // TODO: verify CSRF state from c.req.query("state")
+  const state = c.req.query("state");
   const error = c.req.query("error");
 
   if (error) {
+    deleteCookie(c, STATE_COOKIE_NAME);
     return c.json({ error: `OAuth error: ${error}`, code: "OAUTH_ERROR" }, 400);
   }
 
   if (!code) {
+    deleteCookie(c, STATE_COOKIE_NAME);
     return c.json({ error: "Missing authorization code", code: "BAD_REQUEST" }, 400);
   }
 
-  // In production, verify state matches stored state
+  // Verify CSRF state - CRITICAL SECURITY CHECK
+  const storedState = getCookie(c, STATE_COOKIE_NAME);
+  deleteCookie(c, STATE_COOKIE_NAME); // Always delete the state cookie after use
+
+  if (!state || !storedState || state !== storedState) {
+    console.error("OAuth CSRF validation failed", {
+      hasState: !!state,
+      hasStoredState: !!storedState,
+      match: state === storedState,
+    });
+    return c.json(
+      { error: "Invalid or expired OAuth state. Please try again.", code: "CSRF_ERROR" },
+      400
+    );
+  }
+
   try {
     // Exchange code for tokens
     const tokens = await exchangeCode(code);
