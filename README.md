@@ -1,11 +1,15 @@
 <p align="center">
-  <img src="packages/docs/public/favicon.svg" alt="DiscoLink" width="80">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="packages/docs/public/favicon.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="packages/docs/public/favicon.svg" />
+    <img src="packages/docs/public/favicon.svg" alt="DiscoLink" width="80" />
+  </picture>
 </p>
 
 <h1 align="center">DiscoLink</h1>
 
 <p align="center">
-  <b>Your Discord content, anywhere you need it. Entirely free and open source.</b>
+  <b>Turn your Discord forums into a database-backed API. Build FAQ pages, knowledge bases, changelogs, and blogs - entirely free and open source.</b>
 </p>
 
 <p align="center">
@@ -15,6 +19,13 @@
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License"></a>
 </p>
 
+<p align="center">
+  <a href="https://discolink.site/getting-started/quick-start">Quick Start</a> -
+  <a href="https://discolink.site/api/overview">API Reference</a> -
+  <a href="https://demo.discolink.site">Live Demo</a> -
+  <a href="https://discolink.site/contributing/development-setup">Contributing</a>
+</p>
+
 ---
 
 ## What is DiscoLink?
@@ -22,7 +33,7 @@
 DiscoLink syncs your Discord forums and channels to a database you control. Build FAQ pages, knowledge bases, changelogs, or blogs from your Discord content.
 
 ```
-Discord → Bot syncs content → Database → REST API / Static Export → Your Website
+Discord --> Bot syncs content --> Database --> REST API / Static Export --> Your Website
 ```
 
 **Use it for:**
@@ -56,6 +67,8 @@ While there are other amazing tools out there that sync Discord content, DiscoLi
 - **REST API** - Full API with endpoints for servers, channels, threads, messages, and users
 - **Static Export** - Export to static HTML with the CLI, deploy anywhere
 - **Official Templates** - Ready-to-use Astro templates for FAQ, KB, Changelog, and Blog
+- **Webhooks** - Real-time event delivery with HMAC signing, retries, and dead letter queues
+- **Polls & Events** - Sync Discord polls, scheduled events, and Nitro boost data
 - **Edge Deployment** - Deploy to Cloudflare Workers with Turso, or self-host with SQLite
 - **Privacy Controls** - Consent-based syncing, self-hosted, no tracking
 

@@ -147,7 +147,7 @@ app.get("/:serverId/atom", async (c) => {
   <id>${escapeXml(`${baseUrl}/feeds/${serverId}/atom`)}</id>
   <updated>${updatedAt.toISOString()}</updated>
   <subtitle>${escapeXml(server.description ?? `Threads from ${server.name}`)}</subtitle>
-  <generator uri="https://discolink.dev">DiscoLink</generator>
+  <generator uri="https://discolink.site">DiscoLink</generator>
 ${threadList
   .map((row) => {
     const thread = row.threads;

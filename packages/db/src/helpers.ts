@@ -720,7 +720,18 @@ export async function getPendingWebhookDeliveries(db: AnyDb) {
 // WEBHOOK DEAD LETTER HELPERS
 // ============================================================================
 
-import { webhookDeadLetters, type NewWebhookDeadLetter } from "./schema.js";
+import {
+  webhookDeadLetters,
+  type NewWebhookDeadLetter,
+  polls,
+  pollAnswers,
+  pollVotes,
+  scheduledEvents,
+  type NewPoll,
+  type NewPollAnswer,
+  type NewPollVote,
+  type NewScheduledEvent,
+} from "./schema.js";
 
 export async function createWebhookDeadLetter(db: AnyDb, data: NewWebhookDeadLetter) {
   const [inserted] = await db.insert(webhookDeadLetters).values(data).returning();
@@ -771,4 +782,128 @@ export async function deleteOldDeadLetters(db: AnyDb, olderThanDays = 30) {
         sql`${webhookDeadLetters.replayedAt} IS NOT NULL`
       )
     );
+}
+
+// ============================================================================
+// POLL HELPERS
+// ============================================================================
+export async function upsertPoll(db: AnyDb, data: NewPoll) {
+  const existing = await db.select().from(polls).where(eq(polls.id, data.id)).limit(1);
+
+  if (existing.length > 0) {
+    await db
+      .update(polls)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(polls.id, data.id));
+    return { ...existing[0], ...data };
+  }
+
+  const [inserted] = await db.insert(polls).values(data).returning();
+  return inserted;
+}
+
+export async function getPollByMessageId(db: AnyDb, messageId: string) {
+  const [poll] = await db.select().from(polls).where(eq(polls.messageId, messageId)).limit(1);
+  return poll;
+}
+
+export async function upsertPollAnswer(db: AnyDb, data: NewPollAnswer) {
+  const existing = await db
+    .select()
+    .from(pollAnswers)
+    .where(and(eq(pollAnswers.pollId, data.pollId), eq(pollAnswers.answerId, data.answerId)))
+    .limit(1);
+
+  if (existing.length > 0) {
+    await db
+      .update(pollAnswers)
+      .set(data)
+      .where(and(eq(pollAnswers.pollId, data.pollId), eq(pollAnswers.answerId, data.answerId)));
+    return { ...existing[0], ...data };
+  }
+
+  const [inserted] = await db.insert(pollAnswers).values(data).returning();
+  return inserted;
+}
+
+export async function getPollAnswers(db: AnyDb, pollId: string) {
+  return db.select().from(pollAnswers).where(eq(pollAnswers.pollId, pollId));
+}
+
+export async function addPollVote(db: AnyDb, data: NewPollVote) {
+  const existing = await db
+    .select()
+    .from(pollVotes)
+    .where(
+      and(
+        eq(pollVotes.pollId, data.pollId),
+        eq(pollVotes.answerId, data.answerId),
+        eq(pollVotes.userId, data.userId)
+      )
+    )
+    .limit(1);
+
+  if (existing.length > 0) return existing[0];
+
+  const [inserted] = await db.insert(pollVotes).values(data).returning();
+
+  // Increment vote count
+  await db
+    .update(pollAnswers)
+    .set({ voteCount: sql`${pollAnswers.voteCount} + 1` })
+    .where(and(eq(pollAnswers.pollId, data.pollId), eq(pollAnswers.answerId, data.answerId)));
+
+  return inserted;
+}
+
+export async function removePollVote(db: AnyDb, pollId: string, answerId: number, userId: string) {
+  await db
+    .delete(pollVotes)
+    .where(
+      and(
+        eq(pollVotes.pollId, pollId),
+        eq(pollVotes.answerId, answerId),
+        eq(pollVotes.userId, userId)
+      )
+    );
+
+  // Decrement vote count
+  await db
+    .update(pollAnswers)
+    .set({ voteCount: sql`MAX(0, ${pollAnswers.voteCount} - 1)` })
+    .where(and(eq(pollAnswers.pollId, pollId), eq(pollAnswers.answerId, answerId)));
+}
+
+// ============================================================================
+// SCHEDULED EVENT HELPERS
+// ============================================================================
+export async function upsertScheduledEvent(db: AnyDb, data: NewScheduledEvent) {
+  const existing = await db
+    .select()
+    .from(scheduledEvents)
+    .where(eq(scheduledEvents.id, data.id))
+    .limit(1);
+
+  if (existing.length > 0) {
+    await db
+      .update(scheduledEvents)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(scheduledEvents.id, data.id));
+    return { ...existing[0], ...data };
+  }
+
+  const [inserted] = await db.insert(scheduledEvents).values(data).returning();
+  return inserted;
+}
+
+export async function getScheduledEventsByServerId(db: AnyDb, serverId: string) {
+  return db
+    .select()
+    .from(scheduledEvents)
+    .where(eq(scheduledEvents.serverId, serverId))
+    .orderBy(asc(scheduledEvents.scheduledStartTime));
+}
+
+export async function deleteScheduledEvent(db: AnyDb, id: string) {
+  await db.delete(scheduledEvents).where(eq(scheduledEvents.id, id));
 }

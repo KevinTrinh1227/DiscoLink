@@ -5,9 +5,26 @@ interface CacheEntry {
   expires: number;
 }
 
+const MAX_CACHE_ENTRIES = 10000;
+
 // In-memory cache with TTL
 // Note: For production, consider using Redis or similar
 const cache = new Map<string, CacheEntry>();
+
+/**
+ * Evict oldest 20% of entries when cache exceeds max size.
+ */
+function evictIfNeeded(): void {
+  if (cache.size <= MAX_CACHE_ENTRIES) return;
+
+  const entriesToEvict = Math.ceil(cache.size * 0.2);
+  const sorted = [...cache.entries()].sort((a, b) => a[1].expires - b[1].expires);
+
+  for (let i = 0; i < entriesToEvict && i < sorted.length; i++) {
+    const entry = sorted[i];
+    if (entry) cache.delete(entry[0]);
+  }
+}
 
 // Cleanup interval (run every minute)
 let cleanupInterval: ReturnType<typeof setInterval> | null = null;
@@ -102,7 +119,10 @@ export function cacheMiddleware(
         data: responseData,
         expires: Date.now() + ttlSeconds * 1000,
       });
+      evictIfNeeded();
     }
+
+    c.header("X-Cache-Size", String(cache.size));
   };
 }
 

@@ -4,6 +4,7 @@ import { corsMiddleware } from "./middleware/cors.js";
 import { authMiddleware } from "./middleware/auth.js";
 import { rateLimitMiddleware } from "./middleware/ratelimit.js";
 import { errorHandler, notFound } from "./middleware/error.js";
+import { securityHeaders } from "./middleware/security.js";
 
 import healthRoutes from "./routes/health.js";
 import serverRoutes from "./routes/servers.js";
@@ -22,6 +23,7 @@ export function createApp(): Hono {
 
   // Global middleware
   app.use("*", logger());
+  app.use("*", securityHeaders);
   app.use("*", corsMiddleware());
   app.use("*", authMiddleware);
   app.use("*", rateLimitMiddleware);

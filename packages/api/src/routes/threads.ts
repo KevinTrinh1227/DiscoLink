@@ -18,6 +18,7 @@ import {
   inArray,
 } from "@discolink/db";
 import { filterThreadsByConsent, filterMessagesByConsent, type ConsentCheckContext } from "../lib/consent.js";
+import { safeParseJson } from "../lib/safe-json.js";
 
 const app = new Hono();
 
@@ -293,11 +294,11 @@ app.get("/:threadId", async (c) => {
           isAnimated: r.isAnimated,
           emojiUrl: r.emojiUrl,
         })),
-        embeds: m.embeds ? JSON.parse(m.embeds) : [],
-        stickers: m.stickers ? JSON.parse(m.stickers) : [],
-        mentionedUserIds: m.mentionedUserIds ? JSON.parse(m.mentionedUserIds) : [],
-        mentionedRoleIds: m.mentionedRoleIds ? JSON.parse(m.mentionedRoleIds) : [],
-        mentionedChannelIds: m.mentionedChannelIds ? JSON.parse(m.mentionedChannelIds) : [],
+        embeds: safeParseJson(m.embeds, []),
+        stickers: safeParseJson(m.stickers, []),
+        mentionedUserIds: safeParseJson(m.mentionedUserIds, []),
+        mentionedRoleIds: safeParseJson(m.mentionedRoleIds, []),
+        mentionedChannelIds: safeParseJson(m.mentionedChannelIds, []),
       };
     }),
   });

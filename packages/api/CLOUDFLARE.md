@@ -101,7 +101,7 @@ For self-hosted setups, you can use a single SQLite/Turso database shared betwee
 
 Add a custom domain in the Cloudflare dashboard:
 1. Go to Workers & Pages > your worker > Settings > Domains & Routes
-2. Add a custom domain (e.g., `api.discolink.dev`)
+2. Add a custom domain (e.g., `api.discolink.site`)
 
 ## Monitoring
 

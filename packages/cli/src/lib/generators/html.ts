@@ -325,7 +325,7 @@ ${thread.messages.map((msg) => generateMessageHtml(msg)).join("\n")}
     </main>
 
     <footer>
-      <p>Powered by <a href="https://discolink.dev">DiscoLink</a></p>
+      <p>Powered by <a href="https://discolink.site">DiscoLink</a></p>
       <p>Last updated: ${formatDate(thread.lastActivityAt)}</p>
     </footer>
   </div>

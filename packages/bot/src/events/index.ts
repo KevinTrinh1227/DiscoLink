@@ -1,6 +1,6 @@
 import { type Client, Events } from "discord.js";
 import { handleReady } from "./ready.js";
-import { handleGuildCreate, handleGuildDelete } from "./guild.js";
+import { handleGuildCreate, handleGuildDelete, handleGuildMemberUpdate } from "./guild.js";
 import { handleInteractionCreate } from "./interaction.js";
 import {
   handleMessageCreate,
@@ -18,6 +18,11 @@ import {
   handleThreadUpdate,
   handleThreadDelete,
 } from "./thread.js";
+import {
+  handleScheduledEventCreate,
+  handleScheduledEventUpdate,
+  handleScheduledEventDelete,
+} from "./scheduledEvent.js";
 
 export function registerEvents(client: Client): void {
   // Ready event
@@ -26,6 +31,7 @@ export function registerEvents(client: Client): void {
   // Guild events
   client.on(Events.GuildCreate, handleGuildCreate);
   client.on(Events.GuildDelete, handleGuildDelete);
+  client.on(Events.GuildMemberUpdate, handleGuildMemberUpdate);
 
   // Interaction events (slash commands)
   client.on(Events.InteractionCreate, handleInteractionCreate);
@@ -45,4 +51,9 @@ export function registerEvents(client: Client): void {
   client.on(Events.ThreadCreate, handleThreadCreate);
   client.on(Events.ThreadUpdate, handleThreadUpdate);
   client.on(Events.ThreadDelete, handleThreadDelete);
+
+  // Scheduled event events
+  client.on(Events.GuildScheduledEventCreate, handleScheduledEventCreate);
+  client.on(Events.GuildScheduledEventUpdate, handleScheduledEventUpdate);
+  client.on(Events.GuildScheduledEventDelete, handleScheduledEventDelete);
 }
