@@ -86,6 +86,17 @@ export {
   getUnreplayedDeadLetters,
   markDeadLetterReplayed,
   deleteOldDeadLetters,
+  // Poll helpers
+  upsertPoll,
+  getPollByMessageId,
+  upsertPollAnswer,
+  getPollAnswers,
+  addPollVote,
+  removePollVote,
+  // Scheduled event helpers
+  upsertScheduledEvent,
+  getScheduledEventsByServerId,
+  deleteScheduledEvent,
 } from "./helpers.js";
 
 // Re-export drizzle utilities for convenience

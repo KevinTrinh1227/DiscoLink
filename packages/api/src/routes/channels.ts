@@ -18,6 +18,7 @@ import {
   inArray,
 } from "@discolink/db";
 import { filterThreadsByConsent, filterMessagesByConsent, type ConsentCheckContext } from "../lib/consent.js";
+import { safeParseJson } from "../lib/safe-json.js";
 
 const app = new Hono();
 
@@ -345,7 +346,7 @@ app.get("/:channelId/messages", async (c) => {
           count: r.count,
           isCustom: r.isCustom,
         })),
-        embeds: m.embeds ? JSON.parse(m.embeds) : [],
+        embeds: safeParseJson(m.embeds, []),
       };
     }),
     pagination: {

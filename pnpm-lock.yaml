@@ -35,7 +35,7 @@ importers:
 
   packages/api:
     dependencies:
-      '@discordlink/db':
+      '@discolink/db':
         specifier: workspace:*
         version: link:../db
       '@hono/node-server':
@@ -72,7 +72,7 @@ importers:
 
   packages/bot:
     dependencies:
-      '@discordlink/db':
+      '@discolink/db':
         specifier: workspace:*
         version: link:../db
       discord.js:
@@ -157,6 +157,15 @@ importers:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@20.19.30)
 
+  packages/demo:
+    dependencies:
+      '@astrojs/sitemap':
+        specifier: ^3.2.0
+        version: 3.7.0
+      astro:
+        specifier: ^5.0.0
+        version: 5.16.15(@types/node@20.19.30)(rollup@4.56.0)(tsx@4.21.0)(typescript@5.9.3)
+
   packages/docs:
     dependencies:
       '@astrojs/starlight':
@@ -192,16 +201,6 @@ importers:
       astro:
         specifier: ^5.0.0
         version: 5.16.15(@types/node@20.19.30)(rollup@4.56.0)(tsx@4.21.0)(typescript@5.9.3)
-
-  packages/www:
-    dependencies:
-      astro:
-        specifier: ^5.0.0
-        version: 5.16.15(@types/node@20.19.30)(rollup@4.56.0)(tsx@4.21.0)(typescript@5.9.3)
-    devDependencies:
-      wrangler:
-        specifier: ^3.99.0
-        version: 3.114.17(@cloudflare/workers-types@4.20260124.0)
 
 packages:
 

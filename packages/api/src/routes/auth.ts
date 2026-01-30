@@ -1,10 +1,15 @@
 import { Hono } from "hono";
+import { z } from "zod";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { getDb, upsertUser, getUserById, updateUserConsent } from "@discolink/db";
 import { getOAuthUrl, exchangeCode, getUser } from "../lib/discord.js";
 import { signJwt } from "../lib/jwt.js";
 import { requireAuth } from "../middleware/auth.js";
 import { getConfig } from "../config.js";
+
+const consentSchema = z.object({
+  level: z.enum(["public", "anonymous", "private"]),
+});
 
 const app = new Hono();
 
@@ -151,13 +156,22 @@ app.put("/me/consent", requireAuth, async (c) => {
   const user = c.get("user")!;
   const db = getDb();
 
-  const body = await c.req.json();
-  const level = body.level;
-
-  if (!["public", "anonymous", "private"].includes(level)) {
-    return c.json({ error: "Invalid consent level", code: "VALIDATION_ERROR" }, 400);
+  let body: unknown;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: "Invalid JSON body", code: "VALIDATION_ERROR" }, 400);
   }
 
+  const result = consentSchema.safeParse(body);
+  if (!result.success) {
+    return c.json(
+      { error: "Invalid consent level", code: "VALIDATION_ERROR", details: result.error.errors },
+      400
+    );
+  }
+
+  const { level } = result.data;
   await updateUserConsent(db, user.sub, level);
 
   return c.json({

@@ -254,6 +254,8 @@ export const messages = sqliteTable(
     index("messages_reply_to_idx").on(table.replyToId),
     index("messages_server_date_idx").on(table.serverId, table.createdAt),
     index("messages_thread_date_idx").on(table.threadId, table.createdAt),
+    index("messages_server_deleted_idx").on(table.serverId, table.deletedAt),
+    index("messages_author_server_idx").on(table.authorId, table.serverId),
   ]
 );
 
@@ -474,6 +476,117 @@ export const webhookDeliveries = sqliteTable(
 );
 
 // ============================================================================
+// POLLS
+// ============================================================================
+export const polls = sqliteTable(
+  "polls",
+  {
+    id: text("id").primaryKey(), // Discord snowflake (message ID)
+    messageId: text("message_id")
+      .notNull()
+      .references(() => messages.id, { onDelete: "cascade" }),
+    serverId: text("server_id")
+      .notNull()
+      .references(() => servers.id, { onDelete: "cascade" }),
+    question: text("question").notNull(),
+    allowMultiselect: integer("allow_multiselect", { mode: "boolean" }).default(false),
+    expiresAt: integer("expires_at", { mode: "timestamp" }),
+    isFinalized: integer("is_finalized", { mode: "boolean" }).default(false),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [
+    index("polls_message_id_idx").on(table.messageId),
+    index("polls_server_id_idx").on(table.serverId),
+  ]
+);
+
+// ============================================================================
+// POLL ANSWERS
+// ============================================================================
+export const pollAnswers = sqliteTable(
+  "poll_answers",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    pollId: text("poll_id")
+      .notNull()
+      .references(() => polls.id, { onDelete: "cascade" }),
+    answerId: integer("answer_id").notNull(), // Discord poll answer ID
+    text: text("text").notNull(),
+    emoji: text("emoji"), // Emoji for the answer option
+    voteCount: integer("vote_count").default(0),
+  },
+  (table) => [
+    index("poll_answers_poll_id_idx").on(table.pollId),
+    uniqueIndex("poll_answers_unique_idx").on(table.pollId, table.answerId),
+  ]
+);
+
+// ============================================================================
+// POLL VOTES
+// ============================================================================
+export const pollVotes = sqliteTable(
+  "poll_votes",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    pollId: text("poll_id")
+      .notNull()
+      .references(() => polls.id, { onDelete: "cascade" }),
+    answerId: integer("answer_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id),
+    votedAt: integer("voted_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [
+    index("poll_votes_poll_id_idx").on(table.pollId),
+    index("poll_votes_user_id_idx").on(table.userId),
+    uniqueIndex("poll_votes_unique_idx").on(table.pollId, table.answerId, table.userId),
+  ]
+);
+
+// ============================================================================
+// SCHEDULED EVENTS
+// ============================================================================
+export const scheduledEvents = sqliteTable(
+  "scheduled_events",
+  {
+    id: text("id").primaryKey(), // Discord snowflake
+    serverId: text("server_id")
+      .notNull()
+      .references(() => servers.id, { onDelete: "cascade" }),
+    creatorId: text("creator_id").references(() => users.id),
+    name: text("name").notNull(),
+    description: text("description"),
+    scheduledStartTime: integer("scheduled_start_time", { mode: "timestamp" }).notNull(),
+    scheduledEndTime: integer("scheduled_end_time", { mode: "timestamp" }),
+    entityType: integer("entity_type").notNull(), // 1=stage, 2=voice, 3=external
+    status: integer("status").notNull(), // 1=scheduled, 2=active, 3=completed, 4=canceled
+    channelId: text("channel_id"),
+    location: text("location"), // For external events
+    userCount: integer("user_count").default(0),
+    image: text("image"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [
+    index("scheduled_events_server_id_idx").on(table.serverId),
+    index("scheduled_events_status_idx").on(table.status),
+    index("scheduled_events_start_time_idx").on(table.scheduledStartTime),
+  ]
+);
+
+// ============================================================================
 // WEBHOOK DEAD LETTERS (Failed deliveries for manual replay)
 // ============================================================================
 export const webhookDeadLetters = sqliteTable(
@@ -678,6 +791,48 @@ export const webhookDeliveriesRelations = relations(webhookDeliveries, ({ one })
   }),
 }));
 
+export const pollsRelations = relations(polls, ({ one, many }) => ({
+  message: one(messages, {
+    fields: [polls.messageId],
+    references: [messages.id],
+  }),
+  server: one(servers, {
+    fields: [polls.serverId],
+    references: [servers.id],
+  }),
+  answers: many(pollAnswers),
+  votes: many(pollVotes),
+}));
+
+export const pollAnswersRelations = relations(pollAnswers, ({ one }) => ({
+  poll: one(polls, {
+    fields: [pollAnswers.pollId],
+    references: [polls.id],
+  }),
+}));
+
+export const pollVotesRelations = relations(pollVotes, ({ one }) => ({
+  poll: one(polls, {
+    fields: [pollVotes.pollId],
+    references: [polls.id],
+  }),
+  user: one(users, {
+    fields: [pollVotes.userId],
+    references: [users.id],
+  }),
+}));
+
+export const scheduledEventsRelations = relations(scheduledEvents, ({ one }) => ({
+  server: one(servers, {
+    fields: [scheduledEvents.serverId],
+    references: [servers.id],
+  }),
+  creator: one(users, {
+    fields: [scheduledEvents.creatorId],
+    references: [users.id],
+  }),
+}));
+
 // ============================================================================
 // TYPE EXPORTS
 // ============================================================================
@@ -715,3 +870,11 @@ export type WebhookDelivery = typeof webhookDeliveries.$inferSelect;
 export type NewWebhookDelivery = typeof webhookDeliveries.$inferInsert;
 export type WebhookDeadLetter = typeof webhookDeadLetters.$inferSelect;
 export type NewWebhookDeadLetter = typeof webhookDeadLetters.$inferInsert;
+export type Poll = typeof polls.$inferSelect;
+export type NewPoll = typeof polls.$inferInsert;
+export type PollAnswer = typeof pollAnswers.$inferSelect;
+export type NewPollAnswer = typeof pollAnswers.$inferInsert;
+export type PollVote = typeof pollVotes.$inferSelect;
+export type NewPollVote = typeof pollVotes.$inferInsert;
+export type ScheduledEvent = typeof scheduledEvents.$inferSelect;
+export type NewScheduledEvent = typeof scheduledEvents.$inferInsert;

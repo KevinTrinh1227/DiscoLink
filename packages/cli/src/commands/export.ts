@@ -270,14 +270,14 @@ export const exportCommand = new Command("export")
         // Generate sitemap
         spinner.text = "Generating sitemap...";
         const sitemap = generateSitemap(threads, {
-          baseUrl: options.baseUrl ?? `https://${server.name.toLowerCase().replace(/\s+/g, "-")}.discolink.dev`,
+          baseUrl: options.baseUrl ?? `https://${server.name.toLowerCase().replace(/\s+/g, "-")}.discolink.site`,
         });
         await writeFile(join(outputDir, "sitemap.xml"), sitemap);
 
         // Generate RSS feed
         spinner.text = "Generating RSS feed...";
         const rss = generateRss(threads, {
-          baseUrl: options.baseUrl ?? `https://${server.name.toLowerCase().replace(/\s+/g, "-")}.discolink.dev`,
+          baseUrl: options.baseUrl ?? `https://${server.name.toLowerCase().replace(/\s+/g, "-")}.discolink.site`,
           server,
         });
         await writeFile(join(outputDir, "feed.xml"), rss);
@@ -425,7 +425,7 @@ ${threads
     </main>
 
     <footer>
-      <p>Powered by <a href="https://discolink.dev">DiscoLink</a></p>
+      <p>Powered by <a href="https://discolink.site">DiscoLink</a></p>
     </footer>
   </div>
 </body>

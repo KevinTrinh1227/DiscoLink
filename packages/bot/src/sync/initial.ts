@@ -20,6 +20,7 @@ import {
 import { logger } from "../logger.js";
 import { getConfig } from "../config.js";
 import { parseDiscordMarkdown } from "../lib/markdown.js";
+import { dispatchWebhookEvent } from "../lib/webhook-dispatcher.js";
 
 // ============================================================================
 // PERMISSION CHECKS
@@ -298,6 +299,14 @@ export async function queueInitialSync(guild: Guild): Promise<void> {
 
     logger.info(`Initial sync completed for guild: ${guild.name}`, {
       guildId: guild.id,
+      itemsSynced,
+    });
+
+    // Dispatch sync.completed webhook event
+    await dispatchWebhookEvent(guild.id, "sync.completed", {
+      type: "initial",
+      guildId: guild.id,
+      guildName: guild.name,
       itemsSynced,
     });
   } catch (error) {

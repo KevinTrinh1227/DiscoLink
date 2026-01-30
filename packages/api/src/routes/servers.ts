@@ -9,9 +9,11 @@ import {
   reactions,
   users,
   threadParticipants,
+  scheduledEvents,
   eq,
   and,
   isNull,
+  sql,
 } from "@discolink/db";
 import { cacheMiddleware, serverCacheKey } from "../middleware/cache.js";
 
@@ -121,151 +123,124 @@ app.get("/:serverId/stats", async (c) => {
     return c.json({ error: "Server not found", code: "NOT_FOUND" }, 404);
   }
 
-  // Get thread counts using COUNT(*) for efficiency
-  const totalThreadsResult = await db
-    .select()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- DbClient union doesn't support .select({}) with custom fields
+  const qb = db as any;
+
+  // Thread counts - single query with CASE WHEN aggregation
+  const threadStatsRows: Array<{ total: number; open: number; resolved: number; archived: number }> = await qb
+    .select({
+      total: sql<number>`COUNT(*)`,
+      open: sql<number>`SUM(CASE WHEN ${threads.status} = 'open' THEN 1 ELSE 0 END)`,
+      resolved: sql<number>`SUM(CASE WHEN ${threads.status} = 'resolved' THEN 1 ELSE 0 END)`,
+      archived: sql<number>`SUM(CASE WHEN ${threads.isArchived} = 1 THEN 1 ELSE 0 END)`,
+    })
     .from(threads)
     .where(and(eq(threads.serverId, serverId), isNull(threads.deletedAt)));
-  const totalThreads = totalThreadsResult.length;
 
-  const openThreadsResult = await db
-    .select()
-    .from(threads)
-    .where(and(eq(threads.serverId, serverId), eq(threads.status, "open"), isNull(threads.deletedAt)));
-  const openThreads = openThreadsResult.length;
+  const ts = threadStatsRows[0];
+  const totalThreads = Number(ts?.total ?? 0);
+  const openThreads = Number(ts?.open ?? 0);
+  const resolvedThreads = Number(ts?.resolved ?? 0);
+  const archivedThreads = Number(ts?.archived ?? 0);
 
-  const resolvedThreadsResult = await db
-    .select()
-    .from(threads)
-    .where(and(eq(threads.serverId, serverId), eq(threads.status, "resolved"), isNull(threads.deletedAt)));
-  const resolvedThreads = resolvedThreadsResult.length;
-
-  const archivedThreadsResult = await db
-    .select()
-    .from(threads)
-    .where(and(eq(threads.serverId, serverId), eq(threads.isArchived, true), isNull(threads.deletedAt)));
-  const archivedThreads = archivedThreadsResult.length;
-
-  // Get message count
-  const totalMessagesResult = await db
-    .select()
+  // Message counts - single query with JOIN for human/bot split
+  const messageStatsRows: Array<{ total: number; byHumans: number; byBots: number }> = await qb
+    .select({
+      total: sql<number>`COUNT(*)`,
+      byHumans: sql<number>`SUM(CASE WHEN ${users.isBot} = 0 OR ${users.isBot} IS NULL THEN 1 ELSE 0 END)`,
+      byBots: sql<number>`SUM(CASE WHEN ${users.isBot} = 1 THEN 1 ELSE 0 END)`,
+    })
     .from(messages)
-    .where(and(eq(messages.serverId, serverId), isNull(messages.deletedAt)));
-  const totalMessages = totalMessagesResult.length;
-
-  // Get human vs bot message counts
-  const messagesByType = await db
-    .select()
-    .from(messages)
-    .innerJoin(users, eq(messages.authorId, users.id))
+    .leftJoin(users, eq(messages.authorId, users.id))
     .where(and(eq(messages.serverId, serverId), isNull(messages.deletedAt)));
 
-  const humanMessages = messagesByType.filter((r) => !r.users.isBot).length;
-  const botMessages = messagesByType.filter((r) => r.users.isBot).length;
+  const ms = messageStatsRows[0];
+  const totalMessages = Number(ms?.total ?? 0);
+  const humanMessages = Number(ms?.byHumans ?? 0);
+  const botMessages = Number(ms?.byBots ?? 0);
 
-  // Get channel count
-  const channelCountResult = await db
-    .select()
+  // Channel count
+  const channelCountRows: Array<{ count: number }> = await qb
+    .select({ count: sql<number>`COUNT(*)` })
     .from(channels)
     .where(and(eq(channels.serverId, serverId), isNull(channels.deletedAt)));
-  const channelCount = channelCountResult.length;
+  const channelCount = Number(channelCountRows[0]?.count ?? 0);
 
-  // Get unique participant counts
-  const participantResults = await db
-    .select()
+  // Unique participant counts
+  const participantStatsRows: Array<{ humans: number; bots: number }> = await qb
+    .select({
+      humans: sql<number>`COUNT(DISTINCT CASE WHEN ${threadParticipants.isBot} = 0 THEN ${threadParticipants.userId} END)`,
+      bots: sql<number>`COUNT(DISTINCT CASE WHEN ${threadParticipants.isBot} = 1 THEN ${threadParticipants.userId} END)`,
+    })
     .from(threadParticipants)
     .innerJoin(threads, eq(threadParticipants.threadId, threads.id))
     .where(and(eq(threads.serverId, serverId), isNull(threads.deletedAt)));
 
-  const uniqueHumanParticipants = new Set(
-    participantResults.filter((r) => !r.thread_participants.isBot).map((r) => r.thread_participants.userId)
-  ).size;
-  const uniqueBotParticipants = new Set(
-    participantResults.filter((r) => r.thread_participants.isBot).map((r) => r.thread_participants.userId)
-  ).size;
+  const ps = participantStatsRows[0];
+  const uniqueHumanParticipants = Number(ps?.humans ?? 0);
+  const uniqueBotParticipants = Number(ps?.bots ?? 0);
 
-  // Get reaction stats
-  const reactionResults = await db
-    .select()
+  // Reaction stats
+  const reactionStatsRows: Array<{ total: number; uniqueEmojis: number }> = await qb
+    .select({
+      total: sql<number>`COALESCE(SUM(${reactions.count}), 0)`,
+      uniqueEmojis: sql<number>`COUNT(DISTINCT ${reactions.emoji})`,
+    })
     .from(reactions)
     .innerJoin(messages, eq(reactions.messageId, messages.id))
     .where(and(eq(messages.serverId, serverId), isNull(messages.deletedAt)));
 
-  const totalReactions = reactionResults.reduce((sum, r) => sum + (r.reactions.count ?? 0), 0);
-  const uniqueEmojis = new Set(reactionResults.map((r) => r.reactions.emoji)).size;
+  const rs = reactionStatsRows[0];
+  const totalReactions = Number(rs?.total ?? 0);
+  const uniqueEmojis = Number(rs?.uniqueEmojis ?? 0);
 
-  // Get top 5 contributors (by message count)
-  const contributorMessages = await db
-    .select()
+  // Top 5 contributors - GROUP BY with ORDER BY
+  const topContributorsResult: Array<{
+    userId: string;
+    username: string;
+    avatar: string | null;
+    isBot: boolean | null;
+    consentStatus: string | null;
+    messageCount: number;
+  }> = await qb
+    .select({
+      userId: messages.authorId,
+      username: users.username,
+      avatar: users.avatar,
+      isBot: users.isBot,
+      consentStatus: users.consentStatus,
+      messageCount: sql<number>`COUNT(*)`,
+    })
     .from(messages)
     .innerJoin(users, eq(messages.authorId, users.id))
-    .where(and(eq(messages.serverId, serverId), isNull(messages.deletedAt)));
+    .where(and(eq(messages.serverId, serverId), isNull(messages.deletedAt)))
+    .groupBy(messages.authorId)
+    .orderBy(sql`COUNT(*) DESC`)
+    .limit(10);
 
-  const contributorMap = new Map<string, { user: typeof contributorMessages[0]["users"]; count: number }>();
-  for (const row of contributorMessages) {
-    const authorId = row.messages.authorId;
-    const existing = contributorMap.get(authorId);
-    if (existing) {
-      existing.count++;
-    } else {
-      contributorMap.set(authorId, { user: row.users, count: 1 });
-    }
-  }
-
-  const topContributors = [...contributorMap.entries()]
-    .map(([userId, data]) => ({
-      userId,
-      username: data.user.username,
-      avatar: data.user.avatar,
-      isBot: data.user.isBot,
-      consentStatus: data.user.consentStatus,
-      messageCount: data.count,
-    }))
+  const topContributors = topContributorsResult
     .filter((c) => c.consentStatus !== "private")
-    .sort((a, b) => b.messageCount - a.messageCount)
     .slice(0, 5);
 
-  // Get top 5 most active channels
-  const channelThreads = await db
-    .select()
+  // Top 5 most active channels - GROUP BY with message counts
+  const topChannelsResult: Array<{
+    channelId: string;
+    channelName: string;
+    threadCount: number;
+    messageCount: number;
+  }> = await qb
+    .select({
+      channelId: threads.channelId,
+      channelName: channels.name,
+      threadCount: sql<number>`COUNT(DISTINCT ${threads.id})`,
+      messageCount: sql<number>`COALESCE(SUM(${threads.messageCount}), 0)`,
+    })
     .from(threads)
     .innerJoin(channels, eq(threads.channelId, channels.id))
-    .where(and(eq(threads.serverId, serverId), isNull(threads.deletedAt)));
-
-  const channelStatsMap = new Map<string, { name: string; threadCount: number; messageCount: number }>();
-  for (const row of channelThreads) {
-    const channelId = row.threads.channelId;
-    const existing = channelStatsMap.get(channelId);
-    if (existing) {
-      existing.threadCount++;
-    } else {
-      channelStatsMap.set(channelId, { name: row.channels.name, threadCount: 1, messageCount: 0 });
-    }
-  }
-
-  // Get message counts per channel
-  const channelMessageResults = await db
-    .select()
-    .from(messages)
-    .where(and(eq(messages.serverId, serverId), isNull(messages.deletedAt)));
-
-  for (const row of channelMessageResults) {
-    const channelId = row.channelId;
-    const existing = channelStatsMap.get(channelId);
-    if (existing) {
-      existing.messageCount++;
-    }
-  }
-
-  const topChannels = [...channelStatsMap.entries()]
-    .map(([channelId, stats]) => ({
-      channelId,
-      channelName: stats.name,
-      threadCount: stats.threadCount,
-      messageCount: stats.messageCount,
-    }))
-    .sort((a, b) => b.messageCount - a.messageCount)
-    .slice(0, 5);
+    .where(and(eq(threads.serverId, serverId), isNull(threads.deletedAt)))
+    .groupBy(threads.channelId)
+    .orderBy(sql`SUM(${threads.messageCount}) DESC`)
+    .limit(5);
 
   // Calculate average messages per thread
   const avgMessagesPerThread = totalThreads > 0 ? Math.round(totalMessages / totalThreads) : 0;
@@ -304,8 +279,47 @@ app.get("/:serverId/stats", async (c) => {
       isBot: c.isBot,
       messageCount: c.messageCount,
     })),
-    mostActiveChannels: topChannels,
+    mostActiveChannels: topChannelsResult,
     lastSyncAt: server.lastSyncAt?.toISOString() ?? null,
+  });
+});
+
+// GET /servers/:serverId/events - List scheduled events
+app.get("/:serverId/events", async (c) => {
+  const db = getDb();
+  const serverId = c.req.param("serverId");
+
+  // Verify server exists
+  const serverResult = await db
+    .select()
+    .from(servers)
+    .where(and(eq(servers.id, serverId), eq(servers.isActive, true)))
+    .limit(1);
+
+  if (serverResult.length === 0) {
+    return c.json({ error: "Server not found", code: "NOT_FOUND" }, 404);
+  }
+
+  const eventsList = await db
+    .select()
+    .from(scheduledEvents)
+    .where(eq(scheduledEvents.serverId, serverId))
+    .orderBy(scheduledEvents.scheduledStartTime);
+
+  return c.json({
+    events: eventsList.map((e) => ({
+      id: e.id,
+      name: e.name,
+      description: e.description,
+      scheduledStartTime: e.scheduledStartTime.toISOString(),
+      scheduledEndTime: e.scheduledEndTime?.toISOString() ?? null,
+      entityType: e.entityType,
+      status: e.status,
+      channelId: e.channelId,
+      location: e.location,
+      userCount: e.userCount,
+      image: e.image,
+    })),
   });
 });
 
