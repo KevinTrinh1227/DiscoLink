@@ -1,18 +1,5 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="packages/docs/public/favicon.svg" />
-    <source media="(prefers-color-scheme: light)" srcset="packages/docs/public/favicon.svg" />
-    <img src="packages/docs/public/favicon.svg" alt="DiscoLink" width="80" />
-  </picture>
-</p>
-
-<h1 align="center">DiscoLink</h1>
-
-<p align="center">
-  <b>Turn your Discord forums into a database-backed API. Build FAQ pages, knowledge bases, changelogs, and blogs - entirely free and open source.</b>
-</p>
-
-<p align="center">
+   <a href="https://discolink.site/"><img src="https://github.com/user-attachments/assets/e45ad81d-050a-40da-b7ae-06cd4fc7d332" alt="Stars"></a><br/>
   <a href="https://github.com/KevinTrinh1227/discolink/stargazers"><img src="https://img.shields.io/github/stars/KevinTrinh1227/discolink?style=for-the-badge&logo=github&color=yellow" alt="Stars"></a>
   <a href="https://github.com/KevinTrinh1227/discolink/releases"><img src="https://img.shields.io/github/v/release/KevinTrinh1227/discolink?style=for-the-badge&logo=github&color=blue" alt="Release"></a>
   <a href="https://discolink.site"><img src="https://img.shields.io/badge/Docs-Visit-8B5CF6?style=for-the-badge&logo=gitbook&logoColor=white" alt="Documentation"></a>
